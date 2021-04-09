@@ -7,5 +7,9 @@ namespace CASWebApi.Models
 {
     public class Exam
     {
+        public int ExamId { get; set; }
+        public string Subject { get; set; }
+        public int Duration { get; set; }
+
     }
 }

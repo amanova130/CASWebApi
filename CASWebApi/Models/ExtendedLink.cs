@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
-    public class Extended_Link
+    public class ExtendedLink
     {
+        public int LinkId { get; set; }
+        public string Description { get; set; }
+        public string URL { get; set; }
     }
 }
