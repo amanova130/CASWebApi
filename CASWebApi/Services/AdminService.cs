@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CASWebApi.Models
+namespace CASWebApi.Services
 {
-    public class TestClass
+    public class AdminService
     {
-        //Need to delete it
     }
 }
