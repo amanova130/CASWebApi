@@ -7,5 +7,6 @@ namespace CASWebApi.Models
 {
     public class TestClass
     {
+        //Need to delete it
     }
 }
