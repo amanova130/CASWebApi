@@ -20,35 +20,60 @@ namespace CASWebApi.Controllers
             _studentService = studentService;
         }
 
-        // GET: api/<StudentsController>
         [HttpGet]
-        public List<Student> Get()
+        public ActionResult<List<Student>> Get() =>
+             _studentService.GetAll();
+
+        [HttpGet("{id:length(24)}", Name = "GetStudent")]
+        public ActionResult<Student> Get(string id)
         {
-            return _studentService.Gets();
+            var student = _studentService.GetById(id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return student;
         }
 
-        // GET api/<StudentsController>/5
-        [HttpGet("{id}")]
-        public Student Get(int id)
-        {
-            return _studentService.Get(id);
-        }
-
-        // POST api/<StudentsController>
         [HttpPost]
-        public List<Student> Post([FromBody] Student student)
+        public ActionResult<Student> Create(Student student)
         {
-            return _studentService.Save(student);
+            _studentService.Create(student);
+
+            return CreatedAtRoute("GetStudent", new { id = student.Id }, student);
         }
 
-
-
-
-        // DELETE api/<StudentsController>/5
-        [HttpDelete("{id}")]
-        public List<Student> Delete(int id)
+        [HttpPut("{id:length(24)}")]
+        public IActionResult Update(string id, Student studentIn)
         {
-            return _studentService.Delete(id);
+            var student = _studentService.GetById(id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+            studentIn.Id = id;
+
+            _studentService.Update(id, studentIn);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:length(24)}")]
+        public IActionResult Delete(string id)
+        {
+            var student = _studentService.GetById(id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            _studentService.RemoveById(student.Id);
+
+            return NoContent();
         }
     }
 }

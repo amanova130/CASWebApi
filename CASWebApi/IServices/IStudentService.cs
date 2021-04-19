@@ -8,9 +8,10 @@ namespace CASWebApi.IServices
 {
     public interface IStudentService
     {
-        List<Student> Gets();
-        Student Get(int studentId);
-        List<Student> Save(Student student);
-        List<Student> Delete(int studentId);
+        Student GetById(string studentId);
+        List<Student> GetAll();
+        Student Create(Student student);
+        void Update(string id, Student studentIn);
+        bool RemoveById(string id);
     }
 }

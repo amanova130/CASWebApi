@@ -73,7 +73,7 @@ namespace CASWebApi.Controllers
                 return NotFound();
             }
 
-            _bookService.Remove(book.Id);
+            _bookService.RemoveById(book.Id);
 
             return NoContent();
         }

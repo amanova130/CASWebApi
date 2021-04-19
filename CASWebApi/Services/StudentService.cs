@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,43 +10,44 @@ namespace CASWebApi.Services
 {
     public class StudentService : IStudentService
     {
-        List<Student> _students = new List<Student>();
+        IDbSettings DbContext;
 
-        public StudentService()
+        public StudentService(IDbSettings settings)
         {
-            for(int i=1; i<=9; i++)
-            {
-                _students.Add(new Student()
-                {
-                    StudentId = i,
-                    First_name = "Student" + i,
-                    Last_name = "Stu"+i
-                });
-
-            }
+            DbContext = settings;
         }
-        public List<Student> Delete(int studentId)
-        {
-            _students.RemoveAll(x => x.StudentId == studentId);
-            return _students;
+        //public List<Student> Delete(int studentId)
+        //{
+        //    _students.RemoveAll(x => x.StudentId == studentId);
+        //    return _students;
             
-        }
+        //}
 
-        public Student Get(int studentId)
+        public Student GetById(string studentId)
         {
-            return _students.SingleOrDefault(x => x.StudentId == studentId);
+            return DbContext.GetById<Student>("student", studentId);
         }
 
-        public List<Student> Gets()
+        public List<Student> GetAll()
         {
-            return _students;
+            return DbContext.GetAll<Student>("student");
 
         }
 
-        public List<Student> Save(Student student)
+        public Student Create(Student student)
         {
-            _students.Add(student);
-            return _students;
+            //book.Id = ObjectId.GenerateNewId().ToString();
+            DbContext.Insert<Student>("student", student);
+            return student;
         }
+
+        public void Update(string id, Student studentIn) =>
+          DbContext.Update<Student>("student", id, studentIn);
+
+       // public void Remove(Student studentIn) =>
+            //_books.DeleteOne(book => book.Id == studentIn.Id);
+
+        public bool RemoveById(string id) =>
+            DbContext.RemoveById<Student>("student", id);
     }
 }

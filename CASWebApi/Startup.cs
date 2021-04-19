@@ -37,10 +37,18 @@ namespace CASWebApi
 
 
             //Configuration for Mongo Db
-            services.Configure<DbSettings>(
-            Configuration.GetSection(nameof(DbSettings)));
-            services.AddSingleton<IDbSettings>(sp =>
-                sp.GetRequiredService<IOptions<DbSettings>>().Value);
+            //services.Configure<DbSettings>(
+            //Configuration.GetSection(nameof(DbSettings)));
+            //services.AddSingleton<IDbSettings>(sp =>
+            //    sp.GetRequiredService<IOptions<DbSettings>>().Value);
+            services.Configure<Settings>(options =>
+            {
+                options.ConnectionString
+                    = Configuration.GetSection("MongoConnection:ConnectionString").Value;
+                options.Database
+                    = Configuration.GetSection("MongoConnection:DatabaseName").Value;
+            });
+            services.AddSingleton<IDbSettings, DbSettings>();
 
             //Adding Swagger Generator
             services.AddSwaggerGen(c =>

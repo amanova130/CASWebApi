@@ -1,4 +1,4 @@
-﻿using CASWebApi.Models.DbModels;
+﻿using CASWebApi.IServices;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -12,36 +12,38 @@ namespace CASWebApi.Services
     public class BookService
     {
         private readonly IMongoCollection<Books> _books;
+        IDbSettings DbContext;
 
         public BookService(IDbSettings settings)
         {
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-
-            _books = database.GetCollection<Books>(nameof(Books));
+            DbContext = settings;
+            _books = DbContext.database.GetCollection<Books>(nameof(Books));
         }
 
-        public List<Books> Get() =>
-            _books.Find(book => true).ToList();
+        public List<Books> Get()
+        {
+           return DbContext.GetAll<Books>("Books");
+        }
+
 
         public Books Get(string id) =>
-            _books.Find<Books>(book => book.Id == id).FirstOrDefault();
+           DbContext.GetById<Books>("Books", id);
+      
 
         public Books Create(Books book)
         {
-
             book.Id= ObjectId.GenerateNewId().ToString();
-            _books.InsertOne(book);
+            DbContext.Insert<Books>("Books", book);
             return book;
         }
 
         public void Update(string id, Books bookIn) =>
-            _books.ReplaceOne(book => book.Id == id, bookIn);
+            DbContext.Update<Books>("Books", id, bookIn);
 
         public void Remove(Books bookIn) =>
             _books.DeleteOne(book => book.Id == bookIn.Id);
 
-        public void Remove(string id) =>
-            _books.DeleteOne(book => book.Id == id);
+        public bool RemoveById(string id) =>
+            DbContext.RemoveById<Books>("Books", id);
     }
 }
