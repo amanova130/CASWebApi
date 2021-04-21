@@ -33,6 +33,13 @@ namespace CASWebApi
             services.AddMvc();
             //Services:
             services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<ITeacherService, TeacherService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<IFacultyService, FacultyService>();
+
             services.AddSingleton<BookService>();
 
 
