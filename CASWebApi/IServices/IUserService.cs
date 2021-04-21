@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
-   public interface ITeacherService
+    public interface IUserService
     {
-        Teacher GetById(string teacherId);
-        List<Teacher> GetAll();
-        Teacher Create(Teacher teacher);
-        void Update(string id, Teacher teacherIn);
+        User GetById(string teacherId);
+        List<User> GetAll();
+        User Create(User user);
+        void Update(string id, User userIn);
         bool RemoveById(string id);
     }
 }

@@ -11,6 +11,7 @@ namespace CASWebApi.Models
     public class Student
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        //[BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
