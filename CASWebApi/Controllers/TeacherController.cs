@@ -12,10 +12,10 @@ namespace CASWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class teachersController : ControllerBase
+    public class TeacherController : ControllerBase
     {
         ITeacherService _teacherService;
-        public teachersController(ITeacherService teacherService)
+        public TeacherController(ITeacherService teacherService)
         {
             _teacherService = teacherService;
         }

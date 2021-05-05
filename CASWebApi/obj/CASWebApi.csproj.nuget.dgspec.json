@@ -1,25 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sshil\\Source\\Repos\\CASWebApi\\CASWebApi\\CASWebApi.csproj": {}
+    "C:\\Users\\Aigerim\\Desktop\\Web learning\\CASWebApi\\CASWebApi\\CASWebApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sshil\\Source\\Repos\\CASWebApi\\CASWebApi\\CASWebApi.csproj": {
+    "C:\\Users\\Aigerim\\Desktop\\Web learning\\CASWebApi\\CASWebApi\\CASWebApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sshil\\Source\\Repos\\CASWebApi\\CASWebApi\\CASWebApi.csproj",
+        "projectUniqueName": "C:\\Users\\Aigerim\\Desktop\\Web learning\\CASWebApi\\CASWebApi\\CASWebApi.csproj",
         "projectName": "CASWebApi",
-        "projectPath": "C:\\Users\\sshil\\Source\\Repos\\CASWebApi\\CASWebApi\\CASWebApi.csproj",
-        "packagesPath": "C:\\Users\\sshil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sshil\\Source\\Repos\\CASWebApi\\CASWebApi\\obj\\",
+        "projectPath": "C:\\Users\\Aigerim\\Desktop\\Web learning\\CASWebApi\\CASWebApi\\CASWebApi.csproj",
+        "packagesPath": "C:\\Users\\Aigerim\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Aigerim\\Desktop\\Web learning\\CASWebApi\\CASWebApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\sshil\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Aigerim\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -32,7 +31,6 @@
         },
         "frameworks": {
           "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
             "projectReferences": {}
           }
         },
@@ -44,7 +42,6 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
           "dependencies": {
             "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
               "target": "Package",
@@ -93,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.403\\RuntimeIdentifierGraph.json"
         }
       }
     }

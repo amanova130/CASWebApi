@@ -13,10 +13,10 @@ namespace CASWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminsController : ControllerBase
+    public class AdminController : ControllerBase
     {
         IAdminService _adminService;
-        public AdminsController(IAdminService adminService)
+        public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
         }
