@@ -10,5 +10,8 @@ namespace CASWebApi.Models
         public int LinkId { get; set; }
         public string Description { get; set; }
         public string URL { get; set; }
+
+        public string Fac_name { get; set; }
+        public string Image { get; set; }
     }
 }

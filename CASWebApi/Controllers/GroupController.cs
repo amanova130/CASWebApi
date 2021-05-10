@@ -13,10 +13,10 @@ namespace CASWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GroupsController : ControllerBase
+    public class GroupController : ControllerBase
     {
         IGroupService _groupService;
-        public GroupsController(IGroupService groupService)
+        public GroupController(IGroupService groupService)
         {
             _groupService = groupService;
         }

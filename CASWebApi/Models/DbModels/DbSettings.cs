@@ -41,6 +41,9 @@ namespace CASWebApi.Models.DbModels
         public List<T> GetAll<T>(string collectionName)
         {
             var collection = database.GetCollection<T>(collectionName);
+            /*var filter = Builders<T>.Filter.Eq("status", true);
+
+            return collection.Find(filter).ToList();*/
             return collection.Find(new BsonDocument()).ToList();
         }
 
@@ -59,7 +62,7 @@ namespace CASWebApi.Models.DbModels
             {
                 var i = false;
             }
-            var filter = Builders<T>.Filter.Eq("_id", objectId);
+            var filter = Builders<T>.Filter.Eq("_id", id);
 
             return collection.Find<T>(filter).FirstOrDefault();
         }
