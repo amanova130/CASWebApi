@@ -13,10 +13,10 @@ namespace CASWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FacultiesController : ControllerBase
+    public class FacultyController : ControllerBase
     {
         IFacultyService _facultyService;
-        public FacultiesController(IFacultyService facultiesService)
+        public FacultyController(IFacultyService facultiesService)
         {
             _facultyService = facultiesService;
         }

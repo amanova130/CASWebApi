@@ -14,11 +14,12 @@ namespace CASWebApi.Models
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
-        [BsonElement("fac_id")]
-        public string FacultyId { get; set; }
         [BsonElement("fac_name")]
         public string FacultyName { get; set; }
         public string Description { get; set; }
-       
+        [BsonElement("status")]
+
+        public bool Status { get; set; }
+
     }
 }

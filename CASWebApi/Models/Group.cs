@@ -15,9 +15,7 @@ namespace CASWebApi.Models
         [BsonIgnoreIfDefault]
         [BsonElement("id")]
         public string Id { get; set; }
-       
-        [BsonElement("group_id")]
-        public string GroupId { get; set; }
+
         [BsonElement("num_group")]
         public string GroupNumber { get; set; }
         [BsonElement("num_of_students")]
@@ -29,6 +27,15 @@ namespace CASWebApi.Models
         [BsonElement("semester")]
 
         public int Semester { get; set; }
+        [BsonElement("courses")]
+
+        public string[] courses { get; set; }
+        [BsonElement("fac_id")]
+
+        public string Fac_Id {get;set;}
+        [BsonElement("status")]
+
+        public bool Status { get; set; }
 
        
 

@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using CASWebApi.Models.DbModels;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using System;
@@ -10,12 +11,13 @@ namespace CASWebApi.Models
 {
     public class Student
     {
-        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-        //[BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        //[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonId]
+        // [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
+        // [BsonElement("_id")]
         public string Id { get; set; }
-        public string s_id { get; set; }
+        //  public string s_id { get; set; }
 
         [BsonElement("f_name")]
         public string First_name { get; set; }
@@ -36,7 +38,25 @@ namespace CASWebApi.Models
         public DateTime Birth_date { get; set; }
 
         [BsonElement("class_num")]
-        public string ClassNum { get; set;}
+        public string ClassNum { get; set; }
+
+        [BsonElement("Address")]
+        public AddressBook[] Address { get; set; }
+        
+        [BsonElement("status")]
+        public bool Status { get; set; }
+
+        [BsonElement("group")]
+        public string Group_Id { get; set; }
+
+        [BsonElement("user")]
+        public User PersonalUser { get; set; }
+
+        [BsonElement("stud_exam")]
+        public StudExam[] Grades { get; set; }
+        
+        
+
 
     }
 }

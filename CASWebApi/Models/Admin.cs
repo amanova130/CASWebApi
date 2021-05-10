@@ -15,6 +15,7 @@ namespace CASWebApi.Models
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
         [BsonElement("admin_id")]
+        public User user { get; set; }
 
         public int AdminId { get; set; }
         [BsonElement("f_name")]

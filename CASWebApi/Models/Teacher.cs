@@ -32,7 +32,13 @@ namespace CASWebApi.Models
         [BsonElement("birth_date")]
 
         public DateTime BirthDate { get; set; }
-        public string ClassNum { get; set; }
+        [BsonElement("teachesCourses")]
+
+        public string[] TeachesCourses { get; set; }
+        [BsonElement("status")]
+
+        public bool Status { get; set; }
+
 
     }
 }

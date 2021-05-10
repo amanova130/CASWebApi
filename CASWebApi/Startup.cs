@@ -39,6 +39,8 @@ namespace CASWebApi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IFacultyService, FacultyService>();
+            services.AddScoped<IExamService, ExamService>();
+
 
             services.AddSingleton<BookService>();
 
