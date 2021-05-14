@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,6 @@ namespace CASWebApi.Services
 
         public Student Create(Student student)
         {
-            //book.Id = ObjectId.GenerateNewId().ToString();
             DbContext.Insert<Student>("student", student);
             return student;
         }

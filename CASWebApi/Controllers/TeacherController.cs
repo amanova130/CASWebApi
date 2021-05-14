@@ -24,7 +24,7 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Teacher>> Get() =>
              _teacherService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetTeacher")]
+        [HttpGet("{id:length(9)}", Name = "GetTeacher")]
         public ActionResult<Teacher> Get(string id)
         {
             var teacher = _teacherService.GetById(id);
@@ -45,7 +45,7 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("GetTeacher", new { id = teacher.Id }, teacher);
         }
 
-        [HttpPut("{id:length(24)}")]
+        [HttpPut("{id:length(9)}")]
         public IActionResult Update(string id, Teacher teacherIn)
         {
             var teacher = _teacherService.GetById(id);
@@ -61,7 +61,7 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
+        [HttpDelete("{id:length(9)}")]
         public IActionResult Delete(string id)
         {
             var teacher = _teacherService.GetById(id);

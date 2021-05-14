@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +9,9 @@ namespace CASWebApi.Models
 {
     public class ExtendedLink
     {
-        public int LinkId { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonIgnoreIfDefault]
+        public string Id { get; set; }
         public string Description { get; set; }
         public string URL { get; set; }
 

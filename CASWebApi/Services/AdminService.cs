@@ -36,7 +36,6 @@ namespace CASWebApi.Services
 
         public Admin Create(Admin admin)
         {
-            //book.Id = ObjectId.GenerateNewId().ToString();
             DbContext.Insert<Admin>("admin", admin);
             return admin;
         }

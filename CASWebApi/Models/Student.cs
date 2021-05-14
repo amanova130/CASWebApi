@@ -11,13 +11,11 @@ namespace CASWebApi.Models
 {
     public class Student
     {
-        //[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+       
         [BsonId]
-        // [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
         // [BsonElement("_id")]
         public string Id { get; set; }
-        //  public string s_id { get; set; }
 
         [BsonElement("f_name")]
         public string First_name { get; set; }
@@ -40,7 +38,7 @@ namespace CASWebApi.Models
         [BsonElement("class_num")]
         public string ClassNum { get; set; }
 
-        [BsonElement("Address")]
+        [BsonElement("address")]
         public AddressBook[] Address { get; set; }
         
         [BsonElement("status")]

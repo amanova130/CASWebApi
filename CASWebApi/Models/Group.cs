@@ -11,7 +11,6 @@ namespace CASWebApi.Models
     public class Group
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-        [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
         [BsonElement("id")]
         public string Id { get; set; }

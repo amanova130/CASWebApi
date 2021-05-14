@@ -11,7 +11,6 @@ namespace CASWebApi.Models
     public class Faculty
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-        [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
         [BsonElement("fac_name")]

@@ -31,7 +31,7 @@ namespace CASWebApi.Services
 
         public Teacher Create(Teacher teacher)
         {
-            //book.Id = ObjectId.GenerateNewId().ToString();
+            
             DbContext.Insert<Teacher>("teachers", teacher);
             return teacher;
         }

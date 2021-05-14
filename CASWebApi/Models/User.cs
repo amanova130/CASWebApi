@@ -10,10 +10,8 @@ namespace CASWebApi.Models
 {
     public class User
     {
-        [BsonId]
-
-        //[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-       // [BsonRepresentation(BsonType.ObjectId)]
+      
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
         //[BsonElement("user_id")]
