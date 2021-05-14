@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace CASWebApi.Services
 
         public Exam Create(Exam exam)
         {
-            //book.Id = ObjectId.GenerateNewId().ToString();
+           exam.Id = ObjectId.GenerateNewId().ToString();
             DbContext.Insert<Exam>("examination", exam);
             return exam;
         }

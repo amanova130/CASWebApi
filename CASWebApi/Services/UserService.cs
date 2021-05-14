@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace CASWebApi.Services
 
         public User Create(User user)
         {
-            //book.Id = ObjectId.GenerateNewId().ToString();
+            user.Id = ObjectId.GenerateNewId().ToString();
             DbContext.Insert<User>("user", user);
             return user;
         }

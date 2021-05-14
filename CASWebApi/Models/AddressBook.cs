@@ -8,9 +8,9 @@ namespace CASWebApi.Models
 {
     public class AddressBook
     {
-        [BsonElement("address")]
+        [BsonElement("street")]
 
-        public string Address{ get; set; }
+        public string Street{ get; set; }
         [BsonElement("city")]
 
         public string City{ get; set; }

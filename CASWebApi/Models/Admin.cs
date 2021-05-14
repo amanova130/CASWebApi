@@ -10,25 +10,38 @@ namespace CASWebApi.Models
 {
     public class Admin
     {
-        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-        [BsonRepresentation(BsonType.ObjectId)]
+
+        [BsonId]
         [BsonIgnoreIfDefault]
+        // [BsonElement("_id")]
         public string Id { get; set; }
-        [BsonElement("admin_id")]
-        public User user { get; set; }
 
-        public int AdminId { get; set; }
         [BsonElement("f_name")]
-        public string FirstName { get; set; }
-      
-        [BsonElement("l_name")]
-        public string LastName { get; set; }
-        [BsonElement("email")]
+        public string First_name { get; set; }
 
+        [BsonElement("l_name")]
+        public string Last_name { get; set; }
+
+        [BsonElement("email")]
         public string Email { get; set; }
+
+        [BsonElement("phone")]
         public string Phone { get; set; }
+
+        [BsonElement("gender")]
         public string Gender { get; set; }
-        public DateTime BirthDate { get; set; }
-        
+
+        [BsonElement("birth_date")]
+        public DateTime Birth_date { get; set; }
+
+        [BsonElement("address")]
+        public AddressBook[] Address { get; set; }
+
+        [BsonElement("status")]
+        public bool Status { get; set; }
+
+        [BsonElement("user")]
+        public User PersonalUser { get; set; }
+
     }
 }
