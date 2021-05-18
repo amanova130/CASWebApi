@@ -35,6 +35,12 @@ namespace CASWebApi.Services
 
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="faculty"></param>
+        /// <returns></returns>
         public Faculty Create(Faculty faculty)
         {
             faculty.Id = ObjectId.GenerateNewId().ToString();
