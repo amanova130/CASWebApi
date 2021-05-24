@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
-    interface IExtendedLinkService
+   public interface IExtendedLinkService
     {
     }
 }

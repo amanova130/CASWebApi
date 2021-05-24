@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +9,25 @@ namespace CASWebApi.Models
 {
     public class Message
     {
-        [BsonId]
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonIgnoreIfDefault]
+        [BsonElement("id")]
         public string Id { get; set; }
+        [BsonElement("description")]
+
         public string Description { get; set; }
+        [BsonElement("receiver_id")]
+
         public string Receiver { get; set; }
+        [BsonElement("sender_id")]
+
         public string Sender { get; set; }
+        [BsonElement("dateTime")]
+
         public DateTime DateTime { get; set; }
+        [BsonElement("status")]
+
+        public bool status { get; set; }
     }
 
 }

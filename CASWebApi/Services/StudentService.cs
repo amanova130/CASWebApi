@@ -27,27 +27,31 @@ namespace CASWebApi.Services
         public Student GetById(string studentId)
         {
             return DbContext.GetById<Student>("student", studentId);
+            
         }
 
         public List<Student> GetAll()
         {
-            return DbContext.GetAll<Student>("student");
+             return DbContext.GetAll<Student>("student");
+            
 
         }
 
-        public Student Create(Student student)
+        public bool Create(Student student)
         {
-            DbContext.Insert<Student>("student", student);
-            return student;
+           bool res= DbContext.Insert<Student>("student", student);
+            return res;
         }
 
         public void Update(string id, Student studentIn) =>
           DbContext.Update<Student>("student", id, studentIn);
 
-       // public void Remove(Student studentIn) =>
-            //_books.DeleteOne(book => book.Id == studentIn.Id);
+        // public void Remove(Student studentIn) =>
+        //_books.DeleteOne(book => book.Id == studentIn.Id);
 
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Student>("student", id);
+        public bool RemoveById(string id)
+        {
+           return DbContext.RemoveById<Student>("student", id);     
+        }
     }
 }

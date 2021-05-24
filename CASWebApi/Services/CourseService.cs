@@ -35,20 +35,29 @@ namespace CASWebApi.Services
 
         }
 
-        public Course Create(Course course)
+        public bool Create(Course course)
         {
             course.Id = ObjectId.GenerateNewId().ToString();
-            DbContext.Insert<Course>("course", course);
-            return course;
+            bool res=DbContext.Insert<Course>("course", course);
+            return res;
         }
 
         public void Update(string id, Course courseIn) =>
           DbContext.Update<Course>("course", id, courseIn);
 
-        // public void Remove(Student studentIn) =>
-        //_books.DeleteOne(book => book.Id == studentIn.Id);
+       
 
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Course>("course", id);
+        public bool RemoveById(string id)
+        {
+            //DbContext.GetById<Course>("course",id);
+            bool res= DbContext.RemoveById<Course>("course", id);
+            if (res)
+            {
+                DbContext.PullElement<Course>("faculty", "courses", id);
+                DbContext.PullElement<Course>("group", "courses", id);
+            }
+            return res;
+           
+        }
     }
 }

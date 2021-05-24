@@ -41,7 +41,8 @@ namespace CASWebApi.Controllers
         [HttpPost]
         public ActionResult<Faculty> Create(Faculty faculty)
         {
-            _facultyService.Create(faculty);
+            if(!(_facultyService.Create(faculty)))
+                return NotFound();
 
             return CreatedAtRoute("GetFaculty", new { id = faculty.Id }, faculty);
         }
@@ -67,14 +68,9 @@ namespace CASWebApi.Controllers
         {
             var faculty = _facultyService.GetById(id);
 
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            _facultyService.RemoveById(faculty.Id);
-
-            return NoContent();
+            if (faculty != null && _facultyService.RemoveById(faculty.Id))
+                return NoContent();
+            return NotFound();
         }
     }
 }

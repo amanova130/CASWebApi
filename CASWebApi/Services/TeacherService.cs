@@ -29,11 +29,11 @@ namespace CASWebApi.Services
 
         }
 
-        public Teacher Create(Teacher teacher)
+        public bool Create(Teacher teacher)
         {
             
-            DbContext.Insert<Teacher>("teachers", teacher);
-            return teacher;
+            bool res = DbContext.Insert<Teacher>("teachers", teacher);
+            return res;
         }
 
         public void Update(string id, Teacher teacherIn) =>

@@ -16,8 +16,16 @@ namespace CASWebApi.Models.DbModels
 
         public DbSettings(IOptions<Settings> settings)
         {
-            var client = new MongoClient(settings.Value.ConnectionString);
-            database = client.GetDatabase(settings.Value.Database);
+            try
+            {
+                var client = new MongoClient(settings.Value.ConnectionString);
+                database = client.GetDatabase(settings.Value.Database);
+            }
+            catch(Exception e)
+            {
+                throw; 
+            }
+           // database = client.GetDatabase(settings.Value.Database);
         }
 
         /// <summary>
@@ -26,10 +34,21 @@ namespace CASWebApi.Models.DbModels
         /// <typeparam name="T"></typeparam>
         /// <param name="collectionName"></param>
         /// <param name="document">A new document that we need to insert into DB </param>
-        public void Insert<T>(string collectionName, T document)
+        public bool Insert<T>(string collectionName, T document)
         {
+            bool res = true;
             var collection = database.GetCollection<T>(collectionName);
-            collection.InsertOne(document);
+           
+            try
+            {
+                collection.InsertOne(document);
+            }
+            catch(Exception e)
+            {
+                res = false;
+            }
+            
+                return res;
         }
 
         /// <summary>
@@ -44,7 +63,53 @@ namespace CASWebApi.Models.DbModels
             var filter = Builders<T>.Filter.Eq("status", true);
 
             return collection.Find(filter).ToList();
-            //return collection.Find(new BsonDocument()).ToList();
+        }
+        /// <summary>
+        ///  Get all documents in given collection with specific filter
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public List<T> GetByFilter<T>(string collectionName,string fieldName,string value)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status",true);
+
+            return collection.Find(filter).ToList();
+        }
+        /// <summary>
+        /// Function to delete the given key and it's value,in given collection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool RemoveField<T>(string collectionName,string fieldName,string id)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, id);
+            var update = Builders<T>.Update.Unset(fieldName);
+            collection.UpdateManyAsync(filter, update);
+            return true;
+        }
+        /// <summary>
+        /// removes a specific element from an array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool PullElement<T>(string collectionName, string fieldName, string id)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, id);
+            var update = Builders<T>.Update.Pull(fieldName,id);
+            collection.UpdateManyAsync(filter, update);
+            return true;
         }
 
         /// <summary>
@@ -57,7 +122,7 @@ namespace CASWebApi.Models.DbModels
         public T GetById<T>(string collectionName, string id)
         {
             var collection = database.GetCollection<T>(collectionName);
-            var filter = Builders<T>.Filter.Eq("_id", id);
+            var filter = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
             return collection.Find<T>(filter).FirstOrDefault();
         }
 
@@ -72,7 +137,7 @@ namespace CASWebApi.Models.DbModels
         public bool Update<T>(string collectionName, string id, T document)
         {
             var collection = database.GetCollection<T>(collectionName);
-            var filterId = Builders<T>.Filter.Eq("_id", id);
+            var filterId = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
             var updated = collection.FindOneAndReplace(filterId, document);
             return updated != null;
         }
@@ -105,10 +170,12 @@ namespace CASWebApi.Models.DbModels
         public bool RemoveById<T>(string collectionName, string id)
         {
             var collection = database.GetCollection<T>(collectionName);
-          
             var filter = Builders<T>.Filter.Eq("_id", id);
-            collection.DeleteOne(filter);
-            return true;
+            var update = Builders<T>.Update.Set("status", false);        
+            var updated=collection.UpdateOne(filter, update);
+            return updated != null;
+           
+
         }
 
 

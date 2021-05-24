@@ -10,7 +10,7 @@ namespace CASWebApi.IServices
     {
         Teacher GetById(string teacherId);
         List<Teacher> GetAll();
-        Teacher Create(Teacher teacher);
+        bool Create(Teacher teacher);
         void Update(string id, Teacher teacherIn);
         bool RemoveById(string id);
     }

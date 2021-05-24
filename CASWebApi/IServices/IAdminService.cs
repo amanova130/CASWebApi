@@ -10,8 +10,8 @@ namespace CASWebApi.IServices
     {
         Admin GetById(string adminId);
         List<Admin> GetAll();
-        Admin Create(Admin admin);
-        void Update(string id, Admin adminIn);
+        bool Create(Admin admin);
+        bool Update(string id, Admin adminIn);
         bool RemoveById(string id);
     }
 }

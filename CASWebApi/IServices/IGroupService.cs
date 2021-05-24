@@ -10,7 +10,7 @@ namespace CASWebApi.IServices
     {
         Group GetById(string groupId);
         List<Group> GetAll();
-        Group Create(Group group);
+        bool Create(Group group);
         void Update(string id, Group groupIn);
         bool RemoveById(string id);
     }

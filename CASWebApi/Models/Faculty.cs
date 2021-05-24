@@ -16,6 +16,9 @@ namespace CASWebApi.Models
         [BsonElement("fac_name")]
         public string FacultyName { get; set; }
         public string Description { get; set; }
+        [BsonElement("courses")]
+
+        public string[] courses { get; set; }
         [BsonElement("status")]
 
         public bool Status { get; set; }

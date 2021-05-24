@@ -35,11 +35,11 @@ namespace CASWebApi.Services
 
         }
 
-        public Faculty Create(Faculty faculty)
+        public bool Create(Faculty faculty)
         {
             faculty.Id = ObjectId.GenerateNewId().ToString();
-            DbContext.Insert<Faculty>("faculty", faculty);
-            return faculty;
+            bool res=DbContext.Insert<Faculty>("faculty", faculty);
+            return res;
         }
 
         public void Update(string id, Faculty facultyIn) =>
@@ -48,7 +48,13 @@ namespace CASWebApi.Services
         // public void Remove(Student studentIn) =>
         //_books.DeleteOne(book => book.Id == studentIn.Id);
 
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Faculty>("faculty", id);
+        public bool RemoveById(string id)
+        {
+            bool res=DbContext.RemoveById<Faculty>("faculty", id);
+           if(res)
+             DbContext.RemoveField<Faculty>("group","fac_id",id);
+            return res;
+            
+        }
+        }
     }
-}

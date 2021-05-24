@@ -42,7 +42,7 @@ namespace CASWebApi.Services
         // public void Remove(Student studentIn) =>
         //_books.DeleteOne(book => book.Id == studentIn.Id);
 
-        public bool RemoveById(string id) =>
+        public void RemoveById(string id) =>
             DbContext.RemoveById<User>("user", id);
     }
 }

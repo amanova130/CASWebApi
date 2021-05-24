@@ -42,7 +42,7 @@ namespace CASWebApi.Controllers
         {
             _userService.Create(user);
 
-            return CreatedAtRoute("GetTeacher", new { id = user.Id }, user);
+            return CreatedAtRoute("GetUser", new { id = user.Id }, user);
         }
 
         [HttpPut("{id:length(24)}")]

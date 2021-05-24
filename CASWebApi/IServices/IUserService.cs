@@ -12,6 +12,6 @@ namespace CASWebApi.IServices
         List<User> GetAll();
         User Create(User user);
         void Update(string id, User userIn);
-        bool RemoveById(string id);
+        void RemoveById(string id);
     }
 }

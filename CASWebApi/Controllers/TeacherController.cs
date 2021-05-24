@@ -40,8 +40,8 @@ namespace CASWebApi.Controllers
         [HttpPost]
         public ActionResult<Teacher> Create(Teacher teacher)
         {
-            _teacherService.Create(teacher);
-
+           if(!( _teacherService.Create(teacher)))
+                return NotFound("duplicated id or wrong id format");
             return CreatedAtRoute("GetTeacher", new { id = teacher.Id }, teacher);
         }
 
@@ -66,14 +66,9 @@ namespace CASWebApi.Controllers
         {
             var teacher = _teacherService.GetById(id);
 
-            if (teacher == null)
-            {
-                return NotFound();
-            }
-
-            _teacherService.RemoveById(teacher.Id);
-
-            return NoContent();
+            if (teacher != null && _teacherService.RemoveById(teacher.Id))
+                return NoContent();
+            return NotFound();
         }
     }
 }
