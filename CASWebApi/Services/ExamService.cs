@@ -35,11 +35,11 @@ namespace CASWebApi.Services
 
         }
 
-        public Exam Create(Exam exam)
+        public bool Create(Exam exam)
         {
            exam.Id = ObjectId.GenerateNewId().ToString();
-            DbContext.Insert<Exam>("examination", exam);
-            return exam;
+           bool res= DbContext.Insert<Exam>("examination", exam);
+            return res;
         }
 
         public void Update(string id, Exam examIn) =>

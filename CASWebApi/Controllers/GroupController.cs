@@ -67,14 +67,9 @@ namespace CASWebApi.Controllers
         {
             var group = _groupService.GetById(id);
 
-            if (group == null)
-            {
-                return NotFound();
-            }
-
-            _groupService.RemoveById(group.Id);
-
-            return NoContent();
+            if (group != null && _groupService.RemoveById(group.Id))
+                return NoContent();
+            return NotFound();
         }
     }
 }

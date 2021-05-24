@@ -17,13 +17,7 @@ namespace CASWebApi.Services
         {
             DbContext = settings;
         }
-        //public List<Student> Delete(int studentId)
-        //{
-        //    _students.RemoveAll(x => x.StudentId == studentId);
-        //    return _students;
-
-        //}
-
+     
         public Group GetById(string groupId)
         {
             return DbContext.GetById<Group>("group", groupId);
@@ -35,20 +29,22 @@ namespace CASWebApi.Services
 
         }
 
-        public Group Create(Group group)
+        public bool Create(Group group)
         {
             group.Id = ObjectId.GenerateNewId().ToString();
-            DbContext.Insert<Group>("group", group);
-            return group;
+            bool res = DbContext.Insert<Group>("group", group);
+            return res;
         }
 
         public void Update(string id, Group groupIn) =>
           DbContext.Update<Group>("group", id, groupIn);
 
-        // public void Remove(Student studentIn) =>
-        //_books.DeleteOne(book => book.Id == studentIn.Id);
-
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Group>("group", id);
+        public bool RemoveById(string id)
+        {
+            bool res=DbContext.RemoveById<Group>("group", id);  
+            if(res)
+             DbContext.RemoveField<Group>("student", "group", id);
+            return res;
+        }
     }
 }

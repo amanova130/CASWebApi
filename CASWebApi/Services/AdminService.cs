@@ -34,14 +34,14 @@ namespace CASWebApi.Services
 
         }
 
-        public Admin Create(Admin admin)
+        public bool Create(Admin admin)
         {
-            DbContext.Insert<Admin>("admin", admin);
-            return admin;
+            bool res=DbContext.Insert<Admin>("admin", admin);
+            return res;
         }
 
-        public void Update(string id, Admin adminIn) =>
-          DbContext.Update<Admin>("admin", id, adminIn);
+        public bool Update(string id, Admin adminIn) =>
+         DbContext.Update<Admin>("admin", id, adminIn);
 
         // public void Remove(Student studentIn) =>
         //_books.DeleteOne(book => book.Id == studentIn.Id);

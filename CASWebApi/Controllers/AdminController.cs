@@ -41,9 +41,9 @@ namespace CASWebApi.Controllers
         [HttpPost]
         public ActionResult<Admin> Create(Admin admin)
         {
-            _adminService.Create(admin);
-
-            return CreatedAtRoute("GetStudent", new { id = admin.Id }, admin);
+            if (!(_adminService.Create(admin)))
+                return NotFound("duplicated id or wrong id format");
+            return CreatedAtRoute("GetAdmin", new { id = admin.Id }, admin);
         }
 
         [HttpPut("{id:length(9)}")]
@@ -57,7 +57,8 @@ namespace CASWebApi.Controllers
             }
             adminIn.Id = id;
 
-            _adminService.Update(id, adminIn);
+            if (!(_adminService.Update(id, adminIn)))
+                 return NotFound();
 
             return NoContent();
         }
@@ -66,15 +67,18 @@ namespace CASWebApi.Controllers
         public IActionResult Delete(string id)
         {
             var admin = _adminService.GetById(id);
+            if (admin != null && _adminService.RemoveById(admin.Id))
+                return NoContent();
+            return NotFound();
 
-            if (admin == null)
+           /* if (admin == null)
             {
                 return NotFound();
             }
 
-            _adminService.RemoveById(admin.Id);
-
-            return NoContent();
+           if(!( _adminService.RemoveById(admin.Id)))
+                 return NotFound();
+           return NoContent();*/
         }
     }
 }
