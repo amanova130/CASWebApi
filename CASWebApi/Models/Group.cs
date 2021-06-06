@@ -32,6 +32,9 @@ namespace CASWebApi.Models
         [BsonElement("fac_id")]
 
         public string Fac_Id {get;set;}
+        
+
+
         [BsonElement("status")]
 
         public bool Status { get; set; }
