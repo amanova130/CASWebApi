@@ -31,18 +31,25 @@ namespace CASWebApi.Services
 
         public bool Create(Teacher teacher)
         {
-            
+            teacher.Status = true;
             bool res = DbContext.Insert<Teacher>("teachers", teacher);
             return res;
         }
 
-        public void Update(string id, Teacher teacherIn) =>
-          DbContext.Update<Teacher>("teachers", id, teacherIn);
+        public bool Update(string id, Teacher teacherIn)
+        {
+            return DbContext.Update<Teacher>("teachers", id, teacherIn);
+        }
+          
 
         // public void Remove(Student studentIn) =>
         //_books.DeleteOne(book => book.Id == studentIn.Id);
 
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Teacher>("teachers", id);
+        public bool RemoveById(string id)
+        {
+            var deleted = DbContext.RemoveById<Teacher>("teachers", id);
+            return deleted;
+        }
+            
     }
 }

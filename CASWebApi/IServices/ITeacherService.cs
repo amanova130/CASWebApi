@@ -11,7 +11,7 @@ namespace CASWebApi.IServices
         Teacher GetById(string teacherId);
         List<Teacher> GetAll();
         bool Create(Teacher teacher);
-        void Update(string id, Teacher teacherIn);
+        bool Update(string id, Teacher teacherIn);
         bool RemoveById(string id);
     }
 }
