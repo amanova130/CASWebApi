@@ -17,8 +17,6 @@ namespace CASWebApi.Models
         [BsonElement("zip_code")]
 
         public int ZipCode { get; set; }
-        [BsonElement("status")]
 
-        public bool Status { get; set; }
     }
 }

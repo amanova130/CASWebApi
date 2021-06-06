@@ -21,7 +21,7 @@ namespace CASWebApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Teacher>> Get() =>
+        public  ActionResult<List<Teacher>> Get() =>
              _teacherService.GetAll();
 
         [HttpGet("{id:length(9)}", Name = "GetTeacher")]
@@ -48,6 +48,7 @@ namespace CASWebApi.Controllers
         [HttpPut("{id:length(9)}")]
         public IActionResult Update(string id, Teacher teacherIn)
         {
+            bool updated = false;
             var teacher = _teacherService.GetById(id);
 
             if (teacher == null)
@@ -56,9 +57,9 @@ namespace CASWebApi.Controllers
             }
             teacherIn.Id = id;
 
-            _teacherService.Update(id, teacherIn);
-
-            return NoContent();
+            updated = _teacherService.Update(id, teacherIn);
+        
+            return Ok(updated);
         }
 
         [HttpDelete("{id:length(9)}")]
@@ -67,8 +68,8 @@ namespace CASWebApi.Controllers
             var teacher = _teacherService.GetById(id);
 
             if (teacher != null && _teacherService.RemoveById(teacher.Id))
-                return NoContent();
-            return NotFound();
+                return Ok(true);
+            return NotFound(false);
         }
     }
 }
