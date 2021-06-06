@@ -20,6 +20,8 @@ namespace CASWebApi
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,11 +43,26 @@ namespace CASWebApi
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<ITimeTableService, TimeTableService>();
+            services.AddScoped<IEventService, EventService>();
+
+
 
 
 
             services.AddSingleton<BookService>();
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins("http://localhost:53135",
+                                        "http://localhost:4200"
+                                        )
+                                        .AllowAnyHeader()
+                                        .AllowAnyMethod();
+                });
+            });
 
             //Configuration for Mongo Db
             //services.Configure<DbSettings>(
@@ -94,6 +111,7 @@ namespace CASWebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 

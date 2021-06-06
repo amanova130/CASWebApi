@@ -39,7 +39,7 @@ namespace CASWebApi.Models
         public string ClassNum { get; set; }
 
         [BsonElement("address")]
-        public AddressBook[] Address { get; set; }
+        public AddressBook Address { get; set; }
         
         [BsonElement("status")]
         public bool Status { get; set; }

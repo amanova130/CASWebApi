@@ -43,7 +43,7 @@ namespace CASWebApi.Services
         {
             bool res=DbContext.RemoveById<Group>("group", id);  
             if(res)
-             DbContext.RemoveField<Group>("student", "group", id);
+                 DbContext.RemoveByFilter<Group>("student", "group", id);
             return res;
         }
     }

@@ -72,12 +72,19 @@ namespace CASWebApi.Models.DbModels
         /// <param name="fieldName"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public List<T> GetByFilter<T>(string collectionName,string fieldName,string value)
+        public List<T> GetListByFilter<T>(string collectionName,string fieldName,string value)
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status",true);
 
             return collection.Find(filter).ToList();
+        }
+        public T GetDocumentByFilter<T>(string collectionName, string fieldName, string value)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
+
+            return collection.Find<T>(filter).FirstOrDefault();
         }
         /// <summary>
         /// Function to delete the given key and it's value,in given collection
@@ -109,6 +116,15 @@ namespace CASWebApi.Models.DbModels
             var filter = Builders<T>.Filter.Eq(fieldName, id);
             var update = Builders<T>.Update.Pull(fieldName,id);
             collection.UpdateManyAsync(filter, update);
+            return true;
+        }
+
+        public bool PushElement<T>(string collectionName, string arrayName, T element,string fieldId,string fieldName)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
+            var update = Builders<T>.Update.Push(arrayName, element);
+            collection.UpdateOne(filter, update);
             return true;
         }
 
@@ -178,6 +194,15 @@ namespace CASWebApi.Models.DbModels
 
         }
 
+        public bool RemoveByFilter<T>(string collectionName,string fieldName,string value)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, value);
+            var update = Builders<T>.Update.Set("status", false);
+            var updated = collection.UpdateManyAsync(filter, update);
+            return updated != null;
+
+        }
 
 
     }

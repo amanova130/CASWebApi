@@ -35,7 +35,7 @@ namespace CASWebApi.Models
         public DateTime Birth_date { get; set; }
 
         [BsonElement("address")]
-        public AddressBook[] Address { get; set; }
+        public AddressBook Address { get; set; }
 
         [BsonElement("status")]
         public bool Status { get; set; }
