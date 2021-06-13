@@ -20,12 +20,12 @@ namespace CASWebApi.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
-        public ActionResult<List<User>> Get() =>
+        [HttpGet("getAllUser", Name = nameof(GetAllUser))]
+        public ActionResult<List<User>> GetAllUser() =>
              _userService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetUser")]
-        public ActionResult<User> Get(string id)
+        [HttpGet("getUserById", Name = nameof(GetUserById))]
+        public ActionResult<User> GetUserById(string id)
         {
             var user = _userService.GetById(id);
 
@@ -37,16 +37,16 @@ namespace CASWebApi.Controllers
             return user;
         }
 
-        [HttpPost]
-        public ActionResult<User> Create(User user)
+        [HttpPost("createUser", Name = nameof(CreateUser))]
+        public ActionResult<User> CreateUser(User user)
         {
             _userService.Create(user);
 
-            return CreatedAtRoute("GetUser", new { id = user.Id }, user);
+            return CreatedAtRoute("getUserById", new { id = user.Id }, user);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, User userIn)
+        [HttpPut("updateUser", Name = nameof(UpdateUser))]
+        public IActionResult UpdateUser(string id, User userIn)
         {
             var user = _userService.GetById(id);
 
@@ -61,8 +61,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteUserById", Name = nameof(DeleteUserById))]
+        public IActionResult DeleteUserById(string id)
         {
             var user = _userService.GetById(id);
 

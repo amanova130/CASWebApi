@@ -47,11 +47,6 @@ namespace CASWebApi
             services.AddScoped<ITimeTableService, TimeTableService>();
             services.AddScoped<IEventService, EventService>();
 
-
-
-
-
-            services.AddSingleton<BookService>();
             services.AddCors(options =>
             {
                 options.AddPolicy(MyAllowSpecificOrigins,

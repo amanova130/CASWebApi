@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
            _timeTableService = timeTableService;
         }
 
-        [HttpGet]
-        public ActionResult<List<TimeTable>> Get() =>
+        [HttpGet("getAllTTable", Name = nameof(GetAllTTable))]
+        public ActionResult<List<TimeTable>> GetAllTTable() =>
              _timeTableService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetTimeTable")]
-        public ActionResult<TimeTable> Get(string id)
+        [HttpGet("getTTById", Name = nameof(GetTTById))]
+        public ActionResult<TimeTable> GetTTById(string id)
         {
             var timeTable = _timeTableService.GetById(id);
 
@@ -38,8 +38,8 @@ namespace CASWebApi.Controllers
             return timeTable;
         }
 
-        [HttpPost]
-        public ActionResult<TimeTable> Create(TimeTable timeTable)
+        [HttpPost("createTimeTable", Name = nameof(CreateTimeTable))]
+        public ActionResult<TimeTable> CreateTimeTable(TimeTable timeTable)
         {
             timeTable.status = true;
             if (_timeTableService.GetByCalendarName(timeTable.CalendarName) == null)
@@ -59,11 +59,11 @@ namespace CASWebApi.Controllers
 
             }
 
-            return CreatedAtRoute("GetTimeTable", new { id = timeTable.Id }, timeTable);
+            return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
         }
        
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, TimeTable timeTableIn)
+        [HttpPut("updateById", Name = nameof(UpdateById))]
+        public IActionResult UpdateById(string id, TimeTable timeTableIn)
         {
             var timeTable = _timeTableService.GetById(id);
 
@@ -78,8 +78,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteTTById", Name = nameof(DeleteTTById))]
+        public IActionResult DeleteTTById(string id)
         {
             var timeTable = _timeTableService.GetById(id);
             for(int i=0;i<timeTable.GroupSchedule.Length;i++)
@@ -89,13 +89,13 @@ namespace CASWebApi.Controllers
             return NotFound();
         }
 
-        /*[HttpDelete("{eventId:length(24)}")]
+        [HttpDelete("deleteEvent", Name =nameof(DeleteEvent))]
         public IActionResult DeleteEvent(string id)
         {
             List<TimeTable> timeTable = _timeTableService.GetAll();
             for (int i = 0; i < timeTable.Count; i++)
             {
-                for (int j = 0; j < timeTable[i].GroupSchedule.Length;j++)
+                for (int j = 0; j < timeTable[i].GroupSchedule.Length; j++)
                 {
                     if (timeTable[i].GroupSchedule[j].eventId.Equals(id))
                     {
@@ -108,6 +108,6 @@ namespace CASWebApi.Controllers
 
             }
             return NotFound();
-        }*/
+        }
     }
 }

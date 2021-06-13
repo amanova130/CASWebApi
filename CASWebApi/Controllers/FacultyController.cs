@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
             _facultyService = facultiesService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Faculty>> Get() =>
+        [HttpGet("getAllFaculties", Name = nameof(GetAllFaculties))]
+        public ActionResult<List<Faculty>> GetAllFaculties() =>
              _facultyService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetFaculty")]
-        public ActionResult<Faculty> Get(string id)
+        [HttpGet("getFacById", Name = nameof(GetFacById))]
+        public ActionResult<Faculty> GetFacById(string id)
         {
             var faculty = _facultyService.GetById(id);
 
@@ -38,17 +38,17 @@ namespace CASWebApi.Controllers
             return faculty;
         }
 
-        [HttpPost]
-        public ActionResult<Faculty> Create(Faculty faculty)
+        [HttpPost("createFaculty", Name = nameof(CreateFaculty))]
+        public ActionResult<Faculty> CreateFaculty(Faculty faculty)
         {
             if(!(_facultyService.Create(faculty)))
                 return NotFound();
 
-            return CreatedAtRoute("GetFaculty", new { id = faculty.Id }, faculty);
+            return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Faculty facultyIn)
+        [HttpPut("updateFaculty", Name = nameof(UpdateFaculty))]
+        public IActionResult UpdateFaculty(string id, Faculty facultyIn)
         {
             var faculty = _facultyService.GetById(id);
 
@@ -63,8 +63,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteFacById", Name = nameof(DeleteFacById))]
+        public IActionResult DeleteFacById(string id)
         {
             var faculty = _facultyService.GetById(id);
 
