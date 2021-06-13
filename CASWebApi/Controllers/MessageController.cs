@@ -20,12 +20,12 @@ namespace CASWebApi.Controllers
             _messageService = messageService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Message>> Get() =>
+        [HttpGet("getAllMsg", Name = nameof(GetAllMsg))]
+        public ActionResult<List<Message>> GetAllMsg() =>
              _messageService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetMessage")]
-        public ActionResult<Message> Get(string id)
+        [HttpGet("getMsgById", Name = nameof(GetMsgById))]
+        public ActionResult<Message> GetMsgById(string id)
         {
             var message = _messageService.GetById(id);
 
@@ -39,17 +39,17 @@ namespace CASWebApi.Controllers
 
 
 
-        [HttpPost]
-        public ActionResult<Message> Create(Message message)
+        [HttpPost("createMsg", Name = nameof(CreateMsg))]
+        public ActionResult<Message> CreateMsg(Message message)
         {
             if (!(_messageService.Create(message)))
                 return NotFound();
 
-            return CreatedAtRoute("GetMessage", new { id = message.Id }, message);
+            return CreatedAtRoute("getMsgById", new { id = message.Id }, message);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Message messageIn)
+        [HttpPut("updateMsg", Name = nameof(UpdateMsg))]
+        public IActionResult UpdateMsg(string id, Message messageIn)
         {
             var message = _messageService.GetById(id);
 
@@ -64,8 +64,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteMsgById", Name = nameof(DeleteMsgById))]
+        public IActionResult DeleteMsgById(string id)
         {
             var message = _messageService.GetById(id);
 

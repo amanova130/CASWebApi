@@ -7,7 +7,7 @@ using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 
 namespace CASWebApi.Controllers
 {
@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
             _courseService = courseService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Course>> Get() =>
+        [HttpGet("getAllCourse", Name = nameof(GetAllCourse))]
+        public ActionResult<List<Course>> GetAllCourse() =>
              _courseService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetCourse")]
-        public ActionResult<Course> Get(string id)
+        [HttpGet("getCoursebyId", Name = nameof(GetCoursebyId))]
+        public ActionResult<Course> GetCoursebyId(string id)
         {
             var course = _courseService.GetById(id);
 
@@ -38,17 +38,17 @@ namespace CASWebApi.Controllers
             return course;
         }
 
-        [HttpPost]
-        public ActionResult<Course> Create(Course course)
+        [HttpPost("createNewCourse", Name = nameof(CreateNewCourse))]
+        public ActionResult<Course> CreateNewCourse(Course course)
         {
             if(!(_courseService.Create(course)))
                 return NotFound();
 
-            return CreatedAtRoute("GetCourse", new { id = course.Id }, course);
+            return CreatedAtRoute("getCoursebyId", new { id = course.Id }, course);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Course courseIn)
+        [HttpPut("updateCourse", Name = nameof(UpdateCourse))]
+        public IActionResult UpdateCourse(string id, Course courseIn)
         {
             var course = _courseService.GetById(id);
 
@@ -63,8 +63,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteCourseById", Name = nameof(DeleteCourseById))]
+        public IActionResult DeleteCourseById(string id)
         {
             var course = _courseService.GetById(id);
 

@@ -20,12 +20,12 @@ namespace CASWebApi.Controllers
             _studentService = studentService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Student>> Get() =>
+        [HttpGet("getAllStudents", Name = nameof(GetAllStudents))]
+        public ActionResult<List<Student>> GetAllStudents() =>
              _studentService.GetAll();
 
-        [HttpGet("{id:length(9)}", Name = "GetStudent")]
-        public ActionResult<Student> Get(string id)
+        [HttpGet("getStudentById", Name = nameof(GetStudentById))]
+        public ActionResult<Student> GetStudentById(string id)
         {
             var student = _studentService.GetById(id);
 
@@ -39,19 +39,19 @@ namespace CASWebApi.Controllers
         
 
 
-        [HttpPost]
-        public ActionResult<Student> Create(Student student)
+        [HttpPost("createStudent", Name = nameof(CreateStudent))]
+        public ActionResult<Student> CreateStudent(Student student)
         {
             student.Status = true;
 
             if (!( _studentService.Create(student)))
                 return NotFound("duplicated id or wrong id format");
            
-            return CreatedAtRoute("GetStudent", new { id = student.Id }, student);
+            return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
         }
 
-        [HttpPut("{id:length(9)}")]
-        public IActionResult Update(string id, Student studentIn)
+        [HttpPut("updateStudent", Name = nameof(UpdateStudent))]
+        public IActionResult UpdateStudent(string id, Student studentIn)
         {
             bool updated = false;
 
@@ -68,8 +68,8 @@ namespace CASWebApi.Controllers
             return Ok(updated);
         }
 
-        [HttpDelete("{id:length(9)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteStudentById", Name = nameof(DeleteStudentById))]
+        public IActionResult DeleteStudentById(string id)
         {
             var student = _studentService.GetById(id);
             if (student != null && _studentService.RemoveById(student.Id))

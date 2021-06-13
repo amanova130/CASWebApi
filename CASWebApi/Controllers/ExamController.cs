@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
             _examService = examService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Exam>> Get() =>
+        [HttpGet("getAllExam", Name = nameof(GetAllExam))]
+        public ActionResult<List<Exam>> GetAllExam() =>
              _examService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetExam")]
-        public ActionResult<Exam> Get(string id)
+        [HttpGet("getExamById", Name = nameof(GetExamById))]
+        public ActionResult<Exam> GetExamById(string id)
         {
             var exam = _examService.GetById(id);
 
@@ -38,17 +38,17 @@ namespace CASWebApi.Controllers
             return exam;
         }
 
-        [HttpPost]
-        public ActionResult<Exam> Create(Exam exam)
+        [HttpPost("createExam", Name = nameof(CreateExam))]
+        public ActionResult<Exam> CreateExam(Exam exam)
         {
             if (!(_examService.Create(exam)))
                  return NotFound();
 
-            return CreatedAtRoute("GetExam", new { id = exam.Id }, exam);
+            return CreatedAtRoute("getExamById", new { id = exam.Id }, exam);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Exam examIn)
+        [HttpPut("updateExam", Name = nameof(UpdateExam))]
+        public IActionResult UpdateExam(string id, Exam examIn)
         {
             var exam = _examService.GetById(id);
 
@@ -63,8 +63,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteExamById", Name = nameof(DeleteExamById))]
+        public IActionResult DeleteExamById(string id)
         {
             var exam = _examService.GetById(id);
 

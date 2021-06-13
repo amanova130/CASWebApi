@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
             _adminService = adminService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Admin>> Get() =>
+        [HttpGet("getAllAdmin", Name = nameof(GetAllAdmin))]
+        public ActionResult<List<Admin>> GetAllAdmin() =>
              _adminService.GetAll();
 
-        [HttpGet("{id:length(9)}", Name = "GetAdmin")]
-        public ActionResult<Admin> Get(string id)
+        [HttpGet("getAdminById", Name = nameof(GetAdminById))]
+        public ActionResult<Admin> GetAdminById(string id)
         {
             var admin = _adminService.GetById(id);
 
@@ -38,16 +38,16 @@ namespace CASWebApi.Controllers
             return admin;
         }
 
-        [HttpPost]
-        public ActionResult<Admin> Create(Admin admin)
+        [HttpPost("createNewAdmin", Name = nameof(CreateNewAdmin))]
+        public ActionResult<Admin> CreateNewAdmin(Admin admin)
         {
             if (!(_adminService.Create(admin)))
                 return NotFound("duplicated id or wrong id format");
-            return CreatedAtRoute("GetAdmin", new { id = admin.Id }, admin);
+            return CreatedAtRoute("GetAdminById", new { id = admin.Id }, admin);
         }
-
-        [HttpPut("{id:length(9)}")]
-        public IActionResult Update(string id, Admin adminIn)
+        
+        [HttpPut("updateAdmin", Name = nameof(UpdateAdmin))]
+        public IActionResult UpdateAdmin(string id, Admin adminIn)
         {
             var admin = _adminService.GetById(id);
 
@@ -63,8 +63,9 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(9)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteAdminById", Name = nameof(DeleteAdminById))]
+
+        public IActionResult DeleteAdminById(string id)
         {
             var admin = _adminService.GetById(id);
             if (admin != null && _adminService.RemoveById(admin.Id))

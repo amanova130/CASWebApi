@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CASWebApi.IServices;
 using CASWebApi.Models;
@@ -20,12 +21,12 @@ namespace CASWebApi.Controllers
             _teacherService = teacherService;
         }
 
-        [HttpGet]
-        public  ActionResult<List<Teacher>> Get() =>
+        [HttpGet("getAllTeachers", Name = nameof(GetAllTeachers))]
+        public  ActionResult<List<Teacher>> GetAllTeachers() =>
              _teacherService.GetAll();
 
-        [HttpGet("{id:length(9)}", Name = "GetTeacher")]
-        public ActionResult<Teacher> Get(string id)
+        [HttpGet("getTeacherById", Name = nameof(GetTeacherById))]
+        public ActionResult<Teacher> GetTeacherById(string id)
         {
             var teacher = _teacherService.GetById(id);
 
@@ -37,33 +38,31 @@ namespace CASWebApi.Controllers
             return teacher;
         }
 
-        [HttpPost]
-        public ActionResult<Teacher> Create(Teacher teacher)
+        [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
+        public ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {
            if(!( _teacherService.Create(teacher)))
                 return NotFound("duplicated id or wrong id format");
-            return CreatedAtRoute("GetTeacher", new { id = teacher.Id }, teacher);
+            return CreatedAtRoute("getTeacherById", new { id = teacher.Id }, teacher);
         }
 
-        [HttpPut("{id:length(9)}")]
-        public IActionResult Update(string id, Teacher teacherIn)
+        [HttpPut("updateTeacher", Name = nameof(UpdateTeacher))]
+        public IActionResult UpdateTeacher(Teacher teacherIn)
         {
             bool updated = false;
-            var teacher = _teacherService.GetById(id);
+            var teacher = _teacherService.GetById(teacherIn.Id);
 
             if (teacher == null)
             {
                 return NotFound();
             }
-            teacherIn.Id = id;
-
-            updated = _teacherService.Update(id, teacherIn);
+            updated = _teacherService.Update(teacherIn.Id, teacherIn);
         
             return Ok(updated);
         }
 
-        [HttpDelete("{id:length(9)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteTeacherById", Name = nameof(DeleteTeacherById))]
+        public IActionResult DeleteTeacherById(string id)
         {
             var teacher = _teacherService.GetById(id);
 

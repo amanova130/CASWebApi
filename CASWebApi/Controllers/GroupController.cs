@@ -21,12 +21,12 @@ namespace CASWebApi.Controllers
             _groupService = groupService;
         }
 
-        [HttpGet]
-        public ActionResult<List<Group>> Get() =>
+        [HttpGet("getAllGroups", Name = nameof(GetAllGroups))]
+        public ActionResult<List<Group>> GetAllGroups() =>
              _groupService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetGroup")]
-        public ActionResult<Group> Get(string id)
+        [HttpGet("getGroupById", Name = nameof(GetGroupById))]
+        public ActionResult<Group> GetGroupById(string id)
         {
             var group = _groupService.GetById(id);
 
@@ -38,16 +38,16 @@ namespace CASWebApi.Controllers
             return group;
         }
 
-        [HttpPost]
-        public ActionResult<Group> Create(Group group)
+        [HttpPost("createGroup", Name = nameof(CreateGroup))]
+        public ActionResult<Group> CreateGroup(Group group)
         {
             _groupService.Create(group);
 
-            return CreatedAtRoute("GetGroup", new { id = group.Id }, group);
+            return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Group groupIn)
+        [HttpPut("updateGroup", Name = nameof(UpdateGroup))]
+        public IActionResult UpdateGroup(string id, Group groupIn)
         {
             var group = _groupService.GetById(id);
 
@@ -62,8 +62,8 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteGroupById", Name = nameof(DeleteGroupById))]
+        public IActionResult DeleteGroupById(string id)
         {
             var group = _groupService.GetById(id);
 
