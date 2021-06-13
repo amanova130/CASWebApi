@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
-    public interface IEventService
+    public interface IScheduleService
     {
-        EventTest GetById(string eventId);
-        List<EventTest> GetAll();
-        bool Create(EventTest newEvent);
-        void Update(string id, EventTest eventIn);
+        Schedule GetById(string eventId);
+        List<Schedule> GetAll();
+        bool Create(Schedule newEvent);
+        void Update(string id, Schedule eventIn);
         bool RemoveById(string id);
     }
 }

@@ -17,10 +17,6 @@ namespace CASWebApi.Models
         [BsonElement("zip_code")]
 
         public int ZipCode { get; set; }
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> develop
     }
 }

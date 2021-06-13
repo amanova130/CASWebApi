@@ -10,15 +10,18 @@ namespace CASWebApi.Models
     public class Schedule
     {
         [BsonElement("courseName")]
-        public string Summary;
-        [BsonElement("startTime")]
+        public string Summary{ get; set; }
+    [BsonElement("startTime")]
 
-        public DateTime StartTime;
+        public DateTime StartTime { get; set; }
         [BsonElement("endTime")]
 
-        public DateTime EndTime;
+        public DateTime EndTime { get; set; }
         [BsonElement("eventId")]
-        public string eventId;
+        public string EventId { get; set; }
+
+        [BsonElement("groupId")]
+        public string GroupId { get; set; }
 
     }
 }

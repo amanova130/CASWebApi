@@ -14,22 +14,22 @@ namespace CASWebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventController : ControllerBase
+    public class ScheduleController : ControllerBase
     {
-        IEventService _eventService;
-        public EventController(IEventService eventService)
+        IScheduleService _scheduleService;
+        public ScheduleController(IScheduleService scheduleService)
         {
-            _eventService = eventService;
+            _scheduleService = scheduleService;
         }
 
         [HttpGet]
-        public ActionResult<List<EventTest>> Get() =>
-             _eventService.GetAll();
+        public ActionResult<List<Schedule>> Get() =>
+             _scheduleService.GetAll();
 
-        [HttpGet("{id:length(24)}", Name = "GetEvent")]
-        public ActionResult<EventTest> Get(string id)
+        [HttpGet("{id:length(24)}", Name = "GetSchedule")]
+        public ActionResult<Schedule> Get(string id)
         {
-            var newEvent = _eventService.GetById(id);
+            var newEvent = _scheduleService.GetById(id);
 
             if (newEvent == null)
             {
@@ -40,26 +40,28 @@ namespace CASWebApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<EventTest> Create(EventTest newEvent)
+        public ActionResult<Schedule> Create(Schedule newEvent)
         {
-            if (!(_eventService.Create(newEvent)))
+            Calendar.CreateEvent(newEvent);
+
+            if (!(_scheduleService.Create(newEvent)))
                 return NotFound();
 
-            return CreatedAtRoute("GetEvent", new { id = newEvent.Id }, newEvent);
+            return Ok("added");
         }
 
         [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, EventTest eventIn)
+        public IActionResult Update(string id, Schedule eventIn)
         {
-            var newEvent = _eventService.GetById(id);
+            var newEvent = _scheduleService.GetById(id);
 
             if (newEvent == null)
             {
                 return NotFound();
             }
-            eventIn.Id = id;
+            eventIn.EventId = id;
 
-            _eventService.Update(id, eventIn);
+            _scheduleService.Update(id, eventIn);
 
             return NoContent();
         }
@@ -67,9 +69,9 @@ namespace CASWebApi.Controllers
         [HttpDelete("{id:length(24)}")]
         public IActionResult Delete(string id)
         {
-            var newEvent = _eventService.GetById(id);
+            var newEvent = _scheduleService.GetById(id);
 
-            if (newEvent != null && _eventService.RemoveById(newEvent.Id))
+            if (newEvent != null && _scheduleService.RemoveById(newEvent.EventId))
                 return NoContent();
             return NotFound();
         }

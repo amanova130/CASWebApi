@@ -45,7 +45,7 @@ namespace CASWebApi.Controllers
             if (_timeTableService.GetByCalendarName(timeTable.CalendarName) == null)
             {
                 timeTable.CalendarId = Calendar.CreateCalendar(timeTable.CalendarName);
-                Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
+               // Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
 
                 _timeTableService.Create(timeTable);
 
@@ -53,9 +53,10 @@ namespace CASWebApi.Controllers
             }
             else
             {
-                _timeTableService.AddToSchedule(timeTable.GroupSchedule, timeTable.CalendarName);
-                Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
-                timeTable = _timeTableService.GetByCalendarName(timeTable.CalendarName);
+                /* _timeTableService.AddToSchedule(timeTable.GroupSchedule, timeTable.CalendarName);
+                 Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
+                 timeTable = _timeTableService.GetByCalendarName(timeTable.CalendarName);*/
+                return NotFound("this calendar already exists");
 
             }
 

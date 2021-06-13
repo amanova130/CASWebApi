@@ -83,7 +83,7 @@ namespace CASWebApi.Models
             return calendars;
         }
 
-        public static void CreateEvent(string calendarName,Schedule[] groupSchedule)
+        public static void CreateEvent(Schedule newSchedule)
         {
             UserCredential credential = GetCredential(UserRole.Admin);
             CalendarService service = GetService(credential);
@@ -93,7 +93,7 @@ namespace CASWebApi.Models
             
             foreach (var calendar in calendars)
             {
-                if(calendarName.Equals(calendar.Summary))
+                if(newSchedule.GroupId.Equals(calendar.Summary))
                 {
                     calendarId = calendar.Id;
                     isCalendarExists = true;
@@ -102,16 +102,12 @@ namespace CASWebApi.Models
 
                 }
             }
-            if (!isCalendarExists)
-                calendarId=CreateCalendar(calendarName);
-
-            for (int i = 0; i < groupSchedule.Length; i++)
-            {
+           
                 Event newEvent = new Event()
                 {
-                    Summary = groupSchedule[i].Summary,
-                    Start = new EventDateTime() { DateTime = groupSchedule[i].StartTime, TimeZone = "Asia/Jerusalem" },
-                    End = new EventDateTime() { DateTime = groupSchedule[i].EndTime, TimeZone = "Asia/Jerusalem" },
+                    Summary = newSchedule.Summary,
+                    Start = new EventDateTime() { DateTime = newSchedule.StartTime, TimeZone = "Asia/Jerusalem" },
+                    End = new EventDateTime() { DateTime = newSchedule.EndTime, TimeZone = "Asia/Jerusalem" },
                     Recurrence = new String[] { "RRULE:FREQ=WEEKLY;UNTIL=20210801" }
                 };
 
@@ -119,11 +115,11 @@ namespace CASWebApi.Models
                 if (!(String.IsNullOrEmpty(calendarId)))
                 {
                     newEvent = service.Events.Insert(newEvent, calendarId).Execute();
-                    groupSchedule[i].eventId = newEvent.Id;
+                    newSchedule.EventId = newEvent.Id;
 
                     Console.WriteLine($"{newEvent.HtmlLink}");
                 }
-            }
+            
         }
         public static void DeleteEvent(string calendarName,string eventName)
         {

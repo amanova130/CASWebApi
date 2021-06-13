@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Services
 {
-    public class EventService : IEventService
+    public class ScheduleService : IScheduleService
     {
         IDbSettings DbContext;
 
-        public EventService(IDbSettings settings)
+        public ScheduleService(IDbSettings settings)
         {
             DbContext = settings;
         }
@@ -24,33 +24,33 @@ namespace CASWebApi.Services
 
         //}
 
-        public EventTest GetById(string eventId)
+        public Schedule GetById(string eventId)
         {
-            return DbContext.GetById<EventTest>("event", eventId);
+            return DbContext.GetById<Schedule>("event", eventId);
         }
 
-        public List<EventTest> GetAll()
+        public List<Schedule> GetAll()
         {
-            return DbContext.GetAll<EventTest>("event");
+            return DbContext.GetAll<Schedule>("event");
 
         }
 
-        public bool Create(EventTest newEvent)
+        public bool Create(Schedule newEvent)
         {
-            newEvent.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<EventTest>("event", newEvent);
+            //newEvent.Id = ObjectId.GenerateNewId().ToString();
+            bool res = DbContext.PushElement<Schedule>("timeTable", "schedule",newEvent,newEvent.GroupId, "group_id");
             return res;
         }
 
-        public void Update(string id, EventTest eventIn) =>
-          DbContext.Update<EventTest>("event", id, eventIn);
+        public void Update(string id, Schedule eventIn) =>
+          DbContext.Update<Schedule>("event", id, eventIn);
 
 
 
         public bool RemoveById(string id)
         {
             //DbContext.GetById<Course>("course",id);
-            bool res = DbContext.RemoveById<EventTest>("events", id);
+            bool res = DbContext.RemoveById<Schedule>("events", id);
             //if (res)
             //{
             //    DbContext.PullElement<Event>("faculty", "events", id);

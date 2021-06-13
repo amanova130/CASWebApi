@@ -31,9 +31,9 @@ namespace CASWebApi.Models
 
         [BsonElement("gender")]
         public string Gender { get; set; }
-
         [BsonElement("birth_date")]
-        public DateTime Birth_date { get; set; }
+
+        public string Birth_date { get; set; }
 
         [BsonElement("class_num")]
         public string ClassNum { get; set; }
@@ -52,7 +52,9 @@ namespace CASWebApi.Models
 
         [BsonElement("stud_exam")]
         public StudExam[] Grades { get; set; }
-        
+
+
+      
         
 
 

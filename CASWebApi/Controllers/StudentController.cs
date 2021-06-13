@@ -42,7 +42,9 @@ namespace CASWebApi.Controllers
         [HttpPost]
         public ActionResult<Student> Create(Student student)
         {
-           if(!( _studentService.Create(student)))
+            student.Status = true;
+
+            if (!( _studentService.Create(student)))
                 return NotFound("duplicated id or wrong id format");
            
             return CreatedAtRoute("GetStudent", new { id = student.Id }, student);
@@ -51,6 +53,8 @@ namespace CASWebApi.Controllers
         [HttpPut("{id:length(9)}")]
         public IActionResult Update(string id, Student studentIn)
         {
+            bool updated = false;
+
             var student = _studentService.GetById(id);
 
             if (student == null)
@@ -59,9 +63,9 @@ namespace CASWebApi.Controllers
             }
             studentIn.Id = id;
 
-            _studentService.Update(id, studentIn);
+           updated= _studentService.Update(id, studentIn);
 
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("{id:length(9)}")]
@@ -69,7 +73,7 @@ namespace CASWebApi.Controllers
         {
             var student = _studentService.GetById(id);
             if (student != null && _studentService.RemoveById(student.Id))
-                return NoContent();
+                return Ok(true);
             return NotFound();
         }
     }

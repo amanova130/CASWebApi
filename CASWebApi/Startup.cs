@@ -45,7 +45,7 @@ namespace CASWebApi
             services.AddScoped<IExamService, ExamService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<ITimeTableService, TimeTableService>();
-            services.AddScoped<IEventService, EventService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
 
 
 
