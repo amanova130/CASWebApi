@@ -42,25 +42,23 @@ namespace CASWebApi.Controllers
         public ActionResult<Faculty> CreateFaculty(Faculty faculty)
         {
             if(!(_facultyService.Create(faculty)))
-                return NotFound();
+                return NotFound("duplicated id or wrong id format");
 
             return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
         }
 
         [HttpPut("updateFaculty", Name = nameof(UpdateFaculty))]
-        public IActionResult UpdateFaculty(string id, Faculty facultyIn)
+        public IActionResult UpdateFaculty(Faculty facultyIn)
         {
-            var faculty = _facultyService.GetById(id);
+            var faculty = _facultyService.GetById(facultyIn.Id);
 
             if (faculty == null)
             {
                 return NotFound();
             }
-            facultyIn.Id = id;
+            bool updated = _facultyService.Update(facultyIn.Id, facultyIn);
 
-            _facultyService.Update(id, facultyIn);
-
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("deleteFacById", Name = nameof(DeleteFacById))]
@@ -69,8 +67,8 @@ namespace CASWebApi.Controllers
             var faculty = _facultyService.GetById(id);
 
             if (faculty != null && _facultyService.RemoveById(faculty.Id))
-                return NoContent();
-            return NotFound();
+                return Ok(true);
+            return NotFound(false);
         }
     }
 }

@@ -38,13 +38,9 @@ namespace CASWebApi.Services
 
         public bool Update(string id, Teacher teacherIn)
         {
-            
             return DbContext.Update<Teacher>("teachers", id, teacherIn);
         }
-          
 
-        // public void Remove(Student studentIn) =>
-        //_books.DeleteOne(book => book.Id == studentIn.Id);
 
         public bool RemoveById(string id)
         {

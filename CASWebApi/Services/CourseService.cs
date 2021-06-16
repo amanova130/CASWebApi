@@ -17,13 +17,7 @@ namespace CASWebApi.Services
         {
             DbContext = settings;
         }
-        //public List<Student> Delete(int studentId)
-        //{
-        //    _students.RemoveAll(x => x.StudentId == studentId);
-        //    return _students;
-
-        //}
-
+      
         public Course GetById(string courseId)
         {
             return DbContext.GetById<Course>("course", courseId);
@@ -42,8 +36,11 @@ namespace CASWebApi.Services
             return res;
         }
 
-        public void Update(string id, Course courseIn) =>
-          DbContext.Update<Course>("course", id, courseIn);
+        public bool Update(string id, Course courseIn)
+        {
+            return DbContext.Update<Course>("course", id, courseIn);
+        }
+          
 
        
 
