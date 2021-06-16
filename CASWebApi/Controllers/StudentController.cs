@@ -51,19 +51,17 @@ namespace CASWebApi.Controllers
         }
 
         [HttpPut("updateStudent", Name = nameof(UpdateStudent))]
-        public IActionResult UpdateStudent(string id, Student studentIn)
+        public IActionResult UpdateStudent(Student studentIn)
         {
             bool updated = false;
 
-            var student = _studentService.GetById(id);
+            var student = _studentService.GetById(studentIn.Id);
 
             if (student == null)
             {
                 return NotFound();
             }
-            studentIn.Id = id;
-
-           updated= _studentService.Update(id, studentIn);
+           updated= _studentService.Update(studentIn.Id, studentIn);
 
             return Ok(updated);
         }

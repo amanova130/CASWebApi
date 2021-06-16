@@ -36,8 +36,10 @@ namespace CASWebApi.Services
             return res;
         }
 
-        public void Update(string id, Group groupIn) =>
-          DbContext.Update<Group>("group", id, groupIn);
+        public bool Update(string id, Group groupIn)
+        {
+            return DbContext.Update<Group>("group", id, groupIn);
+        }
 
         public bool RemoveById(string id)
         {

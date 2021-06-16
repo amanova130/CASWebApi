@@ -90,7 +90,7 @@ namespace CASWebApi.Controllers
             return NotFound();
         }
 
-        [HttpDelete("deleteEvent", Name =nameof(DeleteEvent))]
+        /*[HttpDelete("deleteEvent", Name =nameof(DeleteEvent))]
         public IActionResult DeleteEvent(string id)
         {
             List<TimeTable> timeTable = _timeTableService.GetAll();
@@ -109,6 +109,6 @@ namespace CASWebApi.Controllers
 
             }
             return NotFound();
-        }
+        }*/
     }
 }

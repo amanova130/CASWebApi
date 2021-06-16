@@ -29,9 +29,9 @@ namespace CASWebApi.Models
         [BsonElement("courses")]
 
         public string[] courses { get; set; }
-        [BsonElement("fac_id")]
+        [BsonElement("fac_name")]
 
-        public string Fac_Id {get;set;}
+        public string Fac_Name {get;set;}
         
 
 
