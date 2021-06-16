@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
-    public interface IFacultyService
+    public interface IHolidayService
     {
-        Faculty GetById(string facultyId);
-        List<Faculty> GetAll();
-        bool Create(Faculty faculty);
-        bool Update(string id, Faculty facultyIn);
+        Holiday GetById(string holidayId);
+        List<Holiday> GetAll();
+        bool Create(Holiday holiday);
+        bool Update(string id, Holiday holidayIn);
         bool RemoveById(string id);
     }
 }

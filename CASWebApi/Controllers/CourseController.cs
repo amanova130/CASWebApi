@@ -6,8 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
-
+using Microsoft.Extensions.Logging;
 
 namespace CASWebApi.Controllers
 {
@@ -15,9 +14,11 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
+        private readonly ILogger logger;
         ICourseService _courseService;
-        public CourseController(ICourseService courseService)
+        public CourseController(ICourseService courseService, ILogger<CourseController> logger)
         {
+            this.logger = logger;
             _courseService = courseService;
         }
 
@@ -48,19 +49,23 @@ namespace CASWebApi.Controllers
         }
 
         [HttpPut("updateCourse", Name = nameof(UpdateCourse))]
-        public IActionResult UpdateCourse(string id, Course courseIn)
+        public IActionResult UpdateCourse(Course courseIn)
         {
-            var course = _courseService.GetById(id);
+            logger.LogInformation("Updating existed teacher profile: " + courseIn.Id);
+            var teacher = _courseService.GetById(courseIn.Id);
 
-            if (course == null)
+            if (teacher == null)
             {
-                return NotFound();
+                logger.LogError("Teacher with Id: " + courseIn.Id + " doesn't exist");
+                return NotFound(false);
             }
-            courseIn.Id = id;
+            bool updated = _courseService.Update(courseIn.Id, courseIn);
+            if (updated)
+                logger.LogInformation("Given Teacher profile Updated successfully");
+            else
+                logger.LogError("Cannot update the teacher profile: " + courseIn.Id + " wrong format");
 
-            _courseService.Update(id, courseIn);
-
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("deleteCourseById", Name = nameof(DeleteCourseById))]
@@ -69,8 +74,8 @@ namespace CASWebApi.Controllers
             var course = _courseService.GetById(id);
 
             if (course != null && _courseService.RemoveById(course.Id))
-                return NoContent();
-            return NotFound();
+                return Ok(true);
+            return NotFound(false);
         }
     }
 }

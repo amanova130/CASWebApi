@@ -18,7 +18,7 @@ namespace CASWebApi.Models
         public string Description { get; set; }
         [BsonElement("courses")]
 
-        public string[] courses { get; set; }
+        public string[] Courses { get; set; }
         [BsonElement("status")]
 
         public bool Status { get; set; }

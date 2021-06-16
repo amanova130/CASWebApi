@@ -22,7 +22,10 @@ namespace CASWebApi.Models
 
         [BsonElement("duration")]
         public int Duration { get; set; }
-        
+
+        [BsonElement("image")]
+        public string Image { get; set; }
+
         [BsonElement("status")]
         public bool status { get; set; }
     }

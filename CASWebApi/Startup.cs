@@ -46,6 +46,7 @@ namespace CASWebApi
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<ITimeTableService, TimeTableService>();
             services.AddScoped<IScheduleService, ScheduleService>();
+            services.AddScoped<IHolidayService, HolidayService>();
 
             services.AddCors(options =>
             {

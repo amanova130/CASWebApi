@@ -18,7 +18,7 @@ namespace CASWebApi.Controllers
         ITimeTableService _timeTableService;
         public TimeTableController(ITimeTableService timeTableService)
         {
-           _timeTableService = timeTableService;
+            _timeTableService = timeTableService;
         }
 
         [HttpGet("getAllTTable", Name = nameof(GetAllTTable))]
@@ -45,7 +45,7 @@ namespace CASWebApi.Controllers
             if (_timeTableService.GetByCalendarName(timeTable.CalendarName) == null)
             {
                 timeTable.CalendarId = Calendar.CreateCalendar(timeTable.CalendarName);
-               // Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
+                // Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
 
                 _timeTableService.Create(timeTable);
 
@@ -62,7 +62,7 @@ namespace CASWebApi.Controllers
 
             return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
         }
-       
+
         [HttpPut("updateById", Name = nameof(UpdateById))]
         public IActionResult UpdateById(string id, TimeTable timeTableIn)
         {
@@ -74,7 +74,7 @@ namespace CASWebApi.Controllers
             }
             timeTableIn.Id = id;
 
-            _timeTableService.Update(id,timeTableIn);
+            _timeTableService.Update(id, timeTableIn);
 
             return NoContent();
         }
@@ -83,32 +83,33 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteTTById(string id)
         {
             var timeTable = _timeTableService.GetById(id);
-            for(int i=0;i<timeTable.GroupSchedule.Length;i++)
-            Calendar.DeleteEvent(timeTable.CalendarName,timeTable.GroupSchedule[i].Summary); //its not supposes to be here,just 4 test
+            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                Calendar.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Summary); //its not supposes to be here,just 4 test
             if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
                 return NoContent();
             return NotFound();
         }
 
-        [HttpDelete("deleteEvent", Name =nameof(DeleteEvent))]
-        public IActionResult DeleteEvent(string id)
-        {
-            List<TimeTable> timeTable = _timeTableService.GetAll();
-            for (int i = 0; i < timeTable.Count; i++)
-            {
-                for (int j = 0; j < timeTable[i].GroupSchedule.Length; j++)
-                {
-                    if (timeTable[i].GroupSchedule[j].eventId.Equals(id))
-                    {
-                        _timeTableService.deleteEvent(id);
-                        Calendar.DeleteEvent(timeTable[i].CalendarName, timeTable[i].GroupSchedule[j].eventId);
-                        return NoContent();
+        //[HttpDelete("deleteEvent", Name =nameof(DeleteEvent))]
+        //public IActionResult DeleteEvent(string id)
+        //{
+        //    List<TimeTable> timeTable = _timeTableService.GetAll();
+        //    for (int i = 0; i < timeTable.Count; i++)
+        //    {
+        //        for (int j = 0; j < timeTable[i].GroupSchedule.Length; j++)
+        //        {
+        //            if (timeTable[i].GroupSchedule[j].eventId.Equals(id))
+        //            {
+        //                _timeTableService.deleteEvent(id);
+        //                Calendar.DeleteEvent(timeTable[i].CalendarName, timeTable[i].GroupSchedule[j].eventId);
+        //                return NoContent();
 
-                    }
-                }
+        //            }
+        //        }
 
-            }
-            return NotFound();
-        }
+        //    }
+        //    return NotFound();
+        //}
     }
 }
+
