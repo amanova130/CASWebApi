@@ -41,25 +41,28 @@ namespace CASWebApi.Controllers
         [HttpPost("createGroup", Name = nameof(CreateGroup))]
         public ActionResult<Group> CreateGroup(Group group)
         {
+            group.Status = true;
             _groupService.Create(group);
 
             return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
         }
 
         [HttpPut("updateGroup", Name = nameof(UpdateGroup))]
-        public IActionResult UpdateGroup(string id, Group groupIn)
+        public IActionResult UpdateGroup(Group groupIn)
         {
-            var group = _groupService.GetById(id);
+            bool updated = false;
+            var group = _groupService.GetById(groupIn.Id);
 
             if (group == null)
             {
                 return NotFound();
             }
-            groupIn.Id = id;
+           
+             
 
-            _groupService.Update(id, groupIn);
+           updated=_groupService.Update(groupIn.Id, groupIn);
 
-            return NoContent();
+            return Ok(updated);
         }
 
         [HttpDelete("deleteGroupById", Name = nameof(DeleteGroupById))]
@@ -68,8 +71,8 @@ namespace CASWebApi.Controllers
             var group = _groupService.GetById(id);
 
             if (group != null && _groupService.RemoveById(group.Id))
-                return NoContent();
-            return NotFound();
+                return Ok(true);
+            return NotFound(false);
         }
     }
 }
