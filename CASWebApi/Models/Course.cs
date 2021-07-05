@@ -27,7 +27,7 @@ namespace CASWebApi.Models
         public string Image { get; set; }
 
         [BsonElement("status")]
-        public bool status { get; set; }
+        public bool Status { get; set; }
         
 
     }
