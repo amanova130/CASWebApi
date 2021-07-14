@@ -28,6 +28,10 @@ namespace CASWebApi.Services
             return DbContext.GetAll<Teacher>("teachers");
 
         }
+        public int GetNumberOfTeachers()
+        {
+            return DbContext.GetCountOfDocuments<Teacher>("teachers");
+        }
 
         public bool Create(Teacher teacher)
         {
@@ -38,6 +42,7 @@ namespace CASWebApi.Services
 
         public bool Update(string id, Teacher teacherIn)
         {
+
             return DbContext.Update<Teacher>("teachers", id, teacherIn);
         }
 

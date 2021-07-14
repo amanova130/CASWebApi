@@ -25,6 +25,10 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Faculty>> GetAllFaculties() =>
              _facultyService.GetAll();
 
+        [HttpGet("getNumberOfFaculties", Name = nameof(GetNumberOfFaculties))]
+        public ActionResult<long> GetNumberOfFaculties() =>
+             _facultyService.GetNumberOfFaculties();
+
         [HttpGet("getFacById", Name = nameof(GetFacById))]
         public ActionResult<Faculty> GetFacById(string id)
         {

@@ -13,5 +13,7 @@ namespace CASWebApi.IServices
         bool Create(Group group);
         bool Update(string id, Group groupIn);
         bool RemoveById(string id);
+        int GetNumberOfGroups();
+
     }
 }

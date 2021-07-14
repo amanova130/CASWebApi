@@ -25,6 +25,10 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Group>> GetAllGroups() =>
              _groupService.GetAll();
 
+        [HttpGet("getNumberOfGroups", Name = nameof(getNumberOfGroups))]
+        public ActionResult<int> getNumberOfGroups() =>
+             _groupService.GetNumberOfGroups();
+
         [HttpGet("getGroupById", Name = nameof(GetGroupById))]
         public ActionResult<Group> GetGroupById(string id)
         {

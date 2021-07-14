@@ -28,6 +28,10 @@ namespace CASWebApi.Services
             return DbContext.GetAll<Course>("course");
 
         }
+        public int GetNumberOfCourses()
+        {
+            return DbContext.GetCountOfDocuments<Course>("course");
+        }
 
         public bool Create(Course course)
         {

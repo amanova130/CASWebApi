@@ -28,7 +28,10 @@ namespace CASWebApi.Services
             return DbContext.GetAll<Group>("group");
 
         }
-
+        public int GetNumberOfGroups()
+        {
+            return DbContext.GetCountOfDocuments<Group>("group");
+        }
         public bool Create(Group group)
         {
             group.Id = ObjectId.GenerateNewId().ToString();

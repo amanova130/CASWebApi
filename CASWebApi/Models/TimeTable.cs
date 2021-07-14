@@ -13,7 +13,7 @@ namespace CASWebApi.Models
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
-        [BsonElement("group_id")]
+        [BsonElement("groupName")]
 
         public string CalendarName { get; set; }
         [BsonElement("schedule")]

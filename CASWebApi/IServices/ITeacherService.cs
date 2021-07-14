@@ -13,5 +13,7 @@ namespace CASWebApi.IServices
         bool Create(Teacher teacher);
         bool Update(string id, Teacher teacherIn);
         bool RemoveById(string id);
+        int GetNumberOfTeachers();
+
     }
 }

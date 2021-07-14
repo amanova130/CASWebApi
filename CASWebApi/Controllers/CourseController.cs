@@ -26,6 +26,10 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Course>> GetAllCourse() =>
              _courseService.GetAll();
 
+        [HttpGet("getNumberOfCourses", Name = nameof(getNumberOfCourses))]
+        public ActionResult<int> getNumberOfCourses() =>
+             _courseService.GetNumberOfCourses();
+
         [HttpGet("getCoursebyId", Name = nameof(GetCoursebyId))]
         public ActionResult<Course> GetCoursebyId(string id)
         {

@@ -16,11 +16,16 @@ namespace CASWebApi.IServices
         public void UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value);
         public bool RemoveById<T>(string collectionName, string id);
         public bool RemoveField<T>(string collectionName, string fieldName, string id);
-        public bool PullElement<T>(string collectionName, string fieldName, string id);
         public bool RemoveByFilter<T>(string collectionName, string fieldName, string value);
         public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName);
+        public bool PullElement<T>(string collectionName, string fieldName, string id);
+        public bool PullObject<T>(string collectionName, string arrayName, string objectId, string fieldId, string fieldName, string objectKey);
+
         public T GetDocumentByFilter<T>(string collectionName, string fieldName, string value);
         public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value);
+        public int GetCountOfDocuments<T>(string collectionName);
+        public int GetCountOfDocumentsByFilter<T>(string collectionName, string field, string value);
+
 
 
 
