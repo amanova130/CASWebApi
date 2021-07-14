@@ -1,12 +1,9 @@
 ﻿using CASWebApi.IServices;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CASWebApi.Models.DbModels
 {
@@ -21,11 +18,11 @@ namespace CASWebApi.Models.DbModels
                 var client = new MongoClient(settings.Value.ConnectionString);
                 database = client.GetDatabase(settings.Value.Database);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                throw; 
+                throw;
             }
-           // database = client.GetDatabase(settings.Value.Database);
+            // database = client.GetDatabase(settings.Value.Database);
         }
 
         /// <summary>
@@ -38,17 +35,16 @@ namespace CASWebApi.Models.DbModels
         {
             bool res = true;
             var collection = database.GetCollection<T>(collectionName);
-           
             try
             {
                 collection.InsertOne(document);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 res = false;
             }
-            
-                return res;
+
+            return res;
         }
 
         /// <summary>
@@ -75,10 +71,10 @@ namespace CASWebApi.Models.DbModels
         /// <param name="fieldName"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public List<T> GetListByFilter<T>(string collectionName,string fieldName,string value)
+        public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value)
         {
             var collection = database.GetCollection<T>(collectionName);
-            var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status",true);
+            var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
 
             return collection.Find(filter).ToList();
         }
@@ -97,7 +93,7 @@ namespace CASWebApi.Models.DbModels
         /// <param name="fieldName"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public bool RemoveField<T>(string collectionName,string fieldName,string id)
+        public bool RemoveField<T>(string collectionName, string fieldName, string id)
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
@@ -117,7 +113,7 @@ namespace CASWebApi.Models.DbModels
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
-            var update = Builders<T>.Update.Pull(fieldName,id);
+            var update = Builders<T>.Update.Pull(fieldName, id);
             collection.UpdateManyAsync(filter, update);
             return true;
         }
@@ -139,7 +135,7 @@ namespace CASWebApi.Models.DbModels
         }
 
 
-        public bool PushElement<T>(string collectionName, string arrayName, T element,string fieldId,string fieldName)
+        public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName)
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
@@ -189,7 +185,7 @@ namespace CASWebApi.Models.DbModels
         public void UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value)
         {
             var collection = database.GetCollection<T>(collectionName);
-           
+
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set(attributeName, value);
 
@@ -207,14 +203,14 @@ namespace CASWebApi.Models.DbModels
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id);
-            var update = Builders<T>.Update.Set("status", false);        
-            var updated=collection.UpdateOne(filter, update);
+            var update = Builders<T>.Update.Set("status", false);
+            var updated = collection.UpdateOne(filter, update);
             return updated != null;
-           
+
 
         }
 
-        public bool RemoveByFilter<T>(string collectionName,string fieldName,string value)
+        public bool RemoveByFilter<T>(string collectionName, string fieldName, string value)
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value);

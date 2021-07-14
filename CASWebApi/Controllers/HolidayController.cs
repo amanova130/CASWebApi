@@ -54,6 +54,7 @@ namespace CASWebApi.Controllers
         public ActionResult<Holiday> CreateHoliday(Holiday holiday)
         {
             logger.LogInformation("Creating a new holiday profile: " + holiday);
+            holiday.Status = true;
             if (!(_holidayService.Create(holiday)))
             {
                 logger.LogError("Cannot create a holiday, duplicated id or wrong format");
