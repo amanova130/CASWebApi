@@ -24,7 +24,7 @@ namespace CASWebApi.Services
         }
         public TimeTable GetByCalendarName(string timeTableName)
         {
-            return DbContext.GetDocumentByFilter<TimeTable>("timeTable", "group_id", timeTableName) ;
+            return DbContext.GetDocumentByFilter<TimeTable>("timeTable", "groupName", timeTableName) ;
         }
 
         public List<TimeTable> GetAll()
@@ -35,7 +35,7 @@ namespace CASWebApi.Services
 
         public void deleteEvent(string id)
         {
-            DbContext.PullElement<Schedule>("timeTable", "schedule", id);
+            //DbContext.PullElement<Schedule>("timeTable", "schedule", id);
 
         }
 
@@ -51,7 +51,7 @@ namespace CASWebApi.Services
             bool isSucceeded = true;
             for (int i = 0; i < schedule.Length && isSucceeded; i++)
 
-                if (!DbContext.PushElement<Schedule>("timeTable", "schedule", schedule[i], calendarName, "group_id"))
+                if (!DbContext.PushElement<Schedule>("timeTable", "schedule", schedule[i], calendarName, "groupName"))
                     isSucceeded = false;
             return isSucceeded;
             

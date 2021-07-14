@@ -9,19 +9,27 @@ namespace CASWebApi.Models
 {
     public class Schedule
     {
+
+        
         [BsonElement("courseName")]
-        public string Summary{ get; set; }
-    [BsonElement("startTime")]
-
-        public DateTime StartTime { get; set; }
+        public string title{ get; set; }
+   
+        [BsonElement("startTime")]
+        public DateTime start { get; set; }
+       
         [BsonElement("endTime")]
+        public DateTime end { get; set; }
+       
+        [BsonElement("lastDate")]
+        public DateTime lastDate { get; set; }
+        [BsonElement("color")]
+        public string color { get; set; }
 
-        public DateTime EndTime { get; set; }
         [BsonElement("eventId")]
-        public string EventId { get; set; }
+        public string eventId { get; set; }
+       
 
-        [BsonElement("groupId")]
-        public string GroupId { get; set; }
+
 
     }
 }

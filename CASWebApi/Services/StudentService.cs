@@ -36,7 +36,14 @@ namespace CASWebApi.Services
             
 
         }
-
+        public int GetNumberOfStudents()
+        {
+            return DbContext.GetCountOfDocuments<Student>("student");
+        }
+        public int GetNumberOfStudentsByClass(string groupNum)
+        {
+            return DbContext.GetCountOfDocumentsByFilter<Student>("student", "group", groupNum);
+        }
         public bool Create(Student student)
         {
            bool res= DbContext.Insert<Student>("student", student);

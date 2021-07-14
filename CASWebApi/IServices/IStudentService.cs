@@ -13,5 +13,9 @@ namespace CASWebApi.IServices
         bool Create(Student student);
         bool Update(string id, Student studentIn);
         bool RemoveById(string id);
+
+        int GetNumberOfStudents();
+        int GetNumberOfStudentsByClass(string groupNum);
+
     }
 }

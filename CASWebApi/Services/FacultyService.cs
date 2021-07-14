@@ -28,7 +28,10 @@ namespace CASWebApi.Services
             return DbContext.GetAll<Faculty>("faculty");
 
         }
-
+        public int GetNumberOfFaculties()
+        {
+            return DbContext.GetCountOfDocuments<Faculty>("faculty");
+        }
         public bool Create(Faculty faculty)
         {
             faculty.Id = ObjectId.GenerateNewId().ToString();

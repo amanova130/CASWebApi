@@ -35,10 +35,10 @@ namespace CASWebApi.Services
 
         }
 
-        public bool Create(Schedule newEvent)
+        public bool Create(string groupId,Schedule newEvent)
         {
             //newEvent.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.PushElement<Schedule>("timeTable", "schedule",newEvent,newEvent.GroupId, "group_id");
+            bool res = DbContext.PushElement<Schedule>("timeTable", "schedule",newEvent,groupId, "groupName");
             return res;
         }
 
@@ -47,16 +47,13 @@ namespace CASWebApi.Services
 
 
 
-        public bool RemoveById(string id)
+        public bool RemoveById(string eventId,string groupId)
         {
             //DbContext.GetById<Course>("course",id);
-            bool res = DbContext.RemoveById<Schedule>("events", id);
-            //if (res)
-            //{
-            //    DbContext.PullElement<Event>("faculty", "events", id);
-            //    DbContext.PullElement<Event>("group", "events", id);
-            //}
-            return res;
+            //bool res = DbContext.PullElement<Schedule>("timeTable","schedule","group",groupId, eventId);
+            // return res;
+            bool res = DbContext.PullObject<Schedule>("timeTable","schedule",eventId,groupId, "groupName","eventId");
+            return true;
 
         }
     }

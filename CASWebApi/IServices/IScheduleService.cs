@@ -10,8 +10,8 @@ namespace CASWebApi.IServices
     {
         Schedule GetById(string eventId);
         List<Schedule> GetAll();
-        bool Create(Schedule newEvent);
+        bool Create(string groupId,Schedule newEvent);
         void Update(string id, Schedule eventIn);
-        bool RemoveById(string id);
+        bool RemoveById(string eventId, string groupId);
     }
 }

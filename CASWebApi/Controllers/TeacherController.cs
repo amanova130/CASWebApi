@@ -35,7 +35,9 @@ namespace CASWebApi.Controllers
                 logger.LogError("Cannot get access to teacher collection in Db");
             return teacherList;
         }
-           
+        [HttpGet("getNumberOfTeachers", Name = nameof(GetNumberOfTeachers))]
+        public ActionResult<int> GetNumberOfTeachers() =>
+          _teacherService.GetNumberOfTeachers();
 
         [HttpGet("getTeacherById", Name = nameof(GetTeacherById))]
         public ActionResult<Teacher> GetTeacherById(string id)

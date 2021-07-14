@@ -83,57 +83,59 @@ namespace CASWebApi.Models
             return calendars;
         }
 
-        public static void CreateEvent(Schedule newSchedule)
+        public static void CreateEvent(Schedule newSchedule,string calendarName)
         {
             UserCredential credential = GetCredential(UserRole.Admin);
             CalendarService service = GetService(credential);
             var calendars = GetCalendarList();
             string calendarId=string.Empty;
             bool isCalendarExists = false;
-            
+            string reccurence;
+            string untilDate;
             foreach (var calendar in calendars)
             {
-                if(newSchedule.GroupId.Equals(calendar.Summary))
+                if (calendarName.Equals(calendar.Summary))
                 {
                     calendarId = calendar.Id;
                     isCalendarExists = true;
                     break;
-                    
+
 
                 }
             }
-           
+            untilDate = newSchedule.lastDate.ToString("yyyyMMdd");
+            reccurence = String.Format("RRULE:FREQ=WEEKLY;UNTIL={0}", untilDate);
                 Event newEvent = new Event()
                 {
-                    Summary = newSchedule.Summary,
-                    Start = new EventDateTime() { DateTime = newSchedule.StartTime, TimeZone = "Asia/Jerusalem" },
-                    End = new EventDateTime() { DateTime = newSchedule.EndTime, TimeZone = "Asia/Jerusalem" },
-                    Recurrence = new String[] { "RRULE:FREQ=WEEKLY;UNTIL=20210801" }
+                    Summary = newSchedule.title,
+                    Start = new EventDateTime() { DateTime = newSchedule.start, TimeZone = "Asia/Jerusalem" },
+                    End = new EventDateTime() { DateTime = newSchedule.end, TimeZone = "Asia/Jerusalem" },
+                    Recurrence = new String[] { reccurence }
                 };
 
                 // string calendarId = "9ertkf33gp54bfrtc27e31ua34@group.calendar.google.com";
                 if (!(String.IsNullOrEmpty(calendarId)))
                 {
                     newEvent = service.Events.Insert(newEvent, calendarId).Execute();
-                    newSchedule.EventId = newEvent.Id;
+                    newSchedule.eventId = newEvent.Id;
 
                     Console.WriteLine($"{newEvent.HtmlLink}");
                 }
             
         }
-        public static void DeleteEvent(string calendarName,string eventName)
+        public static string DeleteEvent(string calendarName,string eventId)
         {
             UserCredential credential = GetCredential(UserRole.Admin);
 
             CalendarService service = GetService(credential);
             var calendars = GetCalendarList();
             var events = ShowUpCommingEvent(calendarName);
-            string calendarId=string.Empty;
-            if(calendars != null)
+            string calendarId = string.Empty;
+            if (calendars != null)
             {
-                foreach(var calendar in calendars)
+                foreach (var calendar in calendars)
                 {
-                    if(calendar.Summary.Equals(calendarName))
+                    if (calendar.Summary.Equals(calendarName))
                     {
                         calendarId = calendar.Id;
                     }
@@ -141,14 +143,17 @@ namespace CASWebApi.Models
             }
             if (events != null && !String.IsNullOrEmpty(calendarId))
             {
-                foreach (var eventItem in events.Items)
-                {
-                    if (eventItem.Summary.Equals(eventName))
-                    {
-                        service.Events.Delete(calendarId, eventItem.Id).Execute();
-                    }
-                }
+                //foreach (var eventItem in events.Items)
+                //{
+                //    if (eventItem.RecurringEventId.Equals(eventId))
+                //    {
+                //        service.Events.Delete(calendarId, eventItem.Id).Execute();
+                //    }
+                //}
+                return service.Events.Delete(calendarId, eventId).Execute();
+
             }
+            return null;
             
         }
         public static string CreateCalendar(string calendarName)

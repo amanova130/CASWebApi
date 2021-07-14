@@ -37,6 +37,19 @@ namespace CASWebApi.Controllers
 
             return timeTable;
         }
+        [HttpGet("getTTByGroup", Name = nameof(GetTTByGroup))]
+        public ActionResult<TimeTable> GetTTByGroup(string id)
+        {
+            var timeTable = _timeTableService.GetByCalendarName(id);
+
+            if (timeTable == null)
+            {
+                return NotFound();
+            }
+
+            return timeTable;
+        }
+
 
         [HttpPost("createTimeTable", Name = nameof(CreateTimeTable))]
         public ActionResult<TimeTable> CreateTimeTable(TimeTable timeTable)
@@ -84,7 +97,7 @@ namespace CASWebApi.Controllers
         {
             var timeTable = _timeTableService.GetById(id);
             for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
-                Calendar.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Summary); //its not supposes to be here,just 4 test
+                Calendar.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].title); //its not supposes to be here,just 4 test
             if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
                 return NoContent();
             return NotFound();

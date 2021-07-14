@@ -60,6 +60,9 @@ namespace CASWebApi.Models.DbModels
 
             return collection.Find(filter).ToList();
         }
+
+
+
         /// <summary>
         ///  Get all documents in given collection with specific filter
         /// </summary>
@@ -114,6 +117,23 @@ namespace CASWebApi.Models.DbModels
             collection.UpdateManyAsync(filter, update);
             return true;
         }
+        /// <summary>
+        /// removes a specific object from an array 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool PullObject<T>(string collectionName, string arrayName, string objectId, string fieldId, string fieldName,string objectKey)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
+            var update = Builders<T>.Update.PullFilter(arrayName, Builders<Schedule>.Filter.Eq(objectKey, objectId));
+            var result = collection.UpdateOne(filter, update);
+            return true;
+        }
+
 
         public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName)
         {
@@ -198,6 +218,21 @@ namespace CASWebApi.Models.DbModels
             var updated = collection.UpdateManyAsync(filter, update);
             return updated != null;
 
+        }
+
+        public int GetCountOfDocuments<T>(string collectionName)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter =  Builders<T>.Filter.Eq("status", true);
+            var updated = (int)collection.Find(filter).CountDocuments();
+            return updated;
+        }
+        public int GetCountOfDocumentsByFilter<T>(string collectionName,string field,string value)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq("status", true) & Builders<T>.Filter.Eq(field, value);
+            var updated = (int)collection.Find(filter).CountDocuments();
+            return updated;
         }
 
 

@@ -39,15 +39,15 @@ namespace CASWebApi.Controllers
             return newEvent;
         }
 
-        [HttpPost]
-        public ActionResult<Schedule> Create(Schedule newEvent)
+        [HttpPost("createEvent", Name = nameof(createEvent))]
+        public ActionResult<Schedule> createEvent(string groupId,Schedule newEvent)
         {
-            Calendar.CreateEvent(newEvent);
+            Calendar.CreateEvent(newEvent,groupId);
 
-            if (!(_scheduleService.Create(newEvent)))
+            if (!(_scheduleService.Create(groupId, newEvent)))
                 return NotFound();
 
-            return Ok("added");
+            return CreatedAtRoute("createEvent", new { id = newEvent.title }, newEvent);
         }
 
         [HttpPut("{id:length(24)}")]
@@ -59,21 +59,24 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-            eventIn.EventId = id;
+            eventIn.eventId = id;
 
             _scheduleService.Update(id, eventIn);
 
             return NoContent();
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("deleteEvent", Name = nameof(DeleteEvent))]
+        public IActionResult DeleteEvent(string eventId, string groupId)
         {
-            var newEvent = _scheduleService.GetById(id);
+            if (Calendar.DeleteEvent(groupId, eventId) != null)
+            {
 
-            if (newEvent != null && _scheduleService.RemoveById(newEvent.EventId))
-                return NoContent();
-            return NotFound();
+                if (_scheduleService.RemoveById(eventId, groupId))
+                return Ok(true);
+            }
+            return NotFound(false);
+
         }
     }
 }
