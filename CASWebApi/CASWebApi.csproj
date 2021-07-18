@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.16.0" />
+    <PackageReference Include="ClosedXML" Version="0.95.4" />
+    <PackageReference Include="EPPlus" Version="5.7.1" />
+    <PackageReference Include="GemBox.Spreadsheet" Version="47.0.1248" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.51.0.2312" />
-<<<<<<< Updated upstream
+    <PackageReference Include="Infodinamica.Framework.Exportable" Version="2.0.1.18715" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
-=======
->>>>>>> Stashed changes
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />

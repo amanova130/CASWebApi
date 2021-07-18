@@ -43,6 +43,7 @@ namespace CASWebApi
             services.AddScoped<ITimeTableService, TimeTableService>();
             services.AddScoped<IScheduleService, ScheduleService>();
             services.AddScoped<IHolidayService, HolidayService>();
+            services.AddScoped<HelperService>();
 
             services.AddCors(options =>
             {
@@ -96,6 +97,7 @@ namespace CASWebApi
 
             app.UseCors(
                 options => options.WithOrigins("http://localhost:4200")
+                .WithExposedHeaders("Content-Disposition")
                 .AllowAnyMethod()
                 .AllowAnyHeader());
             app.UseSwagger();

@@ -11,7 +11,7 @@ namespace CASWebApi.Models
     public class User
     {
       
-        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonId]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
         //[BsonElement("user_id")]
@@ -24,5 +24,8 @@ namespace CASWebApi.Models
         public DateTime LogIn { get; set; }
         [BsonElement("log_off_time")]
         public DateTime LogOff { get; set; }
+        [BsonElement("role")]
+        public string Role { get; set; }
+
     }
 }

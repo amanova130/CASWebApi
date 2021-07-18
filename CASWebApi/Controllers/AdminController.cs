@@ -7,7 +7,6 @@ using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CASWebApi.Controllers
 {
@@ -21,10 +20,19 @@ namespace CASWebApi.Controllers
             _adminService = adminService;
         }
 
+        /// <summary>
+        /// Function to get all Admin data
+        /// </summary>
+        /// <returns>List of admins</returns>
         [HttpGet("getAllAdmin", Name = nameof(GetAllAdmin))]
         public ActionResult<List<Admin>> GetAllAdmin() =>
              _adminService.GetAll();
 
+        /// <summary>
+        /// Get Admin data by Id
+        /// </summary>
+        /// <param name="id">Admin Id</param>
+        /// <returns>Object that contains Admin data</returns>
         [HttpGet("getAdminById", Name = nameof(GetAdminById))]
         public ActionResult<Admin> GetAdminById(string id)
         {
@@ -38,6 +46,11 @@ namespace CASWebApi.Controllers
             return admin;
         }
 
+        /// <summary>
+        /// Function to create a new Admin profile
+        /// </summary>
+        /// <param name="admin">Object that contain Admin profile </param>
+        /// <returns>Created Admin profile</returns>
         [HttpPost("createNewAdmin", Name = nameof(CreateNewAdmin))]
         public ActionResult<Admin> CreateNewAdmin(Admin admin)
         {
@@ -46,6 +59,12 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("GetAdminById", new { id = admin.Id }, admin);
         }
         
+        /// <summary>
+        /// Update existed Admin profile
+        /// </summary>
+        /// <param name="id">Admin Id</param>
+        /// <param name="adminIn">Object that need to update</param>
+        /// <returns>Updated Admin profile</returns>
         [HttpPut("updateAdmin", Name = nameof(UpdateAdmin))]
         public IActionResult UpdateAdmin(string id, Admin adminIn)
         {
@@ -63,6 +82,11 @@ namespace CASWebApi.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Delete Admin by Id
+        /// </summary>
+        /// <param name="id"> Admin Id</param>
+        /// <returns></returns>
         [HttpDelete("deleteAdminById", Name = nameof(DeleteAdminById))]
 
         public IActionResult DeleteAdminById(string id)
@@ -72,14 +96,6 @@ namespace CASWebApi.Controllers
                 return NoContent();
             return NotFound();
 
-           /* if (admin == null)
-            {
-                return NotFound();
-            }
-
-           if(!( _adminService.RemoveById(admin.Id)))
-                 return NotFound();
-           return NoContent();*/
         }
     }
 }

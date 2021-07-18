@@ -16,7 +16,7 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class TeacherController : ControllerBase
     {
-        private readonly ILogger logger;
+        private readonly ILogger logger; //Logger for writing logs in console
         ITeacherService _teacherService;
         public TeacherController(ITeacherService teacherService, ILogger<TeacherController> logger)
         {
@@ -24,6 +24,10 @@ namespace CASWebApi.Controllers
             _teacherService = teacherService;
         }
 
+        /// <summary>
+        /// Get All Teacher profiles
+        /// </summary>
+        /// <returns>List of Teachers</returns>
         [HttpGet("getAllTeachers", Name = nameof(GetAllTeachers))]
         public  ActionResult<List<Teacher>> GetAllTeachers() 
         {
@@ -35,10 +39,20 @@ namespace CASWebApi.Controllers
                 logger.LogError("Cannot get access to teacher collection in Db");
             return teacherList;
         }
+
+        /// <summary>
+        /// Get number of Teachers
+        /// </summary>
+        /// <returns>Number of teacher</returns>
         [HttpGet("getNumberOfTeachers", Name = nameof(GetNumberOfTeachers))]
         public ActionResult<int> GetNumberOfTeachers() =>
           _teacherService.GetNumberOfTeachers();
 
+        /// <summary>
+        /// Get teacher profile by Id
+        /// </summary>
+        /// <param name="id">Id of Teacher</param>
+        /// <returns>Teacher profile</returns>
         [HttpGet("getTeacherById", Name = nameof(GetTeacherById))]
         public ActionResult<Teacher> GetTeacherById(string id)
         {
@@ -54,6 +68,11 @@ namespace CASWebApi.Controllers
             return teacher;
         }
 
+        /// <summary>
+        /// Create a new Teacher
+        /// </summary>
+        /// <param name="teacher">Teacher object</param>
+        /// <returns>A new teacher profile</returns>
         [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
         public ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {
@@ -67,6 +86,11 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("getTeacherById", new { id = teacher.Id }, teacher);
         }
 
+        /// <summary>
+        /// Update existed teacher profile
+        /// </summary>
+        /// <param name="teacherIn">Teacher profile to update</param>
+        /// <returns>True if teacher profile updated, otherwise false</returns>
         [HttpPut("updateTeacher", Name = nameof(UpdateTeacher))]
         public IActionResult UpdateTeacher(Teacher teacherIn)
         {
@@ -87,6 +111,11 @@ namespace CASWebApi.Controllers
             return Ok(updated);
         }
 
+        /// <summary>
+        /// Delete Teacher profile by Id
+        /// </summary>
+        /// <param name="id">Id of Teacher</param>
+        /// <returns>True if teacher profile deleted, otherwise false</returns>
         [HttpDelete("deleteTeacherById", Name = nameof(DeleteTeacherById))]
         public IActionResult DeleteTeacherById(string id)
         {
