@@ -57,7 +57,7 @@ namespace CASWebApi.Controllers
             timeTable.status = true;
             if (_timeTableService.GetByCalendarName(timeTable.CalendarName) == null)
             {
-                timeTable.CalendarId = Calendar.CreateCalendar(timeTable.CalendarName);
+                timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
                 // Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
 
                 _timeTableService.Create(timeTable);
@@ -97,7 +97,7 @@ namespace CASWebApi.Controllers
         {
             var timeTable = _timeTableService.GetById(id);
             for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
-                Calendar.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].title); //its not supposes to be here,just 4 test
+                CalendarService.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Title); //its not supposes to be here,just 4 test
             if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
                 return NoContent();
             return NotFound();

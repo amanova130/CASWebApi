@@ -5,7 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace CASWebApi.Models.DbModels
-{
+{ /*
+    StudExam class
+    Contains all methods and properties for StudExam Model
+*/
     public class StudExam
     {
         [BsonElement("exam_id")]

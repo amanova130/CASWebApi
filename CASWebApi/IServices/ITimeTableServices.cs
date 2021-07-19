@@ -8,6 +8,9 @@ namespace CASWebApi.IServices
 {
     public interface ITimeTableService
     {
+        /// <summary>
+        /// an interface that contains abstract methods and properties of timeTable services
+        /// </summary>
         TimeTable GetById(string timetableId);
         List<TimeTable> GetAll();
         bool Create(TimeTable timeTable);
@@ -15,8 +18,6 @@ namespace CASWebApi.IServices
         bool RemoveById(string id);
 
         public TimeTable GetByCalendarName(string timeTableName);
-        public bool AddToSchedule(Schedule[] schedule, string calendarName);
-        public void deleteEvent(string id);
 
 
     }

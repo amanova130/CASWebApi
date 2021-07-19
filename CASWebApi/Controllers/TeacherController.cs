@@ -16,7 +16,7 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class TeacherController : ControllerBase
     {
-        private readonly ILogger logger; //Logger for writing logs in console
+        private readonly ILogger logger;
         ITeacherService _teacherService;
         public TeacherController(ITeacherService teacherService, ILogger<TeacherController> logger)
         {
@@ -24,10 +24,11 @@ namespace CASWebApi.Controllers
             _teacherService = teacherService;
         }
 
+
         /// <summary>
-        /// Get All Teacher profiles
+        /// a function to get list of all teacher from db
         /// </summary>
-        /// <returns>List of Teachers</returns>
+        /// <returns>list of teachers</returns>
         [HttpGet("getAllTeachers", Name = nameof(GetAllTeachers))]
         public  ActionResult<List<Teacher>> GetAllTeachers() 
         {
@@ -41,18 +42,13 @@ namespace CASWebApi.Controllers
         }
 
         /// <summary>
-        /// Get number of Teachers
+        /// get total number of teachers in db
         /// </summary>
-        /// <returns>Number of teacher</returns>
+        /// <returns>number of teachers</returns>
         [HttpGet("getNumberOfTeachers", Name = nameof(GetNumberOfTeachers))]
         public ActionResult<int> GetNumberOfTeachers() =>
           _teacherService.GetNumberOfTeachers();
 
-        /// <summary>
-        /// Get teacher profile by Id
-        /// </summary>
-        /// <param name="id">Id of Teacher</param>
-        /// <returns>Teacher profile</returns>
         [HttpGet("getTeacherById", Name = nameof(GetTeacherById))]
         public ActionResult<Teacher> GetTeacherById(string id)
         {
@@ -69,10 +65,30 @@ namespace CASWebApi.Controllers
         }
 
         /// <summary>
-        /// Create a new Teacher
+        /// get number of teachers by courseName
         /// </summary>
-        /// <param name="teacher">Teacher object</param>
-        /// <returns>A new teacher profile</returns>
+        /// <param name="courseName"></param>
+        /// <returns>number of teachers</returns>
+        [HttpGet("getTeacherByCourse", Name = nameof(GetTeachersByCourseName))]
+        public ActionResult<List<Teacher>> GetTeachersByCourseName(string courseName)
+        {
+            logger.LogInformation("Getting Teacher by given courseName from teacherController");
+            var teacherList = _teacherService.GetTeachersByCourseName(courseName);
+
+            if (teacherList == null)
+            {
+                logger.LogError("Cannot get access to teacher collection in Db");
+            }
+            logger.LogInformation("Fetched teacher data by courseName");
+
+            return teacherList;
+        }
+
+        /// <summary>
+        /// add new teacher object to db
+        /// </summary>
+        /// <param name="teacher">teacher object to add</param>
+        /// <returns> teacher object if added,otherwise null </returns>
         [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
         public ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {
@@ -87,10 +103,10 @@ namespace CASWebApi.Controllers
         }
 
         /// <summary>
-        /// Update existed teacher profile
+        /// update existed teacher profile
         /// </summary>
-        /// <param name="teacherIn">Teacher profile to update</param>
-        /// <returns>True if teacher profile updated, otherwise false</returns>
+        /// <param name="teacherIn">id of the teacher to update</param>
+        /// <returns>true if updated,otherwise false</returns>
         [HttpPut("updateTeacher", Name = nameof(UpdateTeacher))]
         public IActionResult UpdateTeacher(Teacher teacherIn)
         {
@@ -112,10 +128,10 @@ namespace CASWebApi.Controllers
         }
 
         /// <summary>
-        /// Delete Teacher profile by Id
+        /// deletes teacher profile from db
         /// </summary>
-        /// <param name="id">Id of Teacher</param>
-        /// <returns>True if teacher profile deleted, otherwise false</returns>
+        /// <param name="id"></param>
+        /// <returns>true if deleted,otherwise false</returns>
         [HttpDelete("deleteTeacherById", Name = nameof(DeleteTeacherById))]
         public IActionResult DeleteTeacherById(string id)
         {

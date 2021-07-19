@@ -42,7 +42,7 @@ namespace CASWebApi.Controllers
         {
             _userService.Create(user);
 
-            return CreatedAtRoute("getUserById", new { id = user.Id }, user);
+            return CreatedAtRoute("getUserById", new { id = user.UserName }, user);
         }
 
         [HttpPut("updateUser", Name = nameof(UpdateUser))]
@@ -54,7 +54,7 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-            userIn.Id = id;
+            userIn.UserName = id;
 
             _userService.Update(id, userIn);
 
@@ -71,7 +71,7 @@ namespace CASWebApi.Controllers
                 return NotFound();
             }
 
-            _userService.RemoveById(user.Id);
+            _userService.RemoveById(user.UserName);
 
             return NoContent();
         }

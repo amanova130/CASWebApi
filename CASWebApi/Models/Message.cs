@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+   Message Class
+   Contains all methods and properties for Message Model
+*/
     public class Message
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]

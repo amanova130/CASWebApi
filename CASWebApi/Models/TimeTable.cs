@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+    timeTable class
+    Contains all methods and properties for timeTable Model
+*/
     public class TimeTable
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]

@@ -42,12 +42,12 @@ namespace CASWebApi.Controllers
         [HttpPost("createEvent", Name = nameof(createEvent))]
         public ActionResult<Schedule> createEvent(string groupId,Schedule newEvent)
         {
-            Calendar.CreateEvent(newEvent,groupId);
+            CalendarService.CreateEvent(newEvent,groupId);
 
             if (!(_scheduleService.Create(groupId, newEvent)))
                 return NotFound();
 
-            return CreatedAtRoute("createEvent", new { id = newEvent.title }, newEvent);
+            return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);
         }
 
         [HttpPut("{id:length(24)}")]
@@ -59,7 +59,7 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-            eventIn.eventId = id;
+            eventIn.EventId = id;
 
             _scheduleService.Update(id, eventIn);
 
@@ -69,7 +69,7 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteEvent", Name = nameof(DeleteEvent))]
         public IActionResult DeleteEvent(string eventId, string groupId)
         {
-            if (Calendar.DeleteEvent(groupId, eventId) != null)
+            if (CalendarService.DeleteEvent(groupId, eventId) != null)
             {
 
                 if (_scheduleService.RemoveById(eventId, groupId))

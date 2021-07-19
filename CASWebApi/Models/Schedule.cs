@@ -7,27 +7,34 @@ using System.Linq;
 using System.Threading.Tasks;
 namespace CASWebApi.Models
 {
+  /*
+   Schedule class
+   Contains all methods and properties for schedule Model
+*/
     public class Schedule
     {
 
         
         [BsonElement("courseName")]
-        public string title{ get; set; }
+        public string Title{ get; set; }
    
         [BsonElement("startTime")]
-        public DateTime start { get; set; }
+        public DateTime Start { get; set; }
        
         [BsonElement("endTime")]
-        public DateTime end { get; set; }
+        public DateTime End { get; set; }
        
         [BsonElement("lastDate")]
-        public DateTime lastDate { get; set; }
+        public DateTime LastDate { get; set; }
         [BsonElement("color")]
-        public string color { get; set; }
+        public string Color { get; set; }
 
         [BsonElement("eventId")]
-        public string eventId { get; set; }
-       
+        public string EventId { get; set; }
+
+        [BsonElement("teacher")]
+        public Teacher Teacher { get; set; }
+
 
 
 

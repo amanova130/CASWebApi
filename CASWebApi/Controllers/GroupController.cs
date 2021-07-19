@@ -15,9 +15,11 @@ namespace CASWebApi.Controllers
     public class GroupController : ControllerBase
     {
         IGroupService _groupService;
-        public GroupController(IGroupService groupService)
+        ITimeTableService _timeTableService;
+        public GroupController(IGroupService groupService,ITimeTableService timeTableService)
         {
             _groupService = groupService;
+            _timeTableService = timeTableService;
         }
 
         /// <summary>
@@ -62,9 +64,18 @@ namespace CASWebApi.Controllers
         [HttpPost("createGroup", Name = nameof(CreateGroup))]
         public ActionResult<Group> CreateGroup(Group group)
         {
+            TimeTable timeTable = new TimeTable();
+            timeTable.CalendarName = group.GroupNumber;
+            timeTable.GroupSchedule=new Schedule[0];
+            timeTable.status = true;
             group.Status = true;
-            _groupService.Create(group);
 
+            if (_groupService.Create(group))
+            {
+                timeTable.CalendarId=CalendarService.CreateCalendar(timeTable.CalendarName);
+                if (timeTable.CalendarId != null)
+                    _timeTableService.Create(timeTable);
+            }
             return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
         }
 
@@ -98,7 +109,7 @@ namespace CASWebApi.Controllers
         {
             var group = _groupService.GetById(id);
 
-            if (group != null && _groupService.RemoveById(group.Id))
+            if (group != null && _groupService.RemoveById(group.Id) && _timeTableService.RemoveById(group.GroupNumber))
                 return Ok(true);
             return NotFound(false);
         }

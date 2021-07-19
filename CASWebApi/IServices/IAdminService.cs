@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of admin service
+    /// </summary>
     public interface IAdminService
     {
         Admin GetById(string adminId);

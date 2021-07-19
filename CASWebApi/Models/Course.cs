@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+       Course class
+       Contains all methods and properties for course Model
+   */
     public class Course
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]

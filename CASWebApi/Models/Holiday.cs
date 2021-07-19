@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+ /*
+   Holiday class
+   Contains all methods and properties for Holiday Model
+*/
     public class Holiday
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
