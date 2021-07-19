@@ -7,7 +7,6 @@ using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CASWebApi.Controllers
 {
@@ -21,14 +20,27 @@ namespace CASWebApi.Controllers
             _facultyService = facultiesService;
         }
 
+        /// <summary>
+        /// Get All Faculties data
+        /// </summary>
+        /// <returns>List of Faculties</returns>
         [HttpGet("getAllFaculties", Name = nameof(GetAllFaculties))]
         public ActionResult<List<Faculty>> GetAllFaculties() =>
              _facultyService.GetAll();
 
+        /// <summary>
+        /// Get Number of existed faculties
+        /// </summary>
+        /// <returns>Number of faculties</returns>
         [HttpGet("getNumberOfFaculties", Name = nameof(GetNumberOfFaculties))]
         public ActionResult<long> GetNumberOfFaculties() =>
              _facultyService.GetNumberOfFaculties();
 
+        /// <summary>
+        /// Get Faculty profile by Id
+        /// </summary>
+        /// <param name="id">Id of faculty</param>
+        /// <returns>Faculty profile</returns>
         [HttpGet("getFacById", Name = nameof(GetFacById))]
         public ActionResult<Faculty> GetFacById(string id)
         {
@@ -42,6 +54,11 @@ namespace CASWebApi.Controllers
             return faculty;
         }
 
+        /// <summary>
+        /// Create a new Faculty
+        /// </summary>
+        /// <param name="faculty">New Faculty Object</param>
+        /// <returns>Created Faculty profile</returns>
         [HttpPost("createFaculty", Name = nameof(CreateFaculty))]
         public ActionResult<Faculty> CreateFaculty(Faculty faculty)
         {
@@ -51,6 +68,11 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
         }
 
+        /// <summary>
+        /// Update existed faculty profile
+        /// </summary>
+        /// <param name="facultyIn">Faculty profile to update</param>
+        /// <returns>Updated Faculty</returns>
         [HttpPut("updateFaculty", Name = nameof(UpdateFaculty))]
         public IActionResult UpdateFaculty(Faculty facultyIn)
         {
@@ -65,6 +87,11 @@ namespace CASWebApi.Controllers
             return Ok(updated);
         }
 
+        /// <summary>
+        /// Delete Faculty by Id
+        /// </summary>
+        /// <param name="id">Id of Faculty</param>
+        /// <returns>True if faculty dleted, otherwise false</returns>
         [HttpDelete("deleteFacById", Name = nameof(DeleteFacById))]
         public IActionResult DeleteFacById(string id)
         {

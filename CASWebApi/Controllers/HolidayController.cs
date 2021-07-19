@@ -23,6 +23,10 @@ namespace CASWebApi.Controllers
 
         }
 
+        /// <summary>
+        /// Get All existed Holidays
+        /// </summary>
+        /// <returns>List of Holidays</returns>
         [HttpGet("getAllHolidays", Name = nameof(GetAllHolidays))]
         public ActionResult<List<Holiday>> GetAllHolidays()
         {
@@ -35,7 +39,11 @@ namespace CASWebApi.Controllers
             return holidayList;
         }
 
-
+        /// <summary>
+        /// Get Holiday by Id
+        /// </summary>
+        /// <param name="id">Id of Holiday</param>
+        /// <returns>Holiday profile</returns>
         [HttpGet("getHolidayById", Name = nameof(GetHolidayById))]
         public ActionResult<Holiday> GetHolidayById(string id)
         {
@@ -51,6 +59,11 @@ namespace CASWebApi.Controllers
             return holiday;
         }
 
+        /// <summary>
+        /// Create a new Holiday
+        /// </summary>
+        /// <param name="holiday">Holiday object</param>
+        /// <returns>Created Holiday object</returns>
         [HttpPost("createHoliday", Name = nameof(CreateHoliday))]
         public ActionResult<Holiday> CreateHoliday(Holiday holiday)
         {
@@ -65,6 +78,11 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("getHolidayById", new { id = holiday.Id }, holiday);
         }
 
+        /// <summary>
+        /// Update Holidat profile
+        /// </summary>
+        /// <param name="holidayIn">Holiday object to update</param>
+        /// <returns>True if updated, otherwise false</returns>
         [HttpPut("updateHoliday", Name = nameof(UpdateHoliday))]
         public IActionResult UpdateHoliday(Holiday holidayIn)
         {
@@ -84,6 +102,11 @@ namespace CASWebApi.Controllers
             return Ok(updated);
         }
 
+        /// <summary>
+        /// Delete Holiday by Id
+        /// </summary>
+        /// <param name="id">Id of Holiday</param>
+        /// <returns>True if deleted, otherwise false</returns>
         [HttpDelete("deleteHolidayById", Name = nameof(DeleteHolidayById))]
         public IActionResult DeleteHolidayById(string id)
         {

@@ -7,7 +7,6 @@ using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CASWebApi.Controllers
 {
@@ -23,14 +22,27 @@ namespace CASWebApi.Controllers
             _timeTableService = timeTableService;
         }
 
+        /// <summary>
+        /// Get all Groups
+        /// </summary>
+        /// <returns>List of Groups</returns>
         [HttpGet("getAllGroups", Name = nameof(GetAllGroups))]
         public ActionResult<List<Group>> GetAllGroups() =>
              _groupService.GetAll();
 
+        /// <summary>
+        /// Get Number of existed Groups
+        /// </summary>
+        /// <returns>Number of Groups</returns>
         [HttpGet("getNumberOfGroups", Name = nameof(getNumberOfGroups))]
         public ActionResult<int> getNumberOfGroups() =>
              _groupService.GetNumberOfGroups();
 
+        /// <summary>
+        /// Get Group profile by Id
+        /// </summary>
+        /// <param name="id">Group Id</param>
+        /// <returns>Group profile</returns>
         [HttpGet("getGroupById", Name = nameof(GetGroupById))]
         public ActionResult<Group> GetGroupById(string id)
         {
@@ -44,6 +56,11 @@ namespace CASWebApi.Controllers
             return group;
         }
 
+        /// <summary>
+        /// Create a new Group
+        /// </summary>
+        /// <param name="group">Group profile to create a new one</param>
+        /// <returns>Created Group profile</returns>
         [HttpPost("createGroup", Name = nameof(CreateGroup))]
         public ActionResult<Group> CreateGroup(Group group)
         {
@@ -62,6 +79,11 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
         }
 
+        /// <summary>
+        /// Update existed group profile
+        /// </summary>
+        /// <param name="groupIn">Group profile to update</param>
+        /// <returns>True if group updated, otherwise false</returns>
         [HttpPut("updateGroup", Name = nameof(UpdateGroup))]
         public IActionResult UpdateGroup(Group groupIn)
         {
@@ -72,14 +94,16 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-           
-             
-
            updated=_groupService.Update(groupIn.Id, groupIn);
 
             return Ok(updated);
         }
 
+        /// <summary>
+        /// Delete Group by Id
+        /// </summary>
+        /// <param name="id">Group id</param>
+        /// <returns>True if group deleted, otherwise false</returns>
         [HttpDelete("deleteGroupById", Name = nameof(DeleteGroupById))]
         public IActionResult DeleteGroupById(string id)
         {

@@ -36,8 +36,6 @@ namespace CASWebApi.Services
         public List<Student> GetAll()
         {
              return DbContext.GetAll<Student>("student");
-            
-
         }
 
         /// <summary>
