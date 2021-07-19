@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+       Admin class
+       Contains all methods and properties for admin Model
+   */
     public class Admin
     {
 

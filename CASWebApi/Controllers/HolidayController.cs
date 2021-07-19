@@ -20,6 +20,7 @@ namespace CASWebApi.Controllers
         {
             this.logger = logger;
             _holidayService = holidayService;
+
         }
 
         [HttpGet("getAllHolidays", Name = nameof(GetAllHolidays))]
@@ -80,7 +81,6 @@ namespace CASWebApi.Controllers
                 logger.LogInformation("Given Holiday profile Updated successfully");
             else
                 logger.LogError("Cannot update the Holiday profile: " + holidayIn.Id + " wrong format");
-
             return Ok(updated);
         }
 

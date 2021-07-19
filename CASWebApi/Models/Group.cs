@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+   Group class
+   Contains all methods and properties for Group Model
+*/
     public class Group
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of dbSettings service
+    /// </summary>
     public interface IDbSettings
     {
         IMongoDatabase database { get; }

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of students service
+    /// </summary>
     public interface IStudentService
     {
         Student GetById(string studentId);

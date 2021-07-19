@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
-   public interface ICourseService
+    /// <summary>
+    /// an interface that contains abstract methods and properties of courses service
+    /// </summary>
+    public interface ICourseService
     {
         Course GetById(string courseId);
         List<Course> GetAll();

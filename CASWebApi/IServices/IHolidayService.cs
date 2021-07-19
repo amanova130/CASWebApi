@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of holidays service
+    /// </summary>
     public interface IHolidayService
     {
         Holiday GetById(string holidayId);

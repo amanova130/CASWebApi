@@ -44,6 +44,7 @@ namespace CASWebApi
             services.AddScoped<IScheduleService, ScheduleService>();
             services.AddScoped<IHolidayService, HolidayService>();
 
+
             services.AddCors(options =>
             {
                 options.AddPolicy(MyAllowSpecificOrigins,

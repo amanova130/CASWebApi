@@ -54,6 +54,22 @@ namespace CASWebApi.Controllers
             return teacher;
         }
 
+        [HttpGet("getTeacherByCourse", Name = nameof(GetTeachersByCourseName))]
+        public ActionResult<List<Teacher>> GetTeachersByCourseName(string courseName)
+        {
+            logger.LogInformation("Getting Teacher by given courseName from teacherController");
+            var teacherList = _teacherService.GetTeachersByCourseName(courseName);
+
+            if (teacherList == null)
+            {
+                logger.LogError("Cannot get access to teacher collection in Db");
+            }
+            logger.LogInformation("Fetched teacher data by courseName");
+
+            return teacherList;
+        }
+
+
         [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
         public ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {

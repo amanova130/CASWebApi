@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+/*
+    Address class
+    Contains all methods and properties for address Model
+*/
     public class AddressBook
     {
         [BsonElement("street")]

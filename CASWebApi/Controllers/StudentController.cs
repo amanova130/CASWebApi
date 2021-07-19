@@ -15,9 +15,11 @@ namespace CASWebApi.Controllers
     public class StudentController : ControllerBase
     {
         IStudentService _studentService;
-        public StudentController(IStudentService studentService)
+        IUserService _userService;
+        public StudentController(IStudentService studentService,IUserService userService)
         {
             _studentService = studentService;
+            _userService = userService;
         }
 
         [HttpGet("getAllStudents", Name = nameof(GetAllStudents))]
@@ -52,10 +54,15 @@ namespace CASWebApi.Controllers
         public ActionResult<Student> CreateStudent(Student student)
         {
             student.Status = true;
+            User _user = new User();
+            _user.UserName = student.Id;
+            _user.Password = student.Birth_date;
+            _user.Role = "Student";
 
             if (!( _studentService.Create(student)))
                 return NotFound("duplicated id or wrong id format");
-           
+
+            _userService.Create(_user);
             return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
         }
 
@@ -79,8 +86,10 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteStudentById(string id)
         {
             var student = _studentService.GetById(id);
-            if (student != null && _studentService.RemoveById(student.Id))
+            if (student != null && _studentService.RemoveById(student.Id) && _userService.RemoveById(student.Id))
+
                 return Ok(true);
+            
             return NotFound();
         }
     }

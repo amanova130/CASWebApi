@@ -9,12 +9,16 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+   Student class
+   Contains all methods and properties for Student Model
+*/
     public class Student
     {
        
         [BsonId]
         [BsonIgnoreIfDefault]
-        // [BsonElement("_id")]
+       
         public string Id { get; set; }
 
         [BsonElement("f_name")]
@@ -35,9 +39,6 @@ namespace CASWebApi.Models
 
         public string Birth_date { get; set; }
 
-        [BsonElement("class_num")]
-        public string ClassNum { get; set; }
-
         [BsonElement("address")]
         public AddressBook Address { get; set; }
         
@@ -46,9 +47,6 @@ namespace CASWebApi.Models
 
         [BsonElement("group")]
         public string Group_Id { get; set; }
-
-        [BsonElement("user")]
-        public User PersonalUser { get; set; }
 
         [BsonElement("stud_exam")]
         public StudExam[] Grades { get; set; }

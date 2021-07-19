@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of schedule service
+    /// </summary>
     public interface IScheduleService
     {
         Schedule GetById(string eventId);

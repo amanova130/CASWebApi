@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.IServices
 {
+    /// <summary>
+    /// an interface that contains abstract methods and properties of messages service
+    /// </summary>
     public interface IMessageService
     {
         Message GetById(string messageId);

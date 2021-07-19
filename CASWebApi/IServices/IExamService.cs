@@ -11,7 +11,7 @@ namespace CASWebApi.IServices
         Exam GetById(string examId);
         List<Exam> GetAll();
         bool Create(Exam exam);
-        void Update(string id, Exam examIn);
+        bool Update(string id, Exam examIn);
         bool RemoveById(string id);
     }
 }

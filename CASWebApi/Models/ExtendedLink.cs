@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Models
 {
+    /*
+    ExtendedLink class
+    Contains all methods and properties for extendedLink Model
+*/
     public class ExtendedLink
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
