@@ -28,6 +28,12 @@ namespace CASWebApi.Services
             return DbContext.GetById<Group>("group", groupId);
         }
 
+        public List<Group> GetGroupsByFaculty(string id)
+        {
+            return DbContext.GetListByFilter<Group>("group", "fac_name", id);
+        }
+
+
 
         /// <summary>
         /// get all groups from db

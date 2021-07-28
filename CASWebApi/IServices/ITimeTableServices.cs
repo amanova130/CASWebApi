@@ -14,7 +14,7 @@ namespace CASWebApi.IServices
         TimeTable GetById(string timetableId);
         List<TimeTable> GetAll();
         bool Create(TimeTable timeTable);
-        void Update(string id, TimeTable timeTableIn);
+        bool Update(string id, TimeTable timeTableIn);
         bool RemoveById(string id);
 
         public TimeTable GetByCalendarName(string timeTableName);

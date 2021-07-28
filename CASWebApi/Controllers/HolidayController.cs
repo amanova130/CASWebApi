@@ -79,7 +79,7 @@ namespace CASWebApi.Controllers
         }
 
         /// <summary>
-        /// Update Holidat profile
+        /// Update Holiday profile
         /// </summary>
         /// <param name="holidayIn">Holiday object to update</param>
         /// <returns>True if updated, otherwise false</returns>

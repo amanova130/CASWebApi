@@ -55,6 +55,18 @@ namespace CASWebApi.Controllers
 
             return group;
         }
+        [HttpGet("getGroupsByFaculty", Name = nameof(GetGroupsByFaculty))]
+        public ActionResult<List<Group>> GetGroupsByFaculty(string id)
+        {
+            var groups = _groupService.GetGroupsByFaculty(id);
+
+            if (groups == null)
+            {
+                return NotFound();
+            }
+
+            return groups;
+        }
 
         /// <summary>
         /// Create a new Group
