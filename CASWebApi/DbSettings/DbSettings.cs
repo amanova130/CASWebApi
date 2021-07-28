@@ -47,6 +47,21 @@ namespace CASWebApi.Models.DbModels
             return res;
         }
 
+        public bool InsertMany<T>(string collectionName, List<T> listOfDocuments)
+        {
+            bool res = true;
+            var collection = database.GetCollection<T>(collectionName);
+            try
+            {
+                collection.InsertMany(listOfDocuments);
+            }
+            catch (Exception e)
+            {
+                res = false;
+            }
+            return res;
+        }
+
         /// <summary>
         /// Get all documents in given collection
         /// </summary>

@@ -43,6 +43,8 @@ namespace CASWebApi
             services.AddScoped<ITimeTableService, TimeTableService>();
             services.AddScoped<IScheduleService, ScheduleService>();
             services.AddScoped<IHolidayService, HolidayService>();
+            services.AddScoped<IExtendedLinkService, ExtendedLinkService>();
+            services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<HelperService>();
 
 

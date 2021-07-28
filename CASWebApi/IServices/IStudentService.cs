@@ -14,6 +14,7 @@ namespace CASWebApi.IServices
         Student GetById(string studentId);
         List<Student> GetAll();
         bool Create(Student student);
+        public bool InsertManyStudents(List<Student> students);
         bool Update(string id, Student studentIn);
         bool RemoveById(string id);
 

@@ -69,6 +69,17 @@ namespace CASWebApi.Services
         }
 
         /// <summary>
+        /// add new student object to db 
+        /// </summary>
+        /// <param name="student">student object to add</param>
+        /// <returns>true if added</returns>
+        public bool InsertManyStudents(List<Student> students)
+        {
+            bool res = DbContext.InsertMany<Student>("student", students);
+            return res;
+        }
+
+        /// <summary>
         /// edit an existing student by changing it to a new student object with the same id
         /// </summary>
         /// <param name="id">id of the student to edit</param>

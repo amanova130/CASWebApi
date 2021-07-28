@@ -16,10 +16,23 @@ namespace CASWebApi.Models
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
+
+        [BsonElement("description_link")]
         public string Description { get; set; }
+
+        [BsonElement("url")]
         public string URL { get; set; }
 
+        [BsonElement("fac_name")]
         public string Fac_name { get; set; }
+
+        [BsonElement("image")]
         public string Image { get; set; }
+
+        [BsonElement("title")]
+        public string Title { get; set; }
+
+        [BsonElement("status")]
+        public bool Status { get; set; }
     }
 }
