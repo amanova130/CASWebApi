@@ -28,7 +28,23 @@ namespace CASWebApi.Controllers
         [HttpGet("getAllStudents", Name = nameof(GetAllStudents))]
         public ActionResult<List<Student>> GetAllStudents() =>
              _studentService.GetAll();
-        
+
+        [HttpGet("getAllStudentsByGroup", Name = nameof(GetAllStudentsByGroup))]
+
+        public ActionResult<List<Student>> GetAllStudentsByGroup(string groupName)
+        {
+            var students = _studentService.GetAllStudentsByGroup(groupName);
+
+            if (students == null)
+            {
+                return NotFound();
+            }
+
+            return students;
+
+            
+        }
+
         /// <summary>
         /// Get number of Students
         /// </summary>
@@ -73,10 +89,13 @@ namespace CASWebApi.Controllers
         [HttpPost("createStudent", Name = nameof(CreateStudent))]
         public ActionResult<Student> CreateStudent(Student student)
         {
+            
             student.Status = true;
             User _user = new User();
             _user.UserName = student.Id;
-            _user.Password = student.Birth_date;
+            // _user.Password = student.Birth_date.Replace('-',' ');
+            _user.Password = student.Birth_date.Replace("-","");
+
             _user.Role = "Student";
 
             if (!( _studentService.Create(student)))

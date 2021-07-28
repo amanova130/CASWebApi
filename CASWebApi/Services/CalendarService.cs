@@ -66,11 +66,41 @@ namespace CASWebApi.Models
                 {
                     newEvent = service.Events.Insert(newEvent, calendarId).Execute();
                     newSchedule.EventId = newEvent.Id;
-                
                     
                 }
             return newSchedule.EventId != null;
             
+        }
+        public static Schedule UpdateEvent(Schedule scheduleIn, string calendarName)
+        {
+            UserCredential credential = GetCredential(UserRole.Admin);
+            Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
+            var calendars = GetCalendarList();
+            string calendarId = getCalendarIdByName(calendarName);
+            string reccurence;
+            string description = String.Empty;
+            string untilDate;
+            if (scheduleIn.Teacher != null)
+                description = String.Format("Teacher: {0} {1}   ID:{2}", scheduleIn.Teacher.First_name, scheduleIn.Teacher.Last_name, scheduleIn.Teacher.Id);
+
+            untilDate = scheduleIn.LastDate.ToString("yyyyMMdd");
+            reccurence = String.Format("RRULE:FREQ=WEEKLY;UNTIL={0}", untilDate);
+            Event newEvent = new Event()
+            {
+                Summary = scheduleIn.Title,
+                Start = new EventDateTime() { DateTime = scheduleIn.Start, TimeZone = "Asia/Jerusalem" },
+                End = new EventDateTime() { DateTime = scheduleIn.End, TimeZone = "Asia/Jerusalem" },
+                Description = description,
+                Recurrence = new String[] { reccurence }
+            };
+
+            if (!(String.IsNullOrEmpty(calendarId)))
+            {
+                newEvent = service.Events.Update(newEvent,calendarId,scheduleIn.EventId).Execute();
+
+            }
+            return scheduleIn;
+
         }
 
         /// <summary>
@@ -92,6 +122,7 @@ namespace CASWebApi.Models
             return false;
             
         }
+        
 
         /// <summary>
         /// function to create new secondary calendar in google calendar

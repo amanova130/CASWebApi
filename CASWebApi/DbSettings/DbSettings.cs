@@ -154,10 +154,12 @@ namespace CASWebApi.Models.DbModels
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
-            var update = Builders<T>.Update.PullFilter(arrayName, Builders<Schedule>.Filter.Eq(objectKey, objectId));
+            var update = Builders<T>.Update.PullFilter(arrayName, Builders<T>.Filter.Eq(objectKey, objectId));
             var result = collection.UpdateOne(filter, update);
             return result.IsAcknowledged;
         }
+        
+
 
         /// <summary>
         /// push new element to array

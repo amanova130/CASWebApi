@@ -15,9 +15,14 @@ namespace CASWebApi.Controllers
     public class AdminController : ControllerBase
     {
         IAdminService _adminService;
-        public AdminController(IAdminService adminService)
+        IUserService _userService;
+
+        public AdminController(IAdminService adminService, IUserService userService)
+
         {
             _adminService = adminService;
+            _userService = userService;
+
         }
 
         /// <summary>
@@ -54,9 +59,15 @@ namespace CASWebApi.Controllers
         [HttpPost("createNewAdmin", Name = nameof(CreateNewAdmin))]
         public ActionResult<Admin> CreateNewAdmin(Admin admin)
         {
+            User _user = new User();
+            admin.Status = true;
+            _user.UserName = admin.Id;
+            _user.Password = admin.Birth_date.Replace("-", "");
+            _user.Role = "Admin";
             if (!(_adminService.Create(admin)))
                 return NotFound("duplicated id or wrong id format");
-            return CreatedAtRoute("GetAdminById", new { id = admin.Id }, admin);
+            _userService.Create(_user);
+            return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);
         }
         
         /// <summary>

@@ -65,8 +65,8 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id"></param>
         /// <param name="timeTableIn"></param>
-        public void Update(string id, TimeTable timeTableIn) =>
-          DbContext.Update<TimeTable>("timeTable", id, timeTableIn);
+        public bool Update(string id, TimeTable timeTableIn) =>
+          DbContext.Update<TimeTable>("timeTable", timeTableIn.Id, timeTableIn);
 
         /// <summary>
         /// remove timeTable object with the given id from db

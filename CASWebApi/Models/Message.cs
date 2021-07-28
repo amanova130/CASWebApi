@@ -20,9 +20,13 @@ namespace CASWebApi.Models
         [BsonElement("description")]
 
         public string Description { get; set; }
+        [BsonElement("subject")]
+
+        public string Subject { get; set; }
+
         [BsonElement("receiver_id")]
 
-        public string Receiver { get; set; }
+        public ReceiverDetails[] Receiver { get; set; }
         [BsonElement("sender_id")]
 
         public string Sender { get; set; }
@@ -32,6 +36,15 @@ namespace CASWebApi.Models
         [BsonElement("status")]
 
         public bool status { get; set; }
+    }
+
+    public class ReceiverDetails
+    {
+        [BsonElement("Id")]
+
+        public string Id;
+        [BsonElement("Email")]
+        public string Email;
     }
 
 }

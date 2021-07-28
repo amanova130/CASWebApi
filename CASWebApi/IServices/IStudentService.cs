@@ -20,6 +20,8 @@ namespace CASWebApi.IServices
 
         int GetNumberOfStudents();
         int GetNumberOfStudentsByClass(string groupNum);
+        List<Student> GetAllStudentsByGroup(string groupName);
+
 
     }
 }

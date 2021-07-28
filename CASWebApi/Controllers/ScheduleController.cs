@@ -8,7 +8,6 @@ using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CASWebApi.Controllers
 {
@@ -17,28 +16,48 @@ namespace CASWebApi.Controllers
     public class ScheduleController : ControllerBase
     {
         IScheduleService _scheduleService;
-        public ScheduleController(IScheduleService scheduleService)
+        ITimeTableService _timeTableService;
+        public ScheduleController(IScheduleService scheduleService, ITimeTableService timeTableService)
         {
             _scheduleService = scheduleService;
+            _timeTableService = timeTableService;
         }
+        //[HttpGet]
+        //public ActionResult<List<Schedule>> Get() =>
+        //     _scheduleService.GetAll();
 
-        [HttpGet]
-        public ActionResult<List<Schedule>> Get() =>
-             _scheduleService.GetAll();
+        /// <summary>
+        /// get schedule by id and groupId(calendar's name)
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="id"></param>
+        /// <returns>found schedule object,or not found</returns>
 
-        [HttpGet("{id:length(24)}", Name = "GetSchedule")]
-        public ActionResult<Schedule> Get(string id)
+        [HttpGet("getEvent", Name = nameof(getEvent))]
+        public ActionResult<Schedule> getEvent(string groupId,string id)
         {
-            var newEvent = _scheduleService.GetById(id);
+            var timeTable = _timeTableService.GetById(groupId);
+            
 
-            if (newEvent == null)
+            if (timeTable == null)
             {
                 return NotFound();
             }
 
-            return newEvent;
+            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+            {
+                if(timeTable.GroupSchedule[i].EventId == id)
+                    return timeTable.GroupSchedule[i];
+            }
+            return NotFound();
         }
 
+        /// <summary>
+        /// create a new event for specific group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="newEvent"></param>
+        /// <returns>created event if added successfully,"not found" otherwise</returns>
         [HttpPost("createEvent", Name = nameof(createEvent))]
         public ActionResult<Schedule> createEvent(string groupId,Schedule newEvent)
         {
@@ -50,26 +69,45 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Schedule eventIn)
+        /// <summary>
+        /// update existed event
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="eventIn"></param>
+        /// <returns>updated object if updated,false otherwise</returns>
+
+        [HttpPut("updateEvent", Name = nameof(UpdateEvent))]
+        public IActionResult UpdateEvent(string groupId, Schedule eventIn)
+
         {
-            var newEvent = _scheduleService.GetById(id);
 
-            if (newEvent == null)
+            var timeTable = _timeTableService.GetByCalendarName(groupId);
+
+            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
             {
-                return NotFound();
+                if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                {
+                    timeTable.GroupSchedule[i] = eventIn;
+                    break;
+                }
+
             }
-            eventIn.EventId = id;
 
-            _scheduleService.Update(id, eventIn);
-
-            return NoContent();
+            if(_timeTableService.Update(groupId, timeTable)  && CalendarService.UpdateEvent(eventIn,groupId) != null)
+                return CreatedAtRoute("createEvent", new { id = eventIn.Title }, eventIn);
+            return NotFound();
         }
 
+        /// <summary>
+        /// delete event by id for specific group
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="groupId"></param>
+        /// <returns>true if deleted,false otherwise</returns>
         [HttpDelete("deleteEvent", Name = nameof(DeleteEvent))]
         public IActionResult DeleteEvent(string eventId, string groupId)
         {
-            if (CalendarService.DeleteEvent(groupId, eventId) != null)
+            if (CalendarService.DeleteEvent(groupId, eventId))
             {
 
                 if (_scheduleService.RemoveById(eventId, groupId))

@@ -38,6 +38,12 @@ namespace CASWebApi.Services
              return DbContext.GetAll<Student>("student");
         }
 
+        public List<Student> GetAllStudentsByGroup(string groupName)
+        {
+            return DbContext.GetListByFilter<Student>("student", "group",groupName);
+
+        }
+
         /// <summary>
         /// get total number of students in db
         /// </summary>

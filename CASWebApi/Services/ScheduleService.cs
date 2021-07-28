@@ -23,10 +23,7 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="eventId"></param>
         /// <returns>schedule object with given id</returns>
-        public Schedule GetById(string eventId)
-        {
-            return DbContext.GetById<Schedule>("event", eventId);
-        }
+        
 
         /// <summary>
         /// get all schedule objects from db

@@ -37,6 +37,16 @@ namespace CASWebApi.Services
             return DbContext.GetAll<Message>("messages");
 
         }
+        public List<Message> GetAllByReceiverId(string id)
+        {
+            return DbContext.GetListByFilter<Message>("messages","receiver_id",id);
+
+        }
+        public List<Message> GetAllBySenderId(string id)
+        {
+            return DbContext.GetListByFilter<Message>("messages", "sender_id", id);
+
+        }
 
         /// <summary>
         /// add new message object to db
@@ -49,6 +59,7 @@ namespace CASWebApi.Services
             bool res = DbContext.Insert<Message>("messages", message);
             return res;
         }
+        
 
         /// <summary>
         /// edit an existing message by changing it to a new message object with the same id

@@ -24,6 +24,14 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Message>> GetAllMsg() =>
              _messageService.GetAll();
 
+        [HttpGet("getAllMsgByReceiver", Name = nameof(getAllMsgByReceiver))]
+        public ActionResult<List<Message>> getAllMsgByReceiver(string id) =>
+             _messageService.GetAllByReceiverId(id);
+
+        [HttpGet("getAllMsgBySender", Name = nameof(getAllMsgBySender))]
+        public ActionResult<List<Message>> getAllMsgBySender(string id) =>
+            _messageService.GetAllBySenderId(id);
+
         [HttpGet("getMsgById", Name = nameof(GetMsgById))]
         public ActionResult<Message> GetMsgById(string id)
         {
@@ -38,7 +46,37 @@ namespace CASWebApi.Controllers
         }
 
 
+        [HttpPost("sendEmail", Name = nameof(SendMail))]
+        public async Task<IActionResult> SendMail([FromBody] Message email)
+        {
+            var client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587);
+            client.UseDefaultCredentials = false;
+            client.EnableSsl = true;
 
+            client.Credentials = new System.Net.NetworkCredential("casmanagment78@gmail.com", "casmanagment1337");
+
+            var mailMessage = new System.Net.Mail.MailMessage();
+            mailMessage.From = new System.Net.Mail.MailAddress("casmanagment78@gmail.com");
+            string emailReceivers = String.Empty;
+            for (int i = 0; i < email.Receiver.Length; i++)
+                emailReceivers += email.Receiver[i].Email+',';
+            emailReceivers = emailReceivers.TrimEnd(',');
+            email.Sender = "Admin";
+            mailMessage.To.Add(emailReceivers);
+            
+            
+            mailMessage.Body = email.Description;
+
+            mailMessage.Subject = email.Subject;
+
+            mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
+            mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
+
+            await client.SendMailAsync(mailMessage);
+            _messageService.Create(email);
+
+            return Ok();
+        }
         [HttpPost("createMsg", Name = nameof(CreateMsg))]
         public ActionResult<Message> CreateMsg(Message message)
         {
