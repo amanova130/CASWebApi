@@ -14,6 +14,7 @@ namespace CASWebApi.IServices
     {
         IMongoDatabase database { get; }
         public bool Insert<T>(string collectionName, T document);
+        public bool InsertMany<T>(string collectionName, List<T> listOfDocuments);
         public List<T> GetAll<T>(string collectionName);
         public T GetById<T>(string collectionName, string id);
         public bool Update<T>(string collectionName, string id, T document);

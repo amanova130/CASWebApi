@@ -105,6 +105,30 @@ namespace CASWebApi.Controllers
             return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
         }
 
+
+        /// <summary>
+        /// Create a new student profile
+        /// </summary>
+        /// <param name="student">New student object</param>
+        /// <returns>Created new student profile</returns>
+        [HttpPost("insertListOfStudents", Name = nameof(InsertListOfStudents))]
+        public ActionResult<Student> InsertListOfStudents(List<Student> students)
+        {
+            students.ForEach(student =>
+            {
+                student.Status = true;
+                User _user = new User();
+                _user.UserName = student.Id;
+                _user.Password = student.Birth_date;
+                _user.Role = "Student";
+                _userService.Create(_user);
+            });
+            if (!(_studentService.InsertManyStudents(students)))
+                return NotFound("duplicated id or wrong id format");
+
+            return Ok(true);
+        }
+
         /// <summary>
         /// Update existed student profile
         /// </summary>

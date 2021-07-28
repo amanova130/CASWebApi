@@ -83,9 +83,9 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateCourse(Course courseIn)
         {
             logger.LogInformation("Updating existed course: " + courseIn.Id);
-            var teacher = _courseService.GetById(courseIn.Id);
+            var course = _courseService.GetById(courseIn.Id);
 
-            if (teacher == null)
+            if (course == null)
             {
                 logger.LogError("Course with Id: " + courseIn.Id + " doesn't exist");
                 return NotFound(false);

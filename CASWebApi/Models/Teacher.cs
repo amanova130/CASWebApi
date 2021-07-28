@@ -44,6 +44,9 @@ namespace CASWebApi.Models
         [BsonElement("status")]
         public bool Status { get; set; }
 
+        [BsonElement("image")]
+        public string Image { get; set; }
+
 
         [BsonElement("teachesCourses")]
         public string[] TeachesCourses { get; set; }

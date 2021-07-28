@@ -8,42 +8,42 @@ using System.Threading.Tasks;
 
 namespace CASWebApi.Services
 {
-    public class ExtendedLinkService : IExtendedLinkService
+    public class RequestService : IRequestService
     {
         IDbSettings DbContext;
 
-        public ExtendedLinkService(IDbSettings settings)
+        public RequestService(IDbSettings settings)
         {
             DbContext = settings;
         }
         /// <summary>
-        /// get course object by id
+        /// get request object by id
         /// </summary>
-        /// <param name="linkId"></param>
-        /// <returns>found course object</returns>
-        public ExtendedLink GetById(string linkId)
+        /// <param name="requestId"></param>
+        /// <returns>found request object</returns>
+        public Request GetById(string requestId)
         {
-            return DbContext.GetById<ExtendedLink>("extended_links", linkId);
+            return DbContext.GetById<Request>("request", requestId);
         }
         /// <summary>
-        /// get all courses from db
+        /// get all requests from db
         /// </summary>
         /// <returns></returns>
-        public List<ExtendedLink> GetAll()
+        public List<Request> GetAll()
         {
-            return DbContext.GetAll<ExtendedLink>("extended_links");
+            return DbContext.GetAll<Request>("request");
 
         }
 
         /// <summary>
         /// create new course object in db
         /// </summary>
-        /// <param name="link"></param>
+        /// <param name="course"></param>
         /// <returns>true if successed</returns>
-        public bool Create(ExtendedLink link)
+        public bool Create(Request request)
         {
-            link.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<ExtendedLink>("extended_links", link);
+            request.Id = ObjectId.GenerateNewId().ToString();
+            bool res = DbContext.Insert<Request>("request", request);
             return res;
         }
 
@@ -51,11 +51,11 @@ namespace CASWebApi.Services
         /// edit an existing course
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="linkIn"></param>
+        /// <param name="requestIn"></param>
         /// <returns>true if successed</returns>
-        public bool Update(string id, ExtendedLink linkIn)
+        public bool Update(string id, Request requestIn)
         {
-            return DbContext.Update<ExtendedLink>("extended_links", id, linkIn);
+            return DbContext.Update<Request>("request", id, requestIn);
         }
 
 
@@ -67,8 +67,9 @@ namespace CASWebApi.Services
         /// <returns>true if removed successfully</returns>
         public bool RemoveById(string id)
         {
-            bool res = DbContext.RemoveById<ExtendedLink>("extended_links", id);
+            bool res = DbContext.RemoveById<Request>("request", id);
             return res;
+
         }
     }
 }
