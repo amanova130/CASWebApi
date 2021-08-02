@@ -33,6 +33,6 @@ namespace CASWebApi.Models
         public string Role { get; set; }
        
         [BsonElement("status")]
-        public string Status { get; set; }
+        public bool Status { get; set; }
     }
 }

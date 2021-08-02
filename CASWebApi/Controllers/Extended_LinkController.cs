@@ -30,8 +30,22 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of links</returns>
         [HttpGet("getAllLinks", Name = nameof(GetAllLinks))]
-        public ActionResult<List<ExtendedLink>> GetAllLinks() =>
-                 _linkService.GetAll();
+        public ActionResult<List<ExtendedLink>> GetAllLinks()
+        {
+            logger.LogInformation("Getting all Admins data");
+            var linkList = _linkService.GetAll();
+            if(linkList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return linkList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to link collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+                 
 
         /// <summary>
         /// Get link profile by Id
@@ -41,14 +55,21 @@ namespace CASWebApi.Controllers
         [HttpGet("getLinkbyId", Name = nameof(GetLinkbyId))]
         public ActionResult<ExtendedLink> GetLinkbyId(string id)
         {
-            var link = _linkService.GetById(id);
-
-            if (link == null)
+            logger.LogInformation("Getting Link by Id");
+            if (id != null)
             {
-                return NotFound();
+                var link = _linkService.GetById(id);
+                if (link != null)
+                {
+                    logger.LogInformation("Fetched data for link id: " + id);
+                    return Ok(link);
+                }
+                else
+                    logger.LogError("Link is doesn't exist");
             }
-
-            return link;
+            else
+                logger.LogError("Given Link Id is null");
+            return BadRequest();
         }
 
         /// <summary>
@@ -59,36 +80,49 @@ namespace CASWebApi.Controllers
         [HttpPost("createNewLink", Name = nameof(CreateNewLink))]
         public ActionResult<ExtendedLink> CreateNewLink(ExtendedLink link)
         {
-            link.Status = true;
-            if (!(_linkService.Create(link)))
-                return NotFound();
-
-            return CreatedAtRoute("getLinkbyId", new { id = link.Id }, link);
+            logger.LogError("Creating a new Link");
+            if (link != null)
+            {
+                link.Status = true;
+                if (_linkService.Create(link))
+                    return CreatedAtRoute("getLinkbyId", new { id = link.Id }, link);
+                else
+                    logger.LogError("Cannot create a new link");
+            }
+            else
+                logger.LogError("Link is null");
+            return BadRequest(null);
+            
         }
 
         /// <summary>
         /// Update existed link profile
         /// </summary>
-        /// <param name="courseIn"> link to update</param>
+        /// <param name="linkIn"> link to update</param>
         /// <returns>Boolean if link updated true, otherwise false</returns>
         [HttpPut("updateLink", Name = nameof(UpdateLink))]
         public IActionResult UpdateLink(ExtendedLink linkIn)
         {
             logger.LogInformation("Updating existed link: " + linkIn.Id);
-            var link = _linkService.GetById(linkIn.Id);
-
-            if (link == null)
+            if (linkIn != null)
             {
-                logger.LogError("link with Id: " + linkIn.Id + " doesn't exist");
-                return NotFound(false);
+                var link = _linkService.GetById(linkIn.Id);
+                if (link != null)
+                {
+                    if (_linkService.Update(linkIn.Id, linkIn))
+                    {
+                        logger.LogInformation("Given link profile Updated successfully");
+                        return Ok(true);
+                    }
+                    else
+                        logger.LogError("Cannot update given link in DB");
+                }
+                else
+                    logger.LogError("Cannot update the link profile: " + linkIn.Id + " wrong format");
             }
-            bool updated = _linkService.Update(linkIn.Id, linkIn);
-            if (updated)
-                logger.LogInformation("Given link profile Updated successfully");
             else
-                logger.LogError("Cannot update the link profile: " + linkIn.Id + " wrong format");
-
-            return Ok(updated);
+                logger.LogError("Given object is null");
+            return BadRequest(false);
         }
 
         /// <summary>
@@ -99,10 +133,17 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteLinkById", Name = nameof(DeleteLinkById))]
         public IActionResult DeleteLinkById(string id)
         {
-            var link = _linkService.GetById(id);
-
-            if (link != null && _linkService.RemoveById(link.Id))
-                return Ok(true);
+            logger.LogInformation("Deleting link By Id");
+            if (id != null)
+            {
+                var link = _linkService.GetById(id);
+                if (link != null && _linkService.RemoveById(link.Id))
+                    return Ok(true);
+                else
+                    logger.LogError("Cannot access to Link collection in DB");
+            }
+            else
+                logger.LogError("Given Link Id is null");
             return NotFound(false);
         }
     }

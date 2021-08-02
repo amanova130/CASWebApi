@@ -6,6 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,9 +16,12 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class TimeTableController : ControllerBase
     {
+        //Logger to create streammer of logs 
+        private readonly ILogger logger;
         ITimeTableService _timeTableService;
-        public TimeTableController(ITimeTableService timeTableService)
+        public TimeTableController(ITimeTableService timeTableService, ILogger<TimeTableController> logger)
         {
+            this.logger = logger;
             _timeTableService = timeTableService;
         }
 
@@ -26,8 +30,22 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>list of timeTables</returns>
         [HttpGet("getAllTTable", Name = nameof(GetAllTTable))]
-        public ActionResult<List<TimeTable>> GetAllTTable() =>
-             _timeTableService.GetAll();
+        public ActionResult<List<TimeTable>> GetAllTTable()
+        {
+            logger.LogInformation("Getting all TimeTables data");
+            var timeList = _timeTableService.GetAll();
+            if (timeList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return timeList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Time-table collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
         /// <summary>
         /// get single time table by id
@@ -37,14 +55,25 @@ namespace CASWebApi.Controllers
         [HttpGet("getTTById", Name = nameof(GetTTById))]
         public ActionResult<TimeTable> GetTTById(string id)
         {
-            var timeTable = _timeTableService.GetById(id);
-
-            if (timeTable == null)
+            logger.LogInformation("Getting TimeTable data");
+            if (id != null && id != "")
             {
+                var timeTable = _timeTableService.GetById(id);
+                if (timeTable == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    logger.LogInformation("Got timeTable by Id" + timeTable);
+                    return Ok(timeTable);
+                }
+            }
+            else
+            {
+                logger.LogError("Id is null or empty string");
                 return NotFound();
             }
-
-            return timeTable;
         }
 
         /// <summary>
@@ -55,14 +84,26 @@ namespace CASWebApi.Controllers
         [HttpGet("getTTByGroup", Name = nameof(GetTTByGroup))]
         public ActionResult<TimeTable> GetTTByGroup(string id)
         {
-            var timeTable = _timeTableService.GetByCalendarName(id);
-
-            if (timeTable == null)
+            logger.LogInformation("Getting time table by group id");
+            if(id != null)
             {
+                var timeTable = _timeTableService.GetByCalendarName(id);
+                if (timeTable == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    logger.LogInformation("Got timeTable by Id" + timeTable);
+                    return Ok(timeTable);
+                }
+            }
+            else
+            {
+                logger.LogError("Id is null or empty string");
                 return NotFound();
             }
 
-            return timeTable;
         }
 
         /// <summary>
@@ -98,28 +139,44 @@ namespace CASWebApi.Controllers
         [HttpPut("updateById", Name = nameof(UpdateById))]
         public IActionResult UpdateById(string id, TimeTable timeTableIn)
         {
-            var timeTable = _timeTableService.GetById(id);
-
-            if (timeTable == null)
+            logger.LogInformation("Updating TimeTable ");
+            if (id != null && timeTableIn != null)
             {
-                return NotFound();
+                var timeTable = _timeTableService.GetById(id);
+                if (timeTable != null)
+                {
+                    timeTableIn.Id = id;
+                    _timeTableService.Update(id, timeTableIn);
+                    logger.LogInformation("Timetable is updated");
+                    return Ok(true);
+                }
+                else
+                    logger.LogError("Failed to get Timetable by Id");
             }
-            timeTableIn.Id = id;
-
-            _timeTableService.Update(id, timeTableIn);
-
-            return NoContent();
+            else
+                logger.LogError("id and timeTableIn are null");
+            return BadRequest(null);
         }
 
         [HttpDelete("deleteTTById", Name = nameof(DeleteTTById))]
         public IActionResult DeleteTTById(string id)
         {
-            var timeTable = _timeTableService.GetById(id);
-            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
-                CalendarService.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Title); //its not supposes to be here,just 4 test
-            if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
-                return NoContent();
-            return NotFound();
+            logger.LogInformation("DEleting Time table by Id");
+            if (id != null)
+            {
+                var timeTable = _timeTableService.GetById(id);
+                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                    CalendarService.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Title); //its not supposes to be here,just 4 test
+                if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
+                {
+                    logger.LogInformation("Deleted successfully");
+                    return Ok(true);
+                }
+                    
+            }
+            else
+                logger.LogError("Id is null");
+            return BadRequest(false);
         }
 
     }

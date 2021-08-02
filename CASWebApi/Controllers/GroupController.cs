@@ -6,7 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 
 namespace CASWebApi.Controllers
 {
@@ -14,10 +14,12 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
+        private readonly ILogger logger;
         IGroupService _groupService;
         ITimeTableService _timeTableService;
-        public GroupController(IGroupService groupService,ITimeTableService timeTableService)
+        public GroupController(IGroupService groupService,ITimeTableService timeTableService, ILogger<GroupController> logger)
         {
+            this.logger = logger;
             _groupService = groupService;
             _timeTableService = timeTableService;
         }
@@ -27,16 +29,43 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of Groups</returns>
         [HttpGet("getAllGroups", Name = nameof(GetAllGroups))]
-        public ActionResult<List<Group>> GetAllGroups() =>
-             _groupService.GetAll();
+        public ActionResult<List<Group>> GetAllGroups()
+        {
+            logger.LogInformation("Getting all Faculties data");
+            var groupList = _groupService.GetAll();
+            if(groupList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return groupList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Group collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+             
 
         /// <summary>
         /// Get Number of existed Groups
         /// </summary>
         /// <returns>Number of Groups</returns>
         [HttpGet("getNumberOfGroups", Name = nameof(getNumberOfGroups))]
-        public ActionResult<int> getNumberOfGroups() =>
-             _groupService.GetNumberOfGroups();
+        public ActionResult<int> getNumberOfGroups()
+        {
+            logger.LogInformation("Getting number of Groups");
+            var numberOfGroups = _groupService.GetNumberOfGroups();
+            if (numberOfGroups > 0)
+            {
+                return Ok(numberOfGroups);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Group collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+             
 
         /// <summary>
         /// Get Group profile by Id
@@ -46,26 +75,41 @@ namespace CASWebApi.Controllers
         [HttpGet("getGroupById", Name = nameof(GetGroupById))]
         public ActionResult<Group> GetGroupById(string id)
         {
-            var group = _groupService.GetById(id);
-
-            if (group == null)
+            if (id != null)
             {
-                return NotFound();
+                var group = _groupService.GetById(id);
+                if (group != null)
+                {
+                    return Ok(group);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to Group collection in Db");
+                }
             }
-
-            return group;
+            else
+                logger.LogError("Group Id is null or empty string");
+            return BadRequest(null);
         }
+
         [HttpGet("getGroupsByFaculty", Name = nameof(GetGroupsByFaculty))]
         public ActionResult<List<Group>> GetGroupsByFaculty(string id)
         {
-            var groups = _groupService.GetGroupsByFaculty(id);
-
-            if (groups == null)
+            logger.LogInformation("Getting group by Faculty id ");
+            if(id != null)
             {
-                return NotFound();
+                var groups = _groupService.GetGroupsByFaculty(id);
+                if (groups != null)
+                {
+                    return Ok(groups);
+                }
+                else
+                    logger.LogError("Groups by Faculty id not found or cannot access to DB");
             }
+            else
+                logger.LogError("Faculty Id is null");
+            return BadRequest(null);
 
-            return groups;
         }
 
         /// <summary>
@@ -76,19 +120,32 @@ namespace CASWebApi.Controllers
         [HttpPost("createGroup", Name = nameof(CreateGroup))]
         public ActionResult<Group> CreateGroup(Group group)
         {
-            TimeTable timeTable = new TimeTable();
-            timeTable.CalendarName = group.GroupNumber;
-            timeTable.GroupSchedule=new Schedule[0];
-            timeTable.status = true;
-            group.Status = true;
-
-            if (_groupService.Create(group))
+            logger.LogInformation("Creating a new group and creating timetable for this group");
+            if(group != null)
             {
-                timeTable.CalendarId=CalendarService.CreateCalendar(timeTable.CalendarName);
-                if (timeTable.CalendarId != null)
-                    _timeTableService.Create(timeTable);
+                TimeTable timeTable = new TimeTable();
+                timeTable.CalendarName = group.GroupNumber;
+                timeTable.GroupSchedule = new Schedule[0];
+                timeTable.status = true;
+                group.Status = true;
+                if (_groupService.Create(group))
+                {
+                    timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
+                    if (timeTable.CalendarId != null)
+                    {
+                        _timeTableService.Create(timeTable);
+                        return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
+                    }
+                    else
+                        logger.LogError("Failed to create a calendar for Group ");
+                }
+                else
+                    logger.LogError("Failed to access to DB and create a new group");
             }
-            return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
+            else
+                logger.LogError("Group is null");
+            return BadRequest(null);
+
         }
 
         /// <summary>
@@ -99,16 +156,27 @@ namespace CASWebApi.Controllers
         [HttpPut("updateGroup", Name = nameof(UpdateGroup))]
         public IActionResult UpdateGroup(Group groupIn)
         {
-            bool updated = false;
-            var group = _groupService.GetById(groupIn.Id);
-
-            if (group == null)
+            logger.LogInformation("Updating existed group profile");
+            if(groupIn != null)
             {
-                return NotFound();
-            }
-           updated=_groupService.Update(groupIn.Id, groupIn);
+                var group = _groupService.GetById(groupIn.Id);
 
-            return Ok(updated);
+                if (group == null)
+                {
+                   if(_groupService.Update(groupIn.Id, groupIn))
+                    {
+                        logger.LogInformation("Given Group profile Updated successfully");
+                        return Ok(true);
+                    }
+                    else
+                        logger.LogError("Cannot update the Faculty profile: " + groupIn.Id + " wrong format");
+                }
+                else
+                    logger.LogError("Faculty with Id: " + groupIn.Id + " doesn't exist");
+            }
+            else
+                logger.LogError("CourseIn objest is null");
+            return BadRequest(false);
         }
 
         /// <summary>
@@ -119,10 +187,17 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteGroupById", Name = nameof(DeleteGroupById))]
         public IActionResult DeleteGroupById(string id)
         {
-            var group = _groupService.GetById(id);
-
-            if (group != null && _groupService.RemoveById(group.Id) && _timeTableService.RemoveById(group.GroupNumber))
-                return Ok(true);
+            logger.LogInformation("Deleting Course by Id " + id);
+            if (id != null)
+            {
+                var group = _groupService.GetById(id);
+                if (group != null && _groupService.RemoveById(group.Id) && _timeTableService.RemoveById(group.GroupNumber))
+                    return Ok(true);
+                else
+                    logger.LogError("Cannot get access to group collection in Db");
+            }
+            else
+                logger.LogError("Id is not valid format or null");
             return NotFound(false);
         }
     }

@@ -30,16 +30,44 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of courses</returns>
         [HttpGet("getAllCourse", Name = nameof(GetAllCourse))]
-        public ActionResult<List<Course>> GetAllCourse() =>
-             _courseService.GetAll();
+        public ActionResult<List<Course>> GetAllCourse()
+        {
+            logger.LogInformation("Getting all Course from CourseController");
+            var courseList = _courseService.GetAll();
+            if(courseList != null)
+            {
+                logger.LogInformation("Fetched All course data");
+                return Ok(courseList);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to course collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+             
 
         /// <summary>
         /// Get Number of Courses
         /// </summary>
         /// <returns>Number of Courses</returns>
         [HttpGet("getNumberOfCourses", Name = nameof(getNumberOfCourses))]
-        public ActionResult<int> getNumberOfCourses() =>
-             _courseService.GetNumberOfCourses();
+        public ActionResult<int> getNumberOfCourses()
+        {
+            logger.LogInformation("Getting number of Courses");
+            var numberOfCourse = _courseService.GetNumberOfCourses();
+            if(numberOfCourse > 0)
+            {
+                return Ok(numberOfCourse);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to course collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+             
 
         /// <summary>
         /// Get Course profile by Id
@@ -49,14 +77,23 @@ namespace CASWebApi.Controllers
         [HttpGet("getCoursebyId", Name = nameof(GetCoursebyId))]
         public ActionResult<Course> GetCoursebyId(string id)
         {
-            var course = _courseService.GetById(id);
-
-            if (course == null)
+            if(id != null && id != "")
             {
-                return NotFound();
+                var course = _courseService.GetById(id);
+                if (course != null)
+                {
+                    return Ok(course);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to course collection in Db");
+                }
             }
+            else
+                logger.LogError("Course Id is null or empty string");
+            return BadRequest(null);
 
-            return course;
+            
         }
 
         /// <summary>
@@ -67,11 +104,20 @@ namespace CASWebApi.Controllers
         [HttpPost("createNewCourse", Name = nameof(CreateNewCourse))]
         public ActionResult<Course> CreateNewCourse(Course course)
         {
-            course.Status = true;
-            if(!(_courseService.Create(course)))
-                return NotFound();
+            logger.LogInformation("Creating a new course");
+            if(course != null)
+            {
+                course.Status = true;
+                if (!(_courseService.Create(course)))
+                    return NotFound();
+                return CreatedAtRoute("getCoursebyId", new { id = course.Id }, course);
+            }
+            else
+            {
+                logger.LogError("Course object is null " + course);
+                return BadRequest();
+            }
 
-            return CreatedAtRoute("getCoursebyId", new { id = course.Id }, course);
         }
 
         /// <summary>
@@ -83,20 +129,26 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateCourse(Course courseIn)
         {
             logger.LogInformation("Updating existed course: " + courseIn.Id);
-            var course = _courseService.GetById(courseIn.Id);
-
-            if (course == null)
+            if(courseIn != null)
             {
-                logger.LogError("Course with Id: " + courseIn.Id + " doesn't exist");
-                return NotFound(false);
+                var course = _courseService.GetById(courseIn.Id);
+                if (course != null)
+                {
+                    if (_courseService.Update(courseIn.Id, courseIn))
+                    {
+                        logger.LogInformation("Given Course profile Updated successfully");
+                        return Ok(true);
+                    }
+                    else
+                        logger.LogError("Cannot update the Course profile: " + courseIn.Id + " wrong format");
+                }
+                else
+                    logger.LogError("Course with Id: " + courseIn.Id + " doesn't exist");
             }
-            bool updated = _courseService.Update(courseIn.Id, courseIn);
-            if (updated)
-                logger.LogInformation("Given Course profile Updated successfully");
             else
-                logger.LogError("Cannot update the Course profile: " + courseIn.Id + " wrong format");
+                logger.LogError("CourseIn objest is null");
+            return BadRequest(false);
 
-            return Ok(updated);
         }
 
         /// <summary>
@@ -107,11 +159,19 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteCourseById", Name = nameof(DeleteCourseById))]
         public IActionResult DeleteCourseById(string id)
         {
-            var course = _courseService.GetById(id);
-
-            if (course != null && _courseService.RemoveById(course.Id))
-                return Ok(true);
-            return NotFound(false);
+            logger.LogInformation("Deleting Course by Id " + id);
+            if(id != null)
+            {
+                var course = _courseService.GetById(id);
+                if (course != null && _courseService.RemoveById(course.Id))
+                    return Ok(true);
+                else
+                    logger.LogError("Cannot get access to admin collection in Db");
+            }
+            else
+                logger.LogError("Id is not valid format or null");
+           return NotFound(false);
+ 
         }
 
     }

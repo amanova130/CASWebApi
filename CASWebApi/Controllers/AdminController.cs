@@ -6,7 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 
 namespace CASWebApi.Controllers
 {
@@ -14,12 +14,14 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
+        //Logger to create streammer of logs 
+        private readonly ILogger logger;
         IAdminService _adminService;
         IUserService _userService;
 
-        public AdminController(IAdminService adminService, IUserService userService)
-
+        public AdminController(IAdminService adminService, IUserService userService, ILogger<AdminController> logger)
         {
+            this.logger = logger;
             _adminService = adminService;
             _userService = userService;
 
@@ -30,8 +32,23 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of admins</returns>
         [HttpGet("getAllAdmin", Name = nameof(GetAllAdmin))]
-        public ActionResult<List<Admin>> GetAllAdmin() =>
-             _adminService.GetAll();
+        public ActionResult<List<Admin>> GetAllAdmin()
+        {
+            logger.LogInformation("Getting all Admins data");
+            var adminList = _adminService.GetAll();
+            if (adminList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                 return adminList;
+            }  
+            else
+            {
+                logger.LogError("Cannot get access to admin collection in Db");
+                return StatusCode(500, "Internal server error");
+            }   
+
+        }
+             
 
         /// <summary>
         /// Get Admin data by Id
@@ -41,14 +58,25 @@ namespace CASWebApi.Controllers
         [HttpGet("getAdminById", Name = nameof(GetAdminById))]
         public ActionResult<Admin> GetAdminById(string id)
         {
-            var admin = _adminService.GetById(id);
-
-            if (admin == null)
+            logger.LogInformation("Getting Admin data");
+            if(id != null && id != "")
             {
-                return NotFound();
+                var admin = _adminService.GetById(id);
+                if (admin == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    logger.LogInformation("Got Admin by Id" + admin);
+                    return Ok(admin);
+                }    
             }
-
-            return admin;
+            else
+            {
+                logger.LogError("Id is null or empty string");
+                return NotFound();
+            }   
         }
 
         /// <summary>
@@ -59,15 +87,26 @@ namespace CASWebApi.Controllers
         [HttpPost("createNewAdmin", Name = nameof(CreateNewAdmin))]
         public ActionResult<Admin> CreateNewAdmin(Admin admin)
         {
-            User _user = new User();
-            admin.Status = true;
-            _user.UserName = admin.Id;
-            _user.Password = admin.Birth_date.Replace("-", "");
-            _user.Role = "Admin";
-            if (!(_adminService.Create(admin)))
-                return NotFound("duplicated id or wrong id format");
-            _userService.Create(_user);
-            return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);
+            logger.LogInformation("Creating a new Admin profile");
+            if(admin != null)
+            {
+                User _user = new User();
+                admin.Status = true;
+                _user.UserName = admin.Id;
+                _user.Password = admin.Birth_date.Replace("-", "");
+                _user.Role = "Admin";
+                _userService.Create(_user);
+                if (!(_adminService.Create(admin)))
+                    return NotFound("duplicated id or wrong id format");
+                return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);
+            }
+            else
+            {
+                logger.LogError("A new admin model is not valid");
+                return BadRequest(admin);
+            }
+            
+            
         }
         
         /// <summary>
@@ -79,18 +118,23 @@ namespace CASWebApi.Controllers
         [HttpPut("updateAdmin", Name = nameof(UpdateAdmin))]
         public IActionResult UpdateAdmin(string id, Admin adminIn)
         {
-            var admin = _adminService.GetById(id);
-
-            if (admin == null)
+            logger.LogInformation("Updating existed Admin");
+            if(id != null)
             {
-                return NotFound();
+                var admin = _adminService.GetById(id);
+                if (admin == null)
+                {
+                    logger.LogError("Admin with id: " + id + " not found");
+                    return NotFound();
+                }
+                adminIn.Id = id;
+                if (!(_adminService.Update(id, adminIn)))
+                {
+                    logger.LogError("Cannot update the admin profile, something went wrong in UpdateAdmin");
+                    return NotFound();
+                }    
             }
-            adminIn.Id = id;
-
-            if (!(_adminService.Update(id, adminIn)))
-                 return NotFound();
-
-            return NoContent();
+            return Ok();
         }
 
         /// <summary>
@@ -99,12 +143,16 @@ namespace CASWebApi.Controllers
         /// <param name="id"> Admin Id</param>
         /// <returns></returns>
         [HttpDelete("deleteAdminById", Name = nameof(DeleteAdminById))]
-
         public IActionResult DeleteAdminById(string id)
         {
-            var admin = _adminService.GetById(id);
-            if (admin != null && _adminService.RemoveById(admin.Id))
-                return NoContent();
+            logger.LogInformation("Deleting Admin by Id");
+            if(id != null)
+            {
+                var admin = _adminService.GetById(id);
+                if (admin != null && _adminService.RemoveById(admin.Id))
+                    return Ok();
+            }
+            logger.LogError("Id is not valid or empty string");
             return NotFound();
 
         }

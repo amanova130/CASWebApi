@@ -31,17 +31,18 @@ namespace CASWebApi.Controllers
 
         [HttpGet("getAllStudentsByGroup", Name = nameof(GetAllStudentsByGroup))]
 
-        public ActionResult<List<Student>> GetAllStudentsByGroup(string groupName)
+        public ActionResult<List<Student>> GetAllStudentsByGroup([FromQuery] string[] groupName)
         {
-            var students = _studentService.GetAllStudentsByGroup(groupName);
 
-            if (students == null)
-            {
-                return NotFound();
-            }
+            //var students = _studentService.GetAllStudentsByGroup(groupName);
 
-            return students;
+            //if (students == null)
+            //{
+            //    return NotFound();
+            //}
 
+            //return students;
+            return Ok(groupName);
             
         }
 
@@ -89,20 +90,27 @@ namespace CASWebApi.Controllers
         [HttpPost("createStudent", Name = nameof(CreateStudent))]
         public ActionResult<Student> CreateStudent(Student student)
         {
+            if (student != null)
+            {
+                student.Status = true;
+                if (student.Image == null || student.Image == "")
+                    student.Image = "Resources/Images/noPhoto.png";
+                User _user = new User();
+                _user.UserName = student.Id;
+                _user.Password = student.Birth_date.Replace("-", "");
+                _user.Role = "Student";
+
+                if (_studentService.Create(student))
+                {
+                    _userService.Create(_user);
+                    return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
+                }
+                else
+                    return NotFound("duplicated id or wrong id format");
+            }
+            else
+                return BadRequest(null);
             
-            student.Status = true;
-            User _user = new User();
-            _user.UserName = student.Id;
-            // _user.Password = student.Birth_date.Replace('-',' ');
-            _user.Password = student.Birth_date.Replace("-","");
-
-            _user.Role = "Student";
-
-            if (!( _studentService.Create(student)))
-                return NotFound("duplicated id or wrong id format");
-
-            _userService.Create(_user);
-            return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
         }
 
 
@@ -117,6 +125,7 @@ namespace CASWebApi.Controllers
             students.ForEach(student =>
             {
                 student.Status = true;
+                student.Image = "Resources/Images/noPhoto.png";
                 User _user = new User();
                 _user.UserName = student.Id;
                 _user.Password = student.Birth_date;

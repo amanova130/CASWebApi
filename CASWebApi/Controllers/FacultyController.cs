@@ -6,7 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 
 namespace CASWebApi.Controllers
 {
@@ -14,9 +14,11 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class FacultyController : ControllerBase
     {
+        private readonly ILogger logger;
         IFacultyService _facultyService;
-        public FacultyController(IFacultyService facultiesService)
+        public FacultyController(IFacultyService facultiesService, ILogger<FacultyController> logger)
         {
+            this.logger = logger;
             _facultyService = facultiesService;
         }
 
@@ -25,16 +27,42 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of Faculties</returns>
         [HttpGet("getAllFaculties", Name = nameof(GetAllFaculties))]
-        public ActionResult<List<Faculty>> GetAllFaculties() =>
-             _facultyService.GetAll();
+        public ActionResult<List<Faculty>> GetAllFaculties()
+        {
+            logger.LogInformation("Getting all Faculties data");
+            var facultyList = _facultyService.GetAll();
+            if(facultyList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return facultyList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Faculty collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+            
 
         /// <summary>
         /// Get Number of existed faculties
         /// </summary>
         /// <returns>Number of faculties</returns>
         [HttpGet("getNumberOfFaculties", Name = nameof(GetNumberOfFaculties))]
-        public ActionResult<long> GetNumberOfFaculties() =>
-             _facultyService.GetNumberOfFaculties();
+        public ActionResult<long> GetNumberOfFaculties()
+        {
+            logger.LogInformation("Getting number of Faculties");
+            var numberOfFaculties = _facultyService.GetNumberOfFaculties();
+            if (numberOfFaculties > 0)
+            {
+                return Ok(numberOfFaculties);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Faculty collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         /// <summary>
         /// Get Faculty profile by Id
@@ -44,14 +72,22 @@ namespace CASWebApi.Controllers
         [HttpGet("getFacById", Name = nameof(GetFacById))]
         public ActionResult<Faculty> GetFacById(string id)
         {
-            var faculty = _facultyService.GetById(id);
-
-            if (faculty == null)
+            logger.LogInformation("Getting Faculty by Id");
+            if(id != null)
             {
-                return NotFound();
+                var faculty = _facultyService.GetById(id);
+                if (faculty != null)
+                {
+                    return Ok(faculty);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to faculty collection in Db");
+                }
             }
-
-            return faculty;
+            else
+                logger.LogError("Course Id is null or empty string");
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -62,10 +98,18 @@ namespace CASWebApi.Controllers
         [HttpPost("createFaculty", Name = nameof(CreateFaculty))]
         public ActionResult<Faculty> CreateFaculty(Faculty faculty)
         {
-            if(!(_facultyService.Create(faculty)))
-                return NotFound("duplicated id or wrong id format");
-
-            return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
+            logger.LogInformation("Creating a new faculty");
+            if(faculty != null)
+            {
+                faculty.Status = true;
+                if (_facultyService.Create(faculty))
+                    return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
+                else
+                    return StatusCode(409, "Duplicated Id");
+            }
+            else
+                logger.LogError("Faculty object is null " + faculty);
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -76,15 +120,28 @@ namespace CASWebApi.Controllers
         [HttpPut("updateFaculty", Name = nameof(UpdateFaculty))]
         public IActionResult UpdateFaculty(Faculty facultyIn)
         {
-            var faculty = _facultyService.GetById(facultyIn.Id);
-
-            if (faculty == null)
+            logger.LogInformation("Updating existed faculty: " + facultyIn.Id);
+            if(facultyIn != null)
             {
-                return NotFound();
-            }
-            bool updated = _facultyService.Update(facultyIn.Id, facultyIn);
+                var faculty = _facultyService.GetById(facultyIn.Id);
 
-            return Ok(updated);
+                if (faculty != null)
+                {
+                    if(_facultyService.Update(facultyIn.Id, facultyIn))
+                    {
+                        logger.LogInformation("Given Faculty profile Updated successfully");
+                        return Ok(true);
+                    }
+                   else
+                        logger.LogError("Cannot update the Faculty profile: " + facultyIn.Id + " wrong format");
+                }
+                else
+                    logger.LogError("Faculty with Id: " + facultyIn.Id + " doesn't exist");
+
+            }
+            else
+                logger.LogError("CourseIn objest is null");
+            return BadRequest(false);
         }
 
         /// <summary>
@@ -95,10 +152,17 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteFacById", Name = nameof(DeleteFacById))]
         public IActionResult DeleteFacById(string id)
         {
-            var faculty = _facultyService.GetById(id);
-
-            if (faculty != null && _facultyService.RemoveById(faculty.Id))
-                return Ok(true);
+            logger.LogInformation("Deleting Faculty by Id " + id);
+            if (id != null)
+            {
+                var faculty = _facultyService.GetById(id);
+                if (faculty != null && _facultyService.RemoveById(faculty.Id))
+                    return Ok(true);
+                else
+                    logger.LogError("Cannot get access to faculty collection in Db");
+            }
+            else
+                logger.LogError("Id is not valid format or null");
             return NotFound(false);
         }
     }

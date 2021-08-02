@@ -92,14 +92,22 @@ namespace CASWebApi.Controllers
         [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
         public ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {
-            logger.LogInformation("Creating a new teacher profile: "+teacher);
-            if (!( _teacherService.Create(teacher)))
+            if (teacher != null)
             {
-                logger.LogError("Cannot create a teacher, duplicated id or wrong format");
-                return NotFound(null);
+                teacher.Status = true;
+                logger.LogInformation("Creating a new teacher profile: " + teacher);
+                if (teacher.Image == null || teacher.Image == "")
+                    teacher.Image = "Resources/Images/noPhoto.png";
+                if (_teacherService.Create(teacher))
+                {
+                    logger.LogInformation("A new teacher profile added successfully " + teacher);
+                    return CreatedAtRoute("getTeacherById", new { id = teacher.Id }, teacher);
+                }
+                else
+                    logger.LogError("Cannot create a teacher, duplicated id or wrong format");
             }
-            logger.LogInformation("A new teacher profile added successfully " + teacher);
-            return CreatedAtRoute("getTeacherById", new { id = teacher.Id }, teacher);
+
+            return BadRequest(null);
         }
 
         /// <summary>

@@ -29,8 +29,22 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of requests</returns>
         [HttpGet("getAllRequests", Name = nameof(GetAllRequests))]
-        public ActionResult<List<Request>> GetAllRequests() =>
-                 _requestService.GetAll();
+        public ActionResult<List<Request>> GetAllRequests()
+        {
+            logger.LogInformation("Getting all Requests data");
+            var requestList = _requestService.GetAll();
+            if (requestList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return requestList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Request collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+                
 
         /// <summary>
         /// Get request profile by Id
@@ -40,14 +54,22 @@ namespace CASWebApi.Controllers
         [HttpGet("getRequestbyId", Name = nameof(GetRequestbyId))]
         public ActionResult<Request> GetRequestbyId(string id)
         {
-            var request = _requestService.GetById(id);
-
-            if (request == null)
+            if (id != null)
             {
-                return NotFound();
+                logger.LogInformation("Getting Request by Id");
+                var request = _requestService.GetById(id);
+                if (request != null)
+                {
+                    return Ok(request);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to Request collection in Db");
+                }
             }
-
-            return request;
+            else
+                logger.LogError("Request Id is null or empty string");
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -58,11 +80,18 @@ namespace CASWebApi.Controllers
         [HttpPost("createNewRequest", Name = nameof(CreateNewRequest))]
         public ActionResult<Request> CreateNewRequest(Request request)
         {
-            request.Status = true;
-            if (!(_requestService.Create(request)))
-                return NotFound();
-
-            return CreatedAtRoute("getRequestbyId", new { id = request.Id }, request);
+            logger.LogInformation("Creating a new request");
+            if (request != null)
+            {
+                request.Status = true;
+                if (_requestService.Create(request))
+                    return CreatedAtRoute("getFacById", new { id = request.Id }, request);
+                else
+                    return StatusCode(409, "Duplicated Id");
+            }
+            else
+                logger.LogError("request object is null " + request);
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -98,10 +127,17 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteRequestById", Name = nameof(DeleteRequestById))]
         public IActionResult DeleteRequestById(string id)
         {
-            var request = _requestService.GetById(id);
-
-            if (request != null && _requestService.RemoveById(request.Id))
-                return Ok(true);
+            logger.LogInformation("Deleting Request by Id " + id);
+            if (id != null)
+            {
+                var request = _requestService.GetById(id);
+                if (request != null && _requestService.RemoveById(request.Id))
+                    return Ok(true);
+                else
+                    logger.LogError("Cannot get access to request collection in Db");
+            }
+            else
+                logger.LogError("Id is not valid format or null");
             return NotFound(false);
         }
     }

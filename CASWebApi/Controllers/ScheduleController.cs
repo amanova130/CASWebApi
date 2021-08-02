@@ -6,8 +6,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using CASWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
-
+using Microsoft.Extensions.Logging;
 
 namespace CASWebApi.Controllers
 {
@@ -15,10 +14,12 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class ScheduleController : ControllerBase
     {
+        private readonly ILogger logger;
         IScheduleService _scheduleService;
         ITimeTableService _timeTableService;
-        public ScheduleController(IScheduleService scheduleService, ITimeTableService timeTableService)
+        public ScheduleController(IScheduleService scheduleService, ILogger<ScheduleController> logger, ITimeTableService timeTableService)
         {
+            this.logger = logger;
             _scheduleService = scheduleService;
             _timeTableService = timeTableService;
         }
@@ -36,20 +37,25 @@ namespace CASWebApi.Controllers
         [HttpGet("getEvent", Name = nameof(getEvent))]
         public ActionResult<Schedule> getEvent(string groupId,string id)
         {
-            var timeTable = _timeTableService.GetById(groupId);
-            
-
-            if (timeTable == null)
+            logger.LogInformation("Getting Event by group id and id of event");
+            if (groupId != null && id != null)
             {
-                return NotFound();
+                var timeTable = _timeTableService.GetById(groupId);
+                if (timeTable != null)
+                {
+                    for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                    {
+                        if (timeTable.GroupSchedule[i].EventId == id)
+                            return timeTable.GroupSchedule[i];
+                    }
+                }
+                else
+                    logger.LogError("Time table doesn't exist");
             }
-
-            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
-            {
-                if(timeTable.GroupSchedule[i].EventId == id)
-                    return timeTable.GroupSchedule[i];
-            }
-            return NotFound();
+            else
+                logger.LogError("GoupId and Id are null");
+            return BadRequest(null);
+           
         }
 
         /// <summary>
@@ -61,12 +67,18 @@ namespace CASWebApi.Controllers
         [HttpPost("createEvent", Name = nameof(createEvent))]
         public ActionResult<Schedule> createEvent(string groupId,Schedule newEvent)
         {
-            CalendarService.CreateEvent(newEvent,groupId);
-
-            if (!(_scheduleService.Create(groupId, newEvent)))
-                return NotFound();
-
-            return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);
+            logger.LogInformation("Creating a new Event for calendar");
+            if(groupId != null && newEvent != null)
+            {
+                CalendarService.CreateEvent(newEvent, groupId);
+                if (_scheduleService.Create(groupId, newEvent))
+                    return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);
+                else
+                    logger.LogError("Faied to create a new event");
+            }
+            else
+                logger.LogError("GroupId and newEvent  objects are null ");
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -78,24 +90,30 @@ namespace CASWebApi.Controllers
 
         [HttpPut("updateEvent", Name = nameof(UpdateEvent))]
         public IActionResult UpdateEvent(string groupId, Schedule eventIn)
-
         {
-
-            var timeTable = _timeTableService.GetByCalendarName(groupId);
-
-            for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+            logger.LogInformation("Updating a event");
+            if (groupId != null && eventIn != null)
             {
-                if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                var timeTable = _timeTableService.GetByCalendarName(groupId);
+                if (timeTable != null)
                 {
-                    timeTable.GroupSchedule[i] = eventIn;
-                    break;
+                    for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                    {
+                        if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                        {
+                            timeTable.GroupSchedule[i] = eventIn;
+                            break;
+                        }
+                    }
+                    if (_timeTableService.Update(groupId, timeTable) && CalendarService.UpdateEvent(eventIn, groupId) != null)
+                        return CreatedAtRoute("createEvent", new { id = eventIn.Title }, eventIn);
                 }
-
+                else
+                    logger.LogError("Cannot access to _timeTableService.GetByCalendarName");
             }
-
-            if(_timeTableService.Update(groupId, timeTable)  && CalendarService.UpdateEvent(eventIn,groupId) != null)
-                return CreatedAtRoute("createEvent", new { id = eventIn.Title }, eventIn);
-            return NotFound();
+            else
+                logger.LogError("groupId and eventIn null");
+            return BadRequest(null);
         }
 
         /// <summary>
@@ -107,13 +125,22 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteEvent", Name = nameof(DeleteEvent))]
         public IActionResult DeleteEvent(string eventId, string groupId)
         {
-            if (CalendarService.DeleteEvent(groupId, eventId))
+            logger.LogInformation("Deleting a event");
+            if(eventId != null && groupId != null)
             {
-
-                if (_scheduleService.RemoveById(eventId, groupId))
-                return Ok(true);
+                if (CalendarService.DeleteEvent(groupId, eventId))
+                {
+                    if (_scheduleService.RemoveById(eventId, groupId))
+                        return Ok(true);
+                    else
+                        logger.LogError("Cannot get access to Event collection in Db");
+                }
+                else
+                    logger.LogError("Cannot get access to Event collection in Db");
             }
-            return NotFound(false);
+            else
+                logger.LogError("eventId and groupId are null");
+            return BadRequest(null);
 
         }
     }
