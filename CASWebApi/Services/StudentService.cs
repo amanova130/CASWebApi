@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -11,11 +12,15 @@ namespace CASWebApi.Services
 {
     public class StudentService : IStudentService
     {
+        private readonly ILogger logger;
+
         IDbSettings DbContext;
 
-        public StudentService(IDbSettings settings)
+        public StudentService(IDbSettings settings, ILogger<FacultyService> logger)
         {
             DbContext = settings;
+            this.logger = logger;
+
         }
 
         /// <summary>
@@ -25,8 +30,15 @@ namespace CASWebApi.Services
         /// <returns> student object by given id</returns>
         public Student GetById(string studentId)
         {
-            return DbContext.GetById<Student>("student", studentId);
-            
+            logger.LogInformation("StudentService:Getting student by id");
+
+            var student =   DbContext.GetById<Student>("student", studentId);
+            if (student == null)
+                logger.LogError("StudentService:Cannot get a student with a studentId: " + studentId);
+            else
+                logger.LogInformation("StudentService:Fetched student data by id ");
+            return student;
+              
         }
 
         /// <summary>
@@ -35,12 +47,25 @@ namespace CASWebApi.Services
         /// <returns>list of student objects</returns>
         public List<Student> GetAll()
         {
-             return DbContext.GetAll<Student>("student");
+            logger.LogInformation("StudentService:Getting all students");
+            var students = DbContext.GetAll<Student>("student");
+            if (students == null)
+                logger.LogError("StudentService:Cannot get access to students collection in Db");
+            else
+                logger.LogInformation("StudentService:fetched All students collection data");
+            return students;
+
         }
 
         public List<Student> GetAllStudentsByGroup(string groupName)
         {
-            return DbContext.GetListByFilter<Student>("student", "group",groupName);
+            logger.LogInformation("StudentService:Getting all students by group");
+            var students = DbContext.GetListByFilter<Student>("student", "group", groupName);
+            if (students == null)
+                logger.LogError("StudentService:Cannot get access to students collection in Db");
+            else
+                logger.LogInformation("StudentService:fetched All students collection data by groupName");
+            return students;
 
         }
 
@@ -50,7 +75,10 @@ namespace CASWebApi.Services
         /// <returns>number of students</returns>
         public int GetNumberOfStudents()
         {
-            return DbContext.GetCountOfDocuments<Student>("student");
+            logger.LogInformation("StudentService:Getting count of all student collections");
+            int res = DbContext.GetCountOfDocuments<Student>("student");
+            logger.LogInformation("StudentService:fetched number of students");
+            return res;
         }
 
         /// <summary>
@@ -60,7 +88,10 @@ namespace CASWebApi.Services
         /// <returns>number of students in this class</returns>
         public int GetNumberOfStudentsByClass(string groupNum)
         {
-            return DbContext.GetCountOfDocumentsByFilter<Student>("student", "group", groupNum);
+            logger.LogInformation("StudentService:Getting count of students by class");
+            int res = DbContext.GetCountOfDocumentsByFilter<Student>("student", "group", groupNum);
+            logger.LogInformation("StudentService:fetched number of students in class");
+            return res;
         }
 
         /// <summary>
@@ -70,7 +101,13 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool Create(Student student)
         {
-           bool res= DbContext.Insert<Student>("student", student);
+            logger.LogInformation("StudentService:creating a new student profile : " + student);
+
+            bool res = DbContext.Insert<Student>("student", student);
+            if (res)
+                logger.LogInformation("StudentService:A new student profile added successfully :" + student);
+            else
+                logger.LogError("StudentService:Cannot create a student, duplicated id or wrong format");
             return res;
         }
 
@@ -81,7 +118,13 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool InsertManyStudents(List<Student> students)
         {
+            logger.LogInformation("StudentService:insert a list of students : ");
+
             bool res = DbContext.InsertMany<Student>("student", students);
+            if (res)
+                logger.LogInformation("StudentService:A new list of students added successfully :");
+            else
+                logger.LogError("StudentService:Cannot add a list of students, check format");
             return res;
         }
 
@@ -93,7 +136,15 @@ namespace CASWebApi.Services
         /// <returns>true is updated</returns>
         public bool Update(string id, Student studentIn)
         {
-            return DbContext.Update<Student>("student", id, studentIn);
+            logger.LogInformation("StudentService:updating an existing student profile with id : " + studentIn.Id);
+
+            bool res = DbContext.Update<Student>("student", id, studentIn);
+            if (!res)
+                logger.LogError("StudentService:student with Id: " + studentIn.Id + " doesn't exist");
+            else
+                logger.LogInformation("StudentService:student with Id" + studentIn.Id + "has been updated successfully");
+
+            return res;
         }
 
 
@@ -104,7 +155,19 @@ namespace CASWebApi.Services
         /// <returns>true if deleted</returns>
         public bool RemoveById(string id)
         {
-           return DbContext.RemoveById<Student>("student", id);     
+            logger.LogInformation("StudentService:deleting a student profile with id : " + id);
+
+            bool res = DbContext.RemoveById<Student>("student", id);
+            if (res)
+            {
+                
+                logger.LogInformation("StudentService:a student profile with id : " + id + "has been deleted successfully");
+            }
+            {
+                logger.LogError("StudentService:student with Id: " + id + " doesn't exist");
+
+            }
+            return res;
         }
     }
 }

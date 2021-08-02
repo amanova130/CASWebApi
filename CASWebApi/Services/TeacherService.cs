@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,13 @@ namespace CASWebApi.Services
     public class TeacherService : ITeacherService
     {
         IDbSettings DbContext;
+        private readonly ILogger logger;
 
-        public TeacherService(IDbSettings settings)
+
+        public TeacherService(IDbSettings settings, ILogger<FacultyService> logger)
         {
             DbContext = settings;
+            this.logger = logger;
         }
  
         /// <summary>
@@ -24,7 +28,16 @@ namespace CASWebApi.Services
         /// <returns>teacher's object with given id</returns>
         public Teacher GetById(string teacherId)
         {
-            return DbContext.GetById<Teacher>("teachers", teacherId);
+            logger.LogInformation("TeacherService:Getting teacher by id");
+
+            var teacher = DbContext.GetById<Teacher>("teachers", teacherId);
+            if (teacher == null)
+                logger.LogError("TeacherService:Cannot get a teacher with a Id: " + teacherId);
+            else
+                logger.LogInformation("TeacherService:Fetched teacher data by id ");
+            return teacher;
+
+           
         }
 
         /// <summary>
@@ -34,7 +47,15 @@ namespace CASWebApi.Services
         /// <returns>list of teachers</returns>
         public List<Teacher> GetTeachersByCourseName(string courseName)
         {
-            return DbContext.GetListByFilter<Teacher>("teachers", "teachesCourses", courseName);
+            logger.LogInformation("TeacherService:Getting list of teacher by courseName");
+
+            var teachers = DbContext.GetListByFilter<Teacher>("teachers", "teachesCourses", courseName);
+            if (teachers == null)
+                logger.LogError("TeacherService:Cannot get a list of  teachers with a courseName: " + courseName);
+            else
+                logger.LogInformation("TeacherService:Fetched list of teachers by courseName ");
+            return teachers;
+            
         }
 
 
@@ -44,7 +65,15 @@ namespace CASWebApi.Services
         /// <returns>list of teachers</returns>
         public List<Teacher> GetAll()
         {
-            return DbContext.GetAll<Teacher>("teachers");
+            logger.LogInformation("TeacherService:Getting all Teachers");
+            var teachers =DbContext.GetAll<Teacher>("teachers");
+
+            if (teachers == null)
+                logger.LogError("TeacherService:Cannot get access to teachers collection in Db");
+            else
+                logger.LogInformation("TeacherService:fetched All teachers collection data");
+            return teachers;
+
 
         }
 
@@ -54,7 +83,10 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public int GetNumberOfTeachers()
         {
-            return DbContext.GetCountOfDocuments<Teacher>("teachers");
+            logger.LogInformation("TeacherService:Getting count of teacher collections");
+            int res = DbContext.GetCountOfDocuments<Teacher>("teachers");
+            logger.LogInformation("TeacherService:fetched number of teachers");
+            return res;
         }
 
         /// <summary>
@@ -65,7 +97,11 @@ namespace CASWebApi.Services
         public bool Create(Teacher teacher)
         {
             teacher.Status = true;
-            bool res = DbContext.Insert<Teacher>("teachers", teacher);
+            bool res =  DbContext.Insert<Teacher>("teachers", teacher);
+            if (res)
+                logger.LogInformation("TeacherService:A new teacher profile added successfully :" + teacher);
+            else
+                logger.LogError("TeacherService:Cannot create a teachers, duplicated id or wrong format");
             return res;
         }
 
@@ -77,8 +113,13 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public bool Update(string id, Teacher teacherIn)
         {
-
-            return DbContext.Update<Teacher>("teachers", id, teacherIn);
+            logger.LogInformation("TeacherService:updating an existing teacher profile with id : " + teacherIn.Id);
+            bool res = DbContext.Update<Teacher>("teachers", id, teacherIn);
+            if (!res)
+                logger.LogError("TeacherService:teacher with Id: " + teacherIn.Id + " doesn't exist");
+            else
+                logger.LogInformation("TeacherService:teacher with Id" + teacherIn.Id + "has been updated successfully");
+            return res;
         }
 
         /// <summary>
@@ -89,6 +130,13 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             var deleted = DbContext.RemoveById<Teacher>("teachers", id);
+            if (deleted)
+            {
+                logger.LogInformation("TeacherService:a teacher profile with id : " + id + "has been deleted successfully");
+            }
+            {
+                logger.LogError("TeacherService:teacher with Id: " + id + " doesn't exist");
+            }
             return deleted;
         }
             

@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -55,6 +56,32 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public bool Create(Message message)
         {
+            var client = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587);
+            client.UseDefaultCredentials = false;
+            client.EnableSsl = true;
+
+            client.Credentials = new System.Net.NetworkCredential("casmanagment78@gmail.com", "casmanagment1337");
+
+            var mailMessage = new System.Net.Mail.MailMessage();
+            mailMessage.From = new System.Net.Mail.MailAddress("casmanagment78@gmail.com");
+            string emailReceivers = String.Empty;
+            for (int i = 0; i < message.Receiver.Length; i++)
+                emailReceivers += message.Receiver[i] + ',';
+            emailReceivers = emailReceivers.TrimEnd(',');
+            message.Sender = "Admin";
+            mailMessage.To.Add(emailReceivers);
+
+
+            mailMessage.Body = message.Description;
+
+            mailMessage.Subject = message.Subject;
+
+            mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
+            mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
+
+            client.SendMailAsync(mailMessage);
+
+
             message.Id= ObjectId.GenerateNewId().ToString();
             bool res = DbContext.Insert<Message>("messages", message);
             return res;

@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace CASWebApi.Services
     public class HolidayService : IHolidayService
     {
         IDbSettings DbContext;
+        private readonly ILogger logger;
 
 
-        public HolidayService(IDbSettings settings)
+        public HolidayService(IDbSettings settings, ILogger<HolidayService> logger)
         {
+            this.logger = logger;
             DbContext = settings;
         }
 
@@ -25,7 +28,13 @@ namespace CASWebApi.Services
         /// <returns>holiday object with given id</returns>
         public Holiday GetById(string holidayId)
         {
-            return DbContext.GetById<Holiday>("holiday", holidayId);
+            logger.LogInformation("HolidayService:Getting holiday by id");
+            Holiday holiday = DbContext.GetById<Holiday>("holiday", holidayId);
+            if (holiday == null)
+                logger.LogError("HolidayService:Cannot get a holiday with a holidayId: " + holidayId);
+            else
+                logger.LogInformation("HolidayService:Fetched holiday data by id ");
+            return holiday;
         }
 
         /// <summary>
@@ -34,8 +43,14 @@ namespace CASWebApi.Services
         /// <returns>list of all holidays</returns>
         public List<Holiday> GetAll()
         {
-            return DbContext.GetAll<Holiday>("holiday");
+            logger.LogInformation("HolidayService:Getting all holidays");
+            var holidays = DbContext.GetAll<Holiday>("holiday");
 
+            if (holidays == null)
+                logger.LogError("HolidayService:Cannot get access to holidays collection in Db");
+            else
+                logger.LogInformation("HolidayService:fetched All holidays collection data");
+            return holidays;
         }
 
         /// <summary>
@@ -45,8 +60,14 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool Create(Holiday holiday)
         {
+            logger.LogInformation("HolidayService:creating a new holiday profile : " + holiday);
+
             holiday.Id = ObjectId.GenerateNewId().ToString();
             bool res = DbContext.Insert<Holiday>("holiday", holiday);
+            if (res)
+                logger.LogInformation("HolidayService:A new holiday profile added successfully :" + holiday);
+            else
+                logger.LogError("HolidayService:Cannot create a holiday, duplicated id or wrong format");
             return res;
         }
 
@@ -58,7 +79,16 @@ namespace CASWebApi.Services
         /// <returns>true if replaced successfully</returns>
         public bool Update(string id, Holiday holiday)
         {
-            return DbContext.Update<Holiday>("holiday", id, holiday);
+            logger.LogInformation("HolidayService:updating an existing holiday profile with id : " + holiday.Id);
+
+            bool res = DbContext.Update<Holiday>("holiday", id, holiday);
+            if (!res)
+                logger.LogError("HolidayService:holiday with Id: " + holiday.Id + " doesn't exist");
+            else
+                logger.LogInformation("HolidayService:holiday with Id" + holiday.Id + "has been updated successfully");
+
+            return res;
+            
         }
     
         /// <summary>
@@ -68,11 +98,14 @@ namespace CASWebApi.Services
         /// <returns>true if deleted</returns>
         public bool RemoveById(string id)
         {
+            logger.LogInformation("HolidayService:deleting a holiday profile with id : " + id);
+
             bool res = DbContext.RemoveById<Holiday>("holiday", id);
             if (res)
-            {
-                DbContext.RemoveById<Holiday>("holiday", id);
-            }
+                logger.LogInformation("HolidayService:a holiday profile with id : " + id + "has been deleted successfully");
+           else
+                logger.LogError("HolidayService:holiday with Id: " + id + " doesn't exist");
+
             return res;
 
         }

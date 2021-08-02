@@ -26,7 +26,7 @@ namespace CASWebApi.Models
 
         [BsonElement("receiver_id")]
 
-        public ReceiverDetails[] Receiver { get; set; }
+        public string[] Receiver { get; set; }
         [BsonElement("sender_id")]
 
         public string Sender { get; set; }
