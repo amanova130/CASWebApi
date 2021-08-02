@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,14 @@ namespace CASWebApi.Services
     public class TimeTableService : ITimeTableService
     {
         IDbSettings DbContext;
+        private readonly ILogger logger;
 
-        public TimeTableService(IDbSettings settings)
+
+        public TimeTableService(IDbSettings settings, ILogger<FacultyService> logger)
         {
             DbContext = settings;
+            this.logger = logger;
+
         }
 
         /// <summary>
@@ -24,7 +29,15 @@ namespace CASWebApi.Services
         /// <returns>single timeTable object with given id</returns>
         public TimeTable GetById(string timeTableId)
         {
-            return DbContext.GetById<TimeTable>("timeTable", timeTableId);
+            logger.LogInformation("TimeTable:Getting TimeTable by id");
+
+            var timeTable = DbContext.GetById<TimeTable>("timeTable", timeTableId);
+            if (timeTable == null)
+                logger.LogError("TimeTableService:Cannot get a timetable with a Id: " + timeTableId);
+            else
+                logger.LogInformation("TimeTableService:Fetched timetable data by id ");
+            return timeTable;
+            
         }
 
         /// <summary>
@@ -34,7 +47,14 @@ namespace CASWebApi.Services
         /// <returns>timeTable object of specific group</returns>
         public TimeTable GetByCalendarName(string timeTableName)
         {
-            return DbContext.GetDocumentByFilter<TimeTable>("timeTable", "groupName", timeTableName) ;
+            logger.LogInformation("TimeTableService:Getting TimeTable by calendarName");
+
+            var timeTable = DbContext.GetDocumentByFilter<TimeTable>("timeTable", "groupName", timeTableName);
+            if (timeTable == null)
+                logger.LogError("TimeTableService:Cannot get a timetable with a name: " + timeTableName);
+            else
+                logger.LogInformation("TimeTableService:Fetched timetable data by timeTableName ");
+            return timeTable;
         }
 
         /// <summary>
@@ -43,7 +63,14 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public List<TimeTable> GetAll()
         {
-            return DbContext.GetAll<TimeTable>("timeTable");
+            logger.LogInformation("TimeTableService:Getting all timeTables");
+            var faculties = DbContext.GetAll<TimeTable>("timeTable");
+            if (faculties == null)
+                logger.LogError("TimeTableService:Cannot get access to timeTables collection in Db");
+            else
+                logger.LogInformation("TimeTableService:fetched All timeTables collection data");
+            return faculties;
+           
 
         }
 
@@ -55,8 +82,13 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool Create(TimeTable timeTable)
         {
+            logger.LogInformation("TimeTableService:create new timeTable");
 
             bool res = DbContext.Insert<TimeTable>("timeTable", timeTable);
+            if (res)
+                logger.LogInformation("TimeTableService:A new timeTable object added successfully :" + timeTable);
+            else
+                logger.LogError("TimeTableService:Cannot create a timeTable, duplicated id or wrong format");
             return res;
         }
 
@@ -65,8 +97,19 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id"></param>
         /// <param name="timeTableIn"></param>
-        public bool Update(string id, TimeTable timeTableIn) =>
-          DbContext.Update<TimeTable>("timeTable", timeTableIn.Id, timeTableIn);
+        public bool Update(string id, TimeTable timeTableIn)
+        {
+            logger.LogInformation("TimeTableService:updating an existing timetable object with id : " + timeTableIn.Id);
+
+            bool res = DbContext.Update<TimeTable>("timeTable", timeTableIn.Id, timeTableIn);
+            if (!res)
+                logger.LogError("TimeTableService:timeTable with Id: " + timeTableIn.Id + " doesn't exist");
+            else
+                logger.LogInformation("TimeTableService:timeTable with Id" + timeTableIn.Id + "has been updated successfully");
+
+            return res;
+            
+        }
 
         /// <summary>
         /// remove timeTable object with the given id from db
@@ -75,7 +118,17 @@ namespace CASWebApi.Services
         /// <returns>true if deleted</returns>
         public bool RemoveById(string id)
         {
-            return DbContext.RemoveByFilter<TimeTable>("timeTable", "groupName", id) && (CalendarService.DeleteCalendar(id));
+            logger.LogInformation("TimeTableService:deleting a timeTable profile with id : " + id);
+
+            bool res = DbContext.RemoveByFilter<TimeTable>("timeTable", "groupName", id) && (CalendarService.DeleteCalendar(id));
+            if (res)
+            {
+                    logger.LogInformation("TimeTableService:a timeTable profile with id : " + id + "has been deleted successfully");
+            }
+            {
+                logger.LogError("TimeTableService:timeTable with Id: " + id + " doesn't exist");
+            }
+            return res;
         }
     }
 }

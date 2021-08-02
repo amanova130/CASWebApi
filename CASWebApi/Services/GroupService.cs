@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -11,10 +12,14 @@ namespace CASWebApi.Services
 {
     public class GroupService : IGroupService
     {
+        private readonly ILogger logger;
+
         IDbSettings DbContext;
 
-        public GroupService(IDbSettings settings)
+        public GroupService(IDbSettings settings, ILogger<CourseService> logger)
         {
+            this.logger = logger;
+
             DbContext = settings;
         }
      
@@ -25,12 +30,25 @@ namespace CASWebApi.Services
         /// <returns>found group object</returns>
         public Group GetById(string groupId)
         {
-            return DbContext.GetById<Group>("group", groupId);
+            logger.LogInformation("GroupService:Getting group by id");
+            Group group = DbContext.GetById<Group>("group", groupId);
+            if (group == null)
+                logger.LogError("GroupService:Cannot get a group with a groupId: " + groupId);
+
+            else
+                logger.LogInformation("GroupService:Fetched group data by id ");
+            return group;
         }
 
         public List<Group> GetGroupsByFaculty(string id)
         {
-            return DbContext.GetListByFilter<Group>("group", "fac_name", id);
+            logger.LogInformation("groupService:Getting all groups by faculty name");
+            var groups = DbContext.GetListByFilter<Group>("group", "fac_name", id);
+            if (groups == null)
+                logger.LogError("groupService:Cannot get access to groups collection in Db");
+            else
+                logger.LogInformation("groupService:fetched All group collection data by faculty name");
+            return groups;
         }
 
 
@@ -41,7 +59,14 @@ namespace CASWebApi.Services
         /// <returns>list of groups</returns>
         public List<Group> GetAll()
         {
-            return DbContext.GetAll<Group>("group");
+            logger.LogInformation("groupService:Getting all groups by faculties");
+            var groups = DbContext.GetAll<Group>("group");
+            if (groups == null)
+                logger.LogError("groupService:Cannot get access to groups collection in Db");
+            else
+                logger.LogInformation("groupService:fetched All group collection data");
+            return groups;
+
 
         }
 
@@ -51,7 +76,10 @@ namespace CASWebApi.Services
         /// <returns>number of groups</returns>
         public int GetNumberOfGroups()
         {
-            return DbContext.GetCountOfDocuments<Group>("group");
+            logger.LogInformation("groupService:Getting count of group collections");
+            int res = DbContext.GetCountOfDocuments<Group>("group");
+            logger.LogInformation("groupService:fetched number of groups");
+            return res;
         }
 
         /// <summary>
@@ -61,8 +89,14 @@ namespace CASWebApi.Services
         /// <returns>true if added,false otherwise</returns>
         public bool Create(Group group)
         {
+            logger.LogInformation("groupService:creating a new group profile : " + group);
+
             group.Id = ObjectId.GenerateNewId().ToString();
             bool res = DbContext.Insert<Group>("group", group);
+            if (res)
+                logger.LogInformation("groupService:A new group profile added successfully :" + group);
+            else
+                logger.LogError("groupService:Cannot create a group, duplicated id or wrong format");
             return res;
         }
 
@@ -74,6 +108,13 @@ namespace CASWebApi.Services
         /// <returns>true if replaced successfully,false otherwise</returns>
         public bool Update(string id, Group groupIn)
         {
+            logger.LogInformation("groupService:updating an existing group profile with id : " + groupIn.Id);
+            bool res = DbContext.Update<Group>("group", id, groupIn);
+
+            if (!res)
+                logger.LogError("groupService:group with Id: " + groupIn.Id + " doesn't exist");
+            else
+                logger.LogInformation("groupService:group with Id" + groupIn.Id + "has been updated successfully");
             return DbContext.Update<Group>("group", id, groupIn);
         }
 
@@ -84,9 +125,20 @@ namespace CASWebApi.Services
         /// <returns>true if deleted</returns>
         public bool RemoveById(string id)
         {
-            bool res=DbContext.RemoveById<Group>("group", id);  
-            if(res)
-                 DbContext.RemoveByFilter<Group>("student", "group", id);
+            logger.LogInformation("groupService:deleting a group profile with id : " + id);
+
+            bool res =DbContext.RemoveById<Group>("group", id);
+            if (res)
+            {
+                DbContext.RemoveByFilter<Group>("student", "group", id);
+                logger.LogInformation("groupService:a group profile with id : " + id + "has been deleted successfully");
+
+            }
+            else
+            {
+                logger.LogError("groupService:group with Id: " + id + " doesn't exist");
+
+            }
             return res;
         }
     }

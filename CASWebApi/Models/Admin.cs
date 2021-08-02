@@ -41,11 +41,13 @@ namespace CASWebApi.Models
         [BsonElement("address")]
         public AddressBook Address { get; set; }
 
+        [BsonElement("image")]
+        public string Image { get; set; }
+
         [BsonElement("status")]
         public bool Status { get; set; }
 
-        [BsonElement("user")]
-        public User PersonalUser { get; set; }
+ 
 
     }
 }

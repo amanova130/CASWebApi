@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -12,10 +13,14 @@ namespace CASWebApi.Services
     public class ScheduleService : IScheduleService
     {
         IDbSettings DbContext;
+        private readonly ILogger logger;
+
 
         public ScheduleService(IDbSettings settings)
         {
             DbContext = settings;
+            this.logger = logger;
+
         }
 
         /// <summary>
@@ -23,7 +28,7 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="eventId"></param>
         /// <returns>schedule object with given id</returns>
-        
+
 
         /// <summary>
         /// get all schedule objects from db
@@ -31,8 +36,14 @@ namespace CASWebApi.Services
         /// <returns>list of schedule objects</returns>
         public List<Schedule> GetAll()
         {
-            return DbContext.GetAll<Schedule>("event");
-
+            logger.LogInformation("ScheduleService:Getting all Schedule objects");
+            var schedules = DbContext.GetAll<Schedule>("faculty");
+            if (schedules == null)
+                logger.LogError("ScheduleService:Cannot get access to Schedule collection in Db");
+            else
+                logger.LogInformation("ScheduleService:fetched All Schedule objects collection data");
+            return schedules;
+           
         }
 
         /// <summary>
@@ -45,6 +56,10 @@ namespace CASWebApi.Services
         {
             //newEvent.Id = ObjectId.GenerateNewId().ToString();
             bool res = DbContext.PushElement<Schedule>("timeTable", "schedule",newEvent,groupId, "groupName");
+            if (res)
+                logger.LogInformation("ScheduleService:A new schedule object added successfully :" + newEvent);
+            else
+                logger.LogError("ScheduleService:Cannot create a schedule object, duplicated id or wrong format");
             return res;
         }
 
@@ -53,8 +68,19 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id">id of the schedule to edit</param>
         /// <param name="eventIn">new schedule object</param>
-        public void Update(string id, Schedule eventIn) =>
-          DbContext.Update<Schedule>("event", id, eventIn);
+        public bool Update(string id, Schedule eventIn)
+        {
+            logger.LogInformation("ScheduleService:updating an existing schedule object with id : " + id);
+
+            bool res = DbContext.Update<Schedule>("event", id, eventIn);
+            if (!res)
+                logger.LogError("ScheduleService:event with Id: " + eventIn.EventId + " doesn't exist");
+            else
+                logger.LogInformation("ScheduleService:event with Id" + eventIn.EventId + "has been updated successfully");
+
+            return res;
+            
+        }
 
 
         /// <summary>
@@ -65,9 +91,19 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public bool RemoveById(string eventId,string groupId)
         {
-           
+            logger.LogInformation("ScheduleService:deleting a schedule object with id : " + eventId);
+
             bool res = DbContext.PullObject<Schedule>("timeTable","schedule",eventId,groupId, "groupName","eventId");
-            return true;
+
+            if (res)
+            {
+                logger.LogInformation("ScheduleService:a schedule profile with id : " + eventId + "has been deleted successfully");
+            }
+            {
+                logger.LogError("ScheduleService:schedule with Id: " + eventId + " doesn't exist");
+
+            }
+            return res;
 
         }
     }

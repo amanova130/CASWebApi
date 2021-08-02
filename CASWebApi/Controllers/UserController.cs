@@ -7,7 +7,7 @@ using CASWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+    // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CASWebApi.Controllers
 {
@@ -17,10 +17,13 @@ namespace CASWebApi.Controllers
     {
         private readonly ILogger logger;
         IUserService _userService;
-        public UserController(IUserService userService, ILogger<FacultyController> logger)
+        IMessageService _messageService;
+
+        public UserController(IUserService userService, IMessageService messageService)
         {
             this.logger = logger;
             _userService = userService;
+            _messageService = messageService;
         }
 
         [HttpGet("getAllUser", Name = nameof(GetAllUser))]
@@ -61,6 +64,52 @@ namespace CASWebApi.Controllers
             else
                 logger.LogError("Course Id is null or empty string");
             return BadRequest(null);
+        }
+
+        [HttpGet("getUserByEmail", Name = nameof(getUserByEmail))]
+        public ActionResult<User> getUserByEmail(string email)
+        {
+            var user = _userService.getByEmail(email);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
+        [HttpGet("resetPass", Name = nameof(ResetPass))]
+        public ActionResult<bool> ResetPass([FromQuery] string email)
+        {
+            var user = _userService.getByEmail(email);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                user.Password = _userService.RandomString(6, true);
+                _userService.Update(user.UserName, user);
+            }
+
+            Message resetPass = new Message();
+            resetPass.Receiver = new string[1];
+            resetPass.Receiver[0] = email;
+            resetPass.Description = "Following your request, a password reset for the system was performed\n"
+                                      + "Your new password is:\n"
+                                      + user.Password+"\n"                                    
+                                      + "Do not reply to this message.\n"
+                                      + "This system message has been sent to you automatically because you have requested a password reset.";
+
+            resetPass.Subject = " Reset password";
+            resetPass.DateTime = new DateTime();
+            resetPass.status = true;
+           bool res = _messageService.Create(resetPass);
+          
+
+            return res;
         }
 
         [HttpPost("createUser", Name = nameof(CreateUser))]

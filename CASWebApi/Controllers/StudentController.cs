@@ -14,11 +14,13 @@ namespace CASWebApi.Controllers
     public class StudentController : ControllerBase
     {
         IStudentService _studentService;
+        IGroupService _groupService;
         IUserService _userService;
-        public StudentController(IStudentService studentService,IUserService userService)
+        public StudentController(IStudentService studentService, IUserService userService, IGroupService groupService)
         {
             _studentService = studentService;
             _userService = userService;
+            _groupService = groupService;
         }
 
         /// <summary>
@@ -31,20 +33,47 @@ namespace CASWebApi.Controllers
 
         [HttpGet("getAllStudentsByGroup", Name = nameof(GetAllStudentsByGroup))]
 
-        public ActionResult<List<Student>> GetAllStudentsByGroup([FromQuery] string[] groupName)
+        public ActionResult<List<Student>> GetAllStudentsByGroup( string groupName)
         {
 
-            //var students = _studentService.GetAllStudentsByGroup(groupName);
+            var students = _studentService.GetAllStudentsByGroup(groupName);
 
-            //if (students == null)
-            //{
-            //    return NotFound();
-            //}
+            if (students == null)
+            {
+                return NotFound();
+            }
 
-            //return students;
-            return Ok(groupName);
-            
+
+            return students;
+
         }
+
+        [HttpGet("GetAllStudentsByFaculties", Name = nameof(GetAllStudentsByFaculties))]
+        public ActionResult<List<Student>> GetAllStudentsByFaculties([FromQuery] string[] facultyNames)
+        {
+            List<Student> students = new List<Student>();
+            List<Group> groups = new List<Group>();
+
+
+            for (int i = 0; i < facultyNames.Length; i++)
+                groups.AddRange(_groupService.GetGroupsByFaculty(facultyNames[i]));
+            for (int i = 0; i < groups.Count; i++)
+                students.AddRange(_studentService.GetAllStudentsByGroup(groups[i].GroupNumber));
+            return students;
+
+
+        }
+        [HttpGet("getAllStudentsByGroups", Name = nameof(GetAllStudentsByGroups))]
+        public ActionResult<List<Student>> GetAllStudentsByGroups([FromQuery] string[] groupNames)
+        {
+            List<Student> students = new List<Student>();
+                for (int i = 0; i < groupNames.Length; i++)
+                    students.AddRange(_studentService.GetAllStudentsByGroup(groupNames[i]));
+            return students;
+
+
+        }
+
 
         /// <summary>
         /// Get number of Students
@@ -128,8 +157,10 @@ namespace CASWebApi.Controllers
                 student.Image = "Resources/Images/noPhoto.png";
                 User _user = new User();
                 _user.UserName = student.Id;
-                _user.Password = student.Birth_date;
+                _user.Password = student.Birth_date.Replace("-", "");
+                _user.Email = student.Email;
                 _user.Role = "Student";
+                _user.Status = true;
                 _userService.Create(_user);
             });
             if (!(_studentService.InsertManyStudents(students)))
@@ -146,7 +177,8 @@ namespace CASWebApi.Controllers
         [HttpPut("updateStudent", Name = nameof(UpdateStudent))]
         public IActionResult UpdateStudent(Student studentIn)
         {
-            bool updated = false;
+            bool updatedStudent = false;
+            bool updatedUser = false ;
 
             var student = _studentService.GetById(studentIn.Id);
 
@@ -154,9 +186,18 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-           updated= _studentService.Update(studentIn.Id, studentIn);
+            updatedStudent = _studentService.Update(studentIn.Id, studentIn);
+            if(updatedStudent)
+            {
+               var user = _userService.GetById(studentIn.Id);
+                if (user.Email != studentIn.Email)
+                {
+                    user.Email = studentIn.Email;
+                    _userService.Update(user.UserName, user);
+                }
+            }
 
-            return Ok(updated);
+            return Ok(updatedStudent && updatedUser);
         }
 
         /// <summary>
