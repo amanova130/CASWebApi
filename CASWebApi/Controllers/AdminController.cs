@@ -61,9 +61,15 @@ namespace CASWebApi.Controllers
         {
             User _user = new User();
             admin.Status = true;
+            if (admin.Image == null)
+                admin.Image = "Resources\\Images\\noPhoto.png";
+            
             _user.UserName = admin.Id;
             _user.Password = admin.Birth_date.Replace("-", "");
+            _user.Email = admin.Email;
             _user.Role = "Admin";
+            _user.Status = true;
+           
             if (!(_adminService.Create(admin)))
                 return NotFound("duplicated id or wrong id format");
             _userService.Create(_user);
@@ -77,20 +83,19 @@ namespace CASWebApi.Controllers
         /// <param name="adminIn">Object that need to update</param>
         /// <returns>Updated Admin profile</returns>
         [HttpPut("updateAdmin", Name = nameof(UpdateAdmin))]
-        public IActionResult UpdateAdmin(string id, Admin adminIn)
+        public IActionResult UpdateAdmin( Admin adminIn)
         {
-            var admin = _adminService.GetById(id);
+            bool updated = false;
+            var admin = _adminService.GetById(adminIn.Id);
 
             if (admin == null)
             {
                 return NotFound();
             }
-            adminIn.Id = id;
+            
 
-            if (!(_adminService.Update(id, adminIn)))
-                 return NotFound();
-
-            return NoContent();
+            updated=_adminService.Update(adminIn.Id, adminIn);
+                return Ok(updated);
         }
 
         /// <summary>
@@ -103,8 +108,8 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteAdminById(string id)
         {
             var admin = _adminService.GetById(id);
-            if (admin != null && _adminService.RemoveById(admin.Id))
-                return NoContent();
+            if (admin != null && _adminService.RemoveById(admin.Id) && _userService.RemoveById(admin.Id))
+                return Ok(true);
             return NotFound();
 
         }

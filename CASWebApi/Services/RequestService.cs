@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,15 @@ namespace CASWebApi.Services
 {
     public class RequestService : IRequestService
     {
+        private readonly ILogger logger;
+
         IDbSettings DbContext;
 
-        public RequestService(IDbSettings settings)
+        public RequestService(IDbSettings settings, ILogger<FacultyService> logger)
         {
             DbContext = settings;
+            this.logger = logger;
+
         }
         /// <summary>
         /// get request object by id
@@ -23,7 +28,15 @@ namespace CASWebApi.Services
         /// <returns>found request object</returns>
         public Request GetById(string requestId)
         {
-            return DbContext.GetById<Request>("request", requestId);
+            logger.LogInformation("RequestService:Getting request by id");
+
+            var request = DbContext.GetById<Request>("request", requestId);
+            if (request == null)
+                logger.LogError("RequestService:Cannot get a request with a requestId: " + requestId);
+            else
+                logger.LogInformation("RequestService:Fetched request data by id ");
+            return request;
+            
         }
         /// <summary>
         /// get all requests from db
@@ -31,7 +44,13 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public List<Request> GetAll()
         {
-            return DbContext.GetAll<Request>("request");
+            logger.LogInformation("RequestService:Getting all requests");
+            var requests = DbContext.GetAll<Request>("request");
+            if (requests == null)
+                logger.LogError("RequestService:Cannot get access to requests collection in Db");
+            else
+                logger.LogInformation("RequestService:fetched All requests collection data");
+            return requests;
 
         }
 
@@ -44,6 +63,10 @@ namespace CASWebApi.Services
         {
             request.Id = ObjectId.GenerateNewId().ToString();
             bool res = DbContext.Insert<Request>("request", request);
+            if (res)
+                logger.LogInformation("RequestService:A new request profile added successfully :" + request);
+            else
+                logger.LogError("RequestService:Cannot create a request, duplicated id or wrong format");
             return res;
         }
 
@@ -55,7 +78,14 @@ namespace CASWebApi.Services
         /// <returns>true if successed</returns>
         public bool Update(string id, Request requestIn)
         {
-            return DbContext.Update<Request>("request", id, requestIn);
+            logger.LogInformation("RequestService:updating an existing request profile with id : " + requestIn.Id);
+
+            bool res = DbContext.Update<Request>("request", id, requestIn);
+            if (!res)
+                logger.LogError("RequestService:request with Id: " + requestIn.Id + " doesn't exist");
+            else
+                logger.LogInformation("RequestService:request with Id" + requestIn.Id + "has been updated successfully");
+            return res;
         }
 
 
@@ -68,6 +98,14 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             bool res = DbContext.RemoveById<Request>("request", id);
+            if (res)
+            {
+                logger.LogInformation("RequestService:a request profile with id : " + id + "has been deleted successfully");
+            }
+            {
+                logger.LogError("RequestService:request with Id: " + id + " doesn't exist");
+
+            }
             return res;
 
         }

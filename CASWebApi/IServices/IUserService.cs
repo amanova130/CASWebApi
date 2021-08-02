@@ -13,8 +13,11 @@ namespace CASWebApi.IServices
     {
         User GetById(string teacherId);
         List<User> GetAll();
-        User Create(User user);
-        void Update(string id, User userIn);
+        bool Create(User user);
+        User getByEmail(string userEmail);
+        string RandomString(int size, bool lowerCase);
+
+        bool Update(string id, User userIn);
         bool RemoveById(string id);
     }
 }

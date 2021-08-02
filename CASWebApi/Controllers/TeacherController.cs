@@ -90,10 +90,11 @@ namespace CASWebApi.Controllers
         /// <param name="teacher">teacher object to add</param>
         /// <returns> teacher object if added,otherwise null </returns>
         [HttpPost("createTeacher", Name = nameof(CreateTeacher))]
-        public ActionResult<Teacher> CreateTeacher(Teacher teacher)
+        public  ActionResult<Teacher> CreateTeacher(Teacher teacher)
         {
             logger.LogInformation("Creating a new teacher profile: "+teacher);
-            if (!( _teacherService.Create(teacher)))
+            bool res=_teacherService.Create(teacher);
+            if (!res)
             {
                 logger.LogError("Cannot create a teacher, duplicated id or wrong format");
                 return NotFound(null);
