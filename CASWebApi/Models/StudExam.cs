@@ -13,10 +13,8 @@ namespace CASWebApi.Models.DbModels
     {
         [BsonElement("exam_id")]
         public string ExamId { get; set; }
+
         [BsonElement("grade")]
-
         public int Grade { get; set; }
-
-        public bool isPassed { get; set; }
     }
 }

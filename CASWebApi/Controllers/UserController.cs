@@ -19,7 +19,7 @@ namespace CASWebApi.Controllers
         IUserService _userService;
         IMessageService _messageService;
 
-        public UserController(IUserService userService, IMessageService messageService)
+        public UserController(IUserService userService, IMessageService messageService, ILogger<UserController> logger)
         {
             this.logger = logger;
             _userService = userService;

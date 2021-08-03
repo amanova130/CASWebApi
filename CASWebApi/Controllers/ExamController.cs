@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CASWebApi.IServices;
 using CASWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,9 +16,11 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class ExamController : ControllerBase
     {
+        private readonly ILogger logger;
         IExamService _examService;
-        public ExamController(IExamService examService)
+        public ExamController(IExamService examService, ILogger<ExamController> logger)
         {
+            this.logger = logger;
             _examService = examService;
         }
 
@@ -48,29 +51,40 @@ namespace CASWebApi.Controllers
         }
 
         [HttpPut("updateExam", Name = nameof(UpdateExam))]
-        public IActionResult UpdateExam(string id, Exam examIn)
+        public IActionResult UpdateExam(Exam examIn)
         {
-            var exam = _examService.GetById(id);
-
-            if (exam == null)
+            logger.LogInformation("Updating existed exam: " + examIn.Id);
+            if (examIn != null)
             {
-                return NotFound();
+                var course = _examService.GetById(examIn.Id);
+                if (course != null)
+                {
+                    if (_examService.Update(examIn.Id, examIn))
+                    {
+                        logger.LogInformation("Given Course profile Updated successfully");
+                        return Ok(true);
+                    }
+                    else
+                        logger.LogError("Cannot update the Course profile: " + examIn.Id + " wrong format");
+                }
+                else
+                    logger.LogError("Course with Id: " + examIn.Id + " doesn't exist");
             }
-            examIn.Id = id;
-
-            _examService.Update(id, examIn);
-
-            return NoContent();
+            else
+                logger.LogError("CourseIn objest is null");
+            return BadRequest(false);
         }
 
         [HttpDelete("deleteExamById", Name = nameof(DeleteExamById))]
         public IActionResult DeleteExamById(string id)
         {
-            var exam = _examService.GetById(id);
-
-            if (exam != null && _examService.RemoveById(exam.Id))
-                return NoContent();
-            return NotFound();
+            if(id != null)
+            {
+                var exam = _examService.GetById(id);
+                if (exam != null && _examService.RemoveById(exam.Id))
+                    return Ok(true);
+            }
+            return NotFound(false);
         }
     }
 }

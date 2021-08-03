@@ -18,14 +18,14 @@ namespace CASWebApi.Models
         [BsonIgnoreIfDefault]
         public string Id { get; set; }
         
-        [BsonElement("subject")]
-        public string Subject { get; set; }
+        [BsonElement("course")]
+        public string Course { get; set; }
 
-        [BsonElement("fac_id")]
-        public string Fac_Id { get; set; }
+        [BsonElement("fac_name")]
+        public string Fac_name { get; set; }
 
-        [BsonElement("group_id")]
-        public string Group_Id { get; set; }
+        [BsonElement("group_num")]
+        public string Group_num { get; set; }
 
         [BsonElement("room")]
         public int Room { get; set; }
@@ -36,11 +36,19 @@ namespace CASWebApi.Models
         [BsonElement("test_num")]
         public string Test_num { get; set; }
 
-        [BsonElement("duration")]
-        public string Duration { get; set; }
+        [BsonElement("startTime")]
+        public string StartTime { get; set; }
+        [BsonElement("endTime")]
+        public string EndTime { get; set; }
+
+        [BsonElement("semester")]
+        public string Semester { get; set; }
+
+        [BsonElement("year")]
+        public string Year { get; set; }
 
         [BsonElement("examDate")]
-        public DateTime ExamDate{get;set;}
+        public string ExamDate{get;set;}
 
         [BsonElement("status")]
         public Boolean Status { get; set; }

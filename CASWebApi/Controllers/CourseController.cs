@@ -91,10 +91,10 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
-
-            
+            return BadRequest(null);         
         }
+
+
 
         /// <summary>
         /// Create a new Course
