@@ -15,7 +15,8 @@ namespace CASWebApi.IServices
         List<Group> GetAll();
         bool Create(Group group);
         bool Update(string id, Group groupIn);
-        bool RemoveById(string id);
+        bool RemoveById(string id, string groupNumber);
+
         int GetNumberOfGroups();
         List<Group> GetGroupsByFaculty(string id);
 

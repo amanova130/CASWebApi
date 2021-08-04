@@ -15,10 +15,14 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
 
         IDbSettings DbContext;
+        IGroupService _groupService;
+        IUserService _userService;
 
-        public StudentService(IDbSettings settings, ILogger<FacultyService> logger)
+        public StudentService(IDbSettings settings, ILogger<FacultyService> logger, IUserService userService, IGroupService groupService)
         {
             DbContext = settings;
+            _groupService = groupService;
+            _userService = userService;
             this.logger = logger;
 
         }
@@ -32,13 +36,13 @@ namespace CASWebApi.Services
         {
             logger.LogInformation("StudentService:Getting student by id");
 
-            var student =   DbContext.GetById<Student>("student", studentId);
+            var student = DbContext.GetById<Student>("student", studentId);
             if (student == null)
                 logger.LogError("StudentService:Cannot get a student with a studentId: " + studentId);
             else
                 logger.LogInformation("StudentService:Fetched student data by id ");
             return student;
-              
+
         }
 
         /// <summary>
@@ -56,7 +60,13 @@ namespace CASWebApi.Services
             return students;
 
         }
-
+        public List<Student> GetAllStudentsByGroups(string[] groupNames)
+        {
+            List<Student> students = new List<Student>();
+            for (int i = 0; i < groupNames.Length; i++)
+                students.AddRange(GetAllStudentsByGroup(groupNames[i]));
+            return students;
+        }
         public List<Student> GetAllStudentsByGroup(string groupName)
         {
             logger.LogInformation("StudentService:Getting all students by group");
@@ -68,6 +78,21 @@ namespace CASWebApi.Services
             return students;
 
         }
+
+        public List<Student> GetAllStudentsByFaculties(string[] facultyNames)
+        {
+            List<Student> students = new List<Student>();
+            List<Group> groups = new List<Group>();
+
+            for (int i = 0; i < facultyNames.Length; i++)
+                groups.AddRange(_groupService.GetGroupsByFaculty(facultyNames[i]));
+            for (int i = 0; i < groups.Count; i++)
+                students.AddRange(GetAllStudentsByGroup(groups[i].GroupNumber));
+            return students;
+
+        }
+
+
 
         /// <summary>
         /// get total number of students in db
@@ -102,10 +127,25 @@ namespace CASWebApi.Services
         public bool Create(Student student)
         {
             logger.LogInformation("StudentService:creating a new student profile : " + student);
-
+            student.Status = true;
+            if (student.Image == null || student.Image == "")
+                student.Image = "Resources/Images/noPhoto.png";
             bool res = DbContext.Insert<Student>("student", student);
             if (res)
+            {
                 logger.LogInformation("StudentService:A new student profile added successfully :" + student);
+
+                User _user = new User();
+                _user.UserName = student.Id;
+                _user.Password = student.Birth_date.Replace("-", "");
+                _user.Email = student.Email;
+                _user.Role = "Student";
+                res = _userService.Create(_user);
+                if(res)
+                    logger.LogInformation("StudentService:A new user for student profile added successfully :" + student);
+                else
+                    logger.LogError("StudentService:Cannot create a user for a student, duplicated id or wrong format");
+             }
             else
                 logger.LogError("StudentService:Cannot create a student, duplicated id or wrong format");
             return res;
@@ -119,6 +159,19 @@ namespace CASWebApi.Services
         public bool InsertManyStudents(List<Student> students)
         {
             logger.LogInformation("StudentService:insert a list of students : ");
+            students.ForEach(student =>
+            {
+                student.Status = true;
+                student.Image = "Resources/Images/noPhoto.png";
+                User _user = new User();
+                _user.UserName = student.Id;
+                _user.Password = student.Birth_date.Replace("-", "");
+                _user.Email = student.Email;
+                _user.Role = "Student";
+                _user.Status = true;
+                 _userService.Create(_user);
+
+            });
 
             bool res = DbContext.InsertMany<Student>("student", students);
             if (res)
@@ -142,8 +195,15 @@ namespace CASWebApi.Services
             if (!res)
                 logger.LogError("StudentService:student with Id: " + studentIn.Id + " doesn't exist");
             else
+            {
+                var user = _userService.GetById(studentIn.Id);
+                if (user.Email != studentIn.Email)
+                {
+                    user.Email = studentIn.Email;
+                    _userService.Update(user);
+                }
                 logger.LogInformation("StudentService:student with Id" + studentIn.Id + "has been updated successfully");
-
+            }
             return res;
         }
 
@@ -157,7 +217,7 @@ namespace CASWebApi.Services
         {
             logger.LogInformation("StudentService:deleting a student profile with id : " + id);
 
-            bool res = DbContext.RemoveById<Student>("student", id);
+            bool res = DbContext.RemoveById<Student>("student", id) && _userService.RemoveById(id);
             if (res)
             {
                 

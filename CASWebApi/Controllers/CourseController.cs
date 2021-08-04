@@ -91,11 +91,32 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);         
+            return BadRequest(null);
+
+            
         }
 
 
+        [HttpGet("getCoursesbyFaculty", Name = nameof(GetCoursesByFaculty))]
+        public ActionResult<List<Course>> GetCoursesByFaculty(string facultyName)
+        {
+            if (facultyName != null && facultyName != "")
+            {
+                var course = _courseService.GetCoursesByFaculty(facultyName);
+                if (course != null)
+                {
+                    return Ok(course);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to course collection in Db");
+                }
+            }
+            else
+                logger.LogError("Course Id is null or empty string");
+            return BadRequest(null);
 
+        }
         /// <summary>
         /// Create a new Course
         /// </summary>

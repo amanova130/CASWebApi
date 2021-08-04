@@ -17,13 +17,11 @@ namespace CASWebApi.Controllers
         //Logger to create streammer of logs 
         private readonly ILogger logger;
         IAdminService _adminService;
-        IUserService _userService;
 
         public AdminController(IAdminService adminService, IUserService userService, ILogger<AdminController> logger)
         {
             this.logger = logger;
             _adminService = adminService;
-            _userService = userService;
 
         }
 
@@ -90,12 +88,6 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Creating a new Admin profile");
             if(admin != null)
             {
-                User _user = new User();
-                admin.Status = true;
-                _user.UserName = admin.Id;
-                _user.Password = admin.Birth_date.Replace("-", "");
-                _user.Role = "Admin";
-                _userService.Create(_user);
                 if (!(_adminService.Create(admin)))
                     return NotFound("duplicated id or wrong id format");
                 return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);

@@ -11,13 +11,16 @@ namespace CASWebApi.IServices
     /// </summary>
     public interface IUserService
     {
-        User GetById(string teacherId);
+        User GetById(string id);
         List<User> GetAll();
         bool Create(User user);
         User getByEmail(string userEmail);
+        bool resetPass(string email);
+        User checkAuth(User userToCheck);
         string RandomString(int size, bool lowerCase);
 
-        bool Update(string id, User userIn);
+        bool Update( User userIn);
         bool RemoveById(string id);
+
     }
 }

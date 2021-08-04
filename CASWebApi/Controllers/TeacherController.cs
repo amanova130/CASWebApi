@@ -94,10 +94,8 @@ namespace CASWebApi.Controllers
         {
             if (teacher != null)
             {
-                teacher.Status = true;
+                
                 logger.LogInformation("Creating a new teacher profile: " + teacher);
-                if (teacher.Image == null || teacher.Image == "")
-                    teacher.Image = "Resources/Images/noPhoto.png";
                 if (_teacherService.Create(teacher))
                 {
                     logger.LogInformation("A new teacher profile added successfully " + teacher);

@@ -14,13 +14,10 @@ namespace CASWebApi.Controllers
     public class StudentController : ControllerBase
     {
         IStudentService _studentService;
-        IGroupService _groupService;
-        IUserService _userService;
-        public StudentController(IStudentService studentService, IUserService userService, IGroupService groupService)
+        
+        public StudentController(IStudentService studentService)
         {
             _studentService = studentService;
-            _userService = userService;
-            _groupService = groupService;
         }
 
         /// <summary>
@@ -33,7 +30,7 @@ namespace CASWebApi.Controllers
 
         [HttpGet("getAllStudentsByGroup", Name = nameof(GetAllStudentsByGroup))]
 
-        public ActionResult<List<Student>> GetAllStudentsByGroup( string groupName)
+        public ActionResult<List<Student>> GetAllStudentsByGroup(string groupName)
         {
 
             var students = _studentService.GetAllStudentsByGroup(groupName);
@@ -51,26 +48,27 @@ namespace CASWebApi.Controllers
         [HttpGet("GetAllStudentsByFaculties", Name = nameof(GetAllStudentsByFaculties))]
         public ActionResult<List<Student>> GetAllStudentsByFaculties([FromQuery] string[] facultyNames)
         {
-            List<Student> students = new List<Student>();
-            List<Group> groups = new List<Group>();
+            if (facultyNames != null)
+            {
+                var students = _studentService.GetAllStudentsByFaculties(facultyNames);
+                return students;
+            }
+            return NotFound("facultyNames param is null ");
 
 
-            for (int i = 0; i < facultyNames.Length; i++)
-                groups.AddRange(_groupService.GetGroupsByFaculty(facultyNames[i]));
-            for (int i = 0; i < groups.Count; i++)
-                students.AddRange(_studentService.GetAllStudentsByGroup(groups[i].GroupNumber));
-            return students;
 
 
         }
         [HttpGet("getAllStudentsByGroups", Name = nameof(GetAllStudentsByGroups))]
         public ActionResult<List<Student>> GetAllStudentsByGroups([FromQuery] string[] groupNames)
         {
-            List<Student> students = new List<Student>();
-                for (int i = 0; i < groupNames.Length; i++)
-                    students.AddRange(_studentService.GetAllStudentsByGroup(groupNames[i]));
-            return students;
-
+            if (groupNames != null)
+            {
+                var students = _studentService.GetAllStudentsByGroups(groupNames);
+                if (students != null)
+                    return students;
+            }
+            return NotFound("groupNames param is null");
 
         }
 
@@ -121,17 +119,8 @@ namespace CASWebApi.Controllers
         {
             if (student != null)
             {
-                student.Status = true;
-                if (student.Image == null || student.Image == "")
-                    student.Image = "Resources/Images/noPhoto.png";
-                User _user = new User();
-                _user.UserName = student.Id;
-                _user.Password = student.Birth_date.Replace("-", "");
-                _user.Role = "Student";
-
                 if (_studentService.Create(student))
-                {
-                    _userService.Create(_user);
+                { 
                     return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
                 }
                 else
@@ -151,18 +140,7 @@ namespace CASWebApi.Controllers
         [HttpPost("insertListOfStudents", Name = nameof(InsertListOfStudents))]
         public ActionResult<Student> InsertListOfStudents(List<Student> students)
         {
-            students.ForEach(student =>
-            {
-                student.Status = true;
-                student.Image = "Resources/Images/noPhoto.png";
-                User _user = new User();
-                _user.UserName = student.Id;
-                _user.Password = student.Birth_date.Replace("-", "");
-                _user.Email = student.Email;
-                _user.Role = "Student";
-                _user.Status = true;
-                _userService.Create(_user);
-            });
+           
             if (!(_studentService.InsertManyStudents(students)))
                 return NotFound("duplicated id or wrong id format");
 
@@ -177,8 +155,8 @@ namespace CASWebApi.Controllers
         [HttpPut("updateStudent", Name = nameof(UpdateStudent))]
         public IActionResult UpdateStudent(Student studentIn)
         {
-            bool updatedStudent = false;
-            bool updatedUser = false ;
+            
+            bool res=false;
 
             var student = _studentService.GetById(studentIn.Id);
 
@@ -186,18 +164,10 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-            updatedStudent = _studentService.Update(studentIn.Id, studentIn);
-            if(updatedStudent)
-            {
-               var user = _userService.GetById(studentIn.Id);
-                if (user.Email != studentIn.Email)
-                {
-                    user.Email = studentIn.Email;
-                    _userService.Update(user.UserName, user);
-                }
-            }
+            res = _studentService.Update(studentIn.Id, studentIn);
+   
 
-            return Ok(updatedStudent && updatedUser);
+            return Ok(res);
         }
 
         /// <summary>
@@ -209,7 +179,7 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteStudentById(string id)
         {
             var student = _studentService.GetById(id);
-            if (student != null && _studentService.RemoveById(student.Id) && _userService.RemoveById(student.Id))
+            if (student != null && _studentService.RemoveById(student.Id) )
 
                 return Ok(true);
             

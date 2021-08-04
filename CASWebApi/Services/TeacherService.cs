@@ -97,6 +97,8 @@ namespace CASWebApi.Services
         public bool Create(Teacher teacher)
         {
             teacher.Status = true;
+            if (teacher.Image == null || teacher.Image == "")
+                teacher.Image = "Resources/Images/noPhoto.png";
             bool res =  DbContext.Insert<Teacher>("teachers", teacher);
             if (res)
                 logger.LogInformation("TeacherService:A new teacher profile added successfully :" + teacher);

@@ -13,9 +13,11 @@ namespace CASWebApi.Services
     {
         private readonly ILogger logger;
         IDbSettings DbContext;
+        IUserService _userService;
 
-        public AdminService(IDbSettings settings, ILogger<TeacherService> logger)
+        public AdminService(IDbSettings settings, IUserService userService, ILogger<TeacherService> logger)
         {
+            _userService = userService;
             this.logger = logger;
             DbContext = settings;
         }
@@ -63,10 +65,17 @@ namespace CASWebApi.Services
         public bool Create(Admin admin)
         {
             logger.LogInformation("got a new admin profile in adminService: " + admin);
-
+            admin.Status = true;
             bool res =DbContext.Insert<Admin>("admin", admin);
             if (res)
-                logger.LogInformation("A new admin profile added successfully and got in adminService" + admin);
+            {
+                User _user = new User();
+                _user.UserName = admin.Id;
+                _user.Password = admin.Birth_date.Replace("-", "");
+                _user.Role = "Admin";
+                 res = _userService.Create(_user);
+                logger.LogInformation("A new admin profile and his user profile added successfully and got in adminService" + admin);
+            }
             else
                 logger.LogError("AdminService:Cannot create a admin, duplicated id or wrong format");
 
@@ -90,7 +99,18 @@ namespace CASWebApi.Services
             else
             {
                 logger.LogInformation("AdminService:Admin with Id" + adminIn.Id +"has been updated successfully");
+                var user = _userService.GetById(adminIn.Id);
+                if (user.Email != adminIn.Email)
+                {
+                    user.Email = adminIn.Email;
+                   res= _userService.Update(user);
+                    if(res)
+                        logger.LogInformation("AdminService:user profile with Id" + adminIn.Id + "has been updated successfully");
+                    else
+                        logger.LogError("AdminService:User with Id: " + adminIn.Id + " doesn't exist");
 
+
+                }
             }
             return res;
 
@@ -104,8 +124,16 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         { 
             bool res=DbContext.RemoveById<Admin>("admin", id);
-            if(res)
+            if (res)
+            {
                 logger.LogInformation("AdminService:Admin with Id" + id + "has been deleted successfully");
+                res = _userService.RemoveById(id);
+                if(res)
+                {
+                    logger.LogInformation("AdminService:User with Id" + id + "has been deleted successfully");
+
+                }
+            }
             else
                 logger.LogError("AdminService:Admin with Id: " + id + " doesn't exist");
 
