@@ -17,13 +17,11 @@ namespace CASWebApi.Controllers
     {
         private readonly ILogger logger;
         IUserService _userService;
-        IMessageService _messageService;
 
-        public UserController(IUserService userService, IMessageService messageService)
+        public UserController(IUserService userService,ILogger<UserController> logger)
         {
             this.logger = logger;
             _userService = userService;
-            _messageService = messageService;
         }
 
         [HttpGet("getAllUser", Name = nameof(GetAllUser))]
@@ -66,6 +64,30 @@ namespace CASWebApi.Controllers
             return BadRequest(null);
         }
 
+
+        [HttpPost("checkAuth", Name = nameof(CheckAuth))]
+        public ActionResult<User> CheckAuth(User userToCheck)
+        {
+            logger.LogInformation("Getting User by Id");
+            if (userToCheck.UserName != null && userToCheck.Password != null)
+            {
+                var user = _userService.checkAuth(userToCheck);
+                if (user != null)
+                {
+                    logger.LogInformation("Got User");
+                    return Ok(user);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to user collection in Db");
+                }
+            }
+            else
+                logger.LogError("Course Id is null or empty string");
+            return NotFound(false);
+        }
+
+
         [HttpGet("getUserByEmail", Name = nameof(getUserByEmail))]
         public ActionResult<User> getUserByEmail(string email)
         {
@@ -82,34 +104,11 @@ namespace CASWebApi.Controllers
         [HttpGet("resetPass", Name = nameof(ResetPass))]
         public ActionResult<bool> ResetPass([FromQuery] string email)
         {
-            var user = _userService.getByEmail(email);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
+            bool res = _userService.resetPass(email);
+            if (res)
+                return Ok(res);
             else
-            {
-                user.Password = _userService.RandomString(6, true);
-                _userService.Update(user.UserName, user);
-            }
-
-            Message resetPass = new Message();
-            resetPass.Receiver = new string[1];
-            resetPass.Receiver[0] = email;
-            resetPass.Description = "Following your request, a password reset for the system was performed\n"
-                                      + "Your new password is:\n"
-                                      + user.Password+"\n"                                    
-                                      + "Do not reply to this message.\n"
-                                      + "This system message has been sent to you automatically because you have requested a password reset.";
-
-            resetPass.Subject = " Reset password";
-            resetPass.DateTime = new DateTime();
-            resetPass.status = true;
-           bool res = _messageService.Create(resetPass);
-          
-
-            return res;
+                return NotFound("cannot reset password");
         }
 
         [HttpPost("createUser", Name = nameof(CreateUser))]
@@ -118,8 +117,7 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Creating a new user");
             if (user != null)
             {
-                user.Status = true;
-                if (_userService.Create(user) != null)
+                if (_userService.Create(user))
                     return CreatedAtRoute("getUserById", new { id = user.UserName }, user);
                 else
                     logger.LogError("Duplicated Id");
@@ -130,17 +128,17 @@ namespace CASWebApi.Controllers
         }
 
         [HttpPut("updateUser", Name = nameof(UpdateUser))]
-        public IActionResult UpdateUser(string id, User userIn)
+        public IActionResult UpdateUser(User userIn)
         {
             logger.LogInformation("Updating existed faculty: " + userIn.UserName);
             if (userIn != null)
             {
-                var user = _userService.GetById(id);
+                var user = _userService.GetById(userIn.UserName);
 
                 if (user != null)
                 {
-                    userIn.UserName = id;
-                    _userService.Update(id, userIn);
+                    
+                    _userService.Update( userIn);
                     logger.LogInformation("Given Faculty profile Updated successfully");
                     return Ok(true);
                 }

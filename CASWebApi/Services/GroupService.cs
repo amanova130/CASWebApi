@@ -13,12 +13,13 @@ namespace CASWebApi.Services
     public class GroupService : IGroupService
     {
         private readonly ILogger logger;
-
+        ITimeTableService _timeTableService;
         IDbSettings DbContext;
 
-        public GroupService(IDbSettings settings, ILogger<CourseService> logger)
+        public GroupService(IDbSettings settings, ITimeTableService timeTableService, ILogger<CourseService> logger)
         {
             this.logger = logger;
+            _timeTableService = timeTableService;
 
             DbContext = settings;
         }
@@ -90,11 +91,29 @@ namespace CASWebApi.Services
         public bool Create(Group group)
         {
             logger.LogInformation("groupService:creating a new group profile : " + group);
-
+            group.Status = true;
             group.Id = ObjectId.GenerateNewId().ToString();
             bool res = DbContext.Insert<Group>("group", group);
             if (res)
+            {
                 logger.LogInformation("groupService:A new group profile added successfully :" + group);
+                TimeTable timeTable = new TimeTable();
+                timeTable.CalendarName = group.GroupNumber;
+                timeTable.GroupSchedule = new Schedule[0];
+                timeTable.status = true;
+                timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
+                if (timeTable.CalendarId != null)
+                {
+                    logger.LogInformation("groupService:A new google calendar for a group added successfully :" + group);
+                    res = _timeTableService.Create(timeTable);   
+                }
+                else
+                {
+                    logger.LogError("Failed to create a google calendar");
+                    res = false;
+
+                }
+            }
             else
                 logger.LogError("groupService:Cannot create a group, duplicated id or wrong format");
             return res;
@@ -123,21 +142,29 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id">id of the group to remove</param>
         /// <returns>true if deleted</returns>
-        public bool RemoveById(string id)
+        public bool RemoveById(string id,string groupNumber)
         {
             logger.LogInformation("groupService:deleting a group profile with id : " + id);
 
             bool res =DbContext.RemoveById<Group>("group", id);
             if (res)
             {
-                DbContext.RemoveByFilter<Group>("student", "group", id);
                 logger.LogInformation("groupService:a group profile with id : " + id + "has been deleted successfully");
+                res = DbContext.RemoveByFilter<Group>("student", "group", groupNumber) && _timeTableService.RemoveById(groupNumber);
+                if(res)
+                {
+                    logger.LogInformation("groupService:a group timetable and all students of this group has been deleted successfully");
+                }
+                else
+                {
+                    logger.LogError("Cannot remove group's timeTable or group's students");
+
+                }
 
             }
             else
             {
                 logger.LogError("groupService:group with Id: " + id + " doesn't exist");
-
             }
             return res;
         }

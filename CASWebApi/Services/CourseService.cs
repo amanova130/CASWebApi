@@ -15,11 +15,13 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
 
         IDbSettings DbContext;
+        IFacultyService _facultyService;
 
-        public CourseService(IDbSettings settings, ILogger<CourseService> logger)
+        public CourseService(IDbSettings settings, ILogger<CourseService> logger,IFacultyService facultyService)
         {
             this.logger = logger;
             DbContext = settings;
+            _facultyService = facultyService;
         }
       /// <summary>
       /// get course object by id
@@ -66,7 +68,25 @@ namespace CASWebApi.Services
             return res;
         }
 
-
+        public List<String> GetCoursesByFaculty(string facultyName)
+        {
+            logger.LogInformation("CourseService:Getting all courses by faculty");
+            var faculties = _facultyService.GetAll();
+            List<String> courses = new List<String>();
+            for (int i = 0; i < faculties.Count; i++)
+            {
+                if (facultyName == faculties[i].FacultyName)
+                {
+                    for (int j = 0; j < faculties[i].Courses.Length; j++)
+                        courses.Add(faculties[i].Courses[j]);
+                }
+            }
+            if (courses == null)
+                logger.LogError("CourseService:Cannot get access to courses collection in Db");
+            else
+                logger.LogInformation("CourseService:fetched All course collection data by facultyName");
+            return courses;
+        }
         /// <summary>
         /// create new course object in db
         /// </summary>
@@ -115,12 +135,12 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             logger.LogInformation("CourseService:deleting a course profile with id : " + id);
-
+            var course = GetById(id);
             bool res = DbContext.RemoveById<Course>("course", id);
             if (res)
             {
-                DbContext.PullElement<Course>("faculty", "courses", id);
-                DbContext.PullElement<Course>("group", "courses", id);
+                DbContext.PullElement<Course>("faculty", "courses", course.CourseName);
+                DbContext.PullElement<Course>("group", "courses", course.CourseName);
                 logger.LogInformation("CourseService:a course profile with id : " + id + "has been deleted successfully");
 
             }

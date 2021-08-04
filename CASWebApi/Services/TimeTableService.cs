@@ -83,8 +83,11 @@ namespace CASWebApi.Services
         public bool Create(TimeTable timeTable)
         {
             logger.LogInformation("TimeTableService:create new timeTable");
+            timeTable.status = true;
+            if (GetByCalendarName(timeTable.CalendarName) == null)
+                timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
 
-            bool res = DbContext.Insert<TimeTable>("timeTable", timeTable);
+                bool res = DbContext.Insert<TimeTable>("timeTable", timeTable);
             if (res)
                 logger.LogInformation("TimeTableService:A new timeTable object added successfully :" + timeTable);
             else
