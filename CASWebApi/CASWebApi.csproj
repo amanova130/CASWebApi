@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Core" Version="1.16.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="EPPlus" Version="5.7.1" />
     <PackageReference Include="GemBox.Spreadsheet" Version="47.0.1248" />

@@ -114,26 +114,12 @@ namespace CASWebApi.Controllers
         [HttpPost("createTimeTable", Name = nameof(CreateTimeTable))]
         public ActionResult<TimeTable> CreateTimeTable(TimeTable timeTable)
         {
-            timeTable.status = true;
-            if (_timeTableService.GetByCalendarName(timeTable.CalendarName) == null)
-            {
-                timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
-                // Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
-
-                _timeTableService.Create(timeTable);
-
-
-            }
-            else
-            {
-                /* _timeTableService.AddToSchedule(timeTable.GroupSchedule, timeTable.CalendarName);
-                 Calendar.CreateEvent(timeTable.CalendarName, timeTable.GroupSchedule);
-                 timeTable = _timeTableService.GetByCalendarName(timeTable.CalendarName);*/
-                return NotFound("this calendar already exists");
-
-            }
-
-            return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
+          bool res=_timeTableService.Create(timeTable);
+            if(res)
+                return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
+                
+            return NotFound("cannot create timeTable");
+      
         }
 
         [HttpPut("updateById", Name = nameof(UpdateById))]
@@ -165,8 +151,6 @@ namespace CASWebApi.Controllers
             if (id != null)
             {
                 var timeTable = _timeTableService.GetById(id);
-                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
-                    CalendarService.DeleteEvent(timeTable.CalendarName, timeTable.GroupSchedule[i].Title); //its not supposes to be here,just 4 test
                 if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
                 {
                     logger.LogInformation("Deleted successfully");

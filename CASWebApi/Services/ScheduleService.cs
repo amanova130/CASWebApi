@@ -14,13 +14,14 @@ namespace CASWebApi.Services
     {
         IDbSettings DbContext;
         private readonly ILogger logger;
+        ITimeTableService _timeTableService;
 
 
-        public ScheduleService(IDbSettings settings)
+        public ScheduleService(IDbSettings settings, ILogger<ScheduleService> logger, ITimeTableService timeTableService)
         {
             DbContext = settings;
             this.logger = logger;
-
+            _timeTableService = timeTableService;
         }
 
         /// <summary>
@@ -45,6 +46,21 @@ namespace CASWebApi.Services
             return schedules;
            
         }
+        public Schedule GetEvent(string groupId,string id)
+        {
+            var timeTable = _timeTableService.GetById(groupId);
+            if (timeTable != null)
+            {
+                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                {
+                    if (timeTable.GroupSchedule[i].EventId == id)
+                        return timeTable.GroupSchedule[i];
+                }
+            }
+            else
+                logger.LogError("Time table doesn't exist");
+            return null;
+        }
 
         /// <summary>
         /// add new schedule object to array of schedules
@@ -54,12 +70,15 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool Create(string groupId,Schedule newEvent)
         {
-            //newEvent.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.PushElement<Schedule>("timeTable", "schedule",newEvent,groupId, "groupName");
+           bool res= CalendarService.CreateEvent(newEvent, groupId);
             if (res)
-                logger.LogInformation("ScheduleService:A new schedule object added successfully :" + newEvent);
-            else
-                logger.LogError("ScheduleService:Cannot create a schedule object, duplicated id or wrong format");
+            {
+                res = DbContext.PushElement<Schedule>("timeTable", "schedule", newEvent, groupId, "groupName");
+                if (res)
+                    logger.LogInformation("ScheduleService:A new schedule object added successfully :" + newEvent);
+                else
+                    logger.LogError("ScheduleService:Cannot create a schedule object, duplicated id or wrong format");
+            }
             return res;
         }
 
@@ -68,18 +87,32 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id">id of the schedule to edit</param>
         /// <param name="eventIn">new schedule object</param>
-        public bool Update(string id, Schedule eventIn)
+        public bool Update(string groupId, Schedule eventIn)
         {
-            logger.LogInformation("ScheduleService:updating an existing schedule object with id : " + id);
-
-            bool res = DbContext.Update<Schedule>("event", id, eventIn);
-            if (!res)
-                logger.LogError("ScheduleService:event with Id: " + eventIn.EventId + " doesn't exist");
-            else
-                logger.LogInformation("ScheduleService:event with Id" + eventIn.EventId + "has been updated successfully");
-
+            logger.LogInformation("ScheduleService:updating an existing schedule object with id : " + eventIn.EventId);
+            var timeTable = _timeTableService.GetByCalendarName(groupId);
+            bool res=false;
+            if (timeTable != null)
+            {
+                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                {
+                    if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                    {
+                        timeTable.GroupSchedule[i] = eventIn;
+                        break;
+                    }
+                }
+                     res = _timeTableService.Update(groupId, timeTable) && CalendarService.UpdateEvent(eventIn, groupId) != null;
+                if(res)
+                {
+                    logger.LogInformation("event updated successfully");
+                }
+                else
+                {
+                    logger.LogError("Faied to update an event");
+                }
+            }
             return res;
-            
         }
 
 
@@ -92,17 +125,18 @@ namespace CASWebApi.Services
         public bool RemoveById(string eventId,string groupId)
         {
             logger.LogInformation("ScheduleService:deleting a schedule object with id : " + eventId);
-
-            bool res = DbContext.PullObject<Schedule>("timeTable","schedule",eventId,groupId, "groupName","eventId");
-
+            bool res = CalendarService.DeleteEvent(groupId, eventId);
             if (res)
             {
-                logger.LogInformation("ScheduleService:a schedule profile with id : " + eventId + "has been deleted successfully");
-            }
-            {
-                logger.LogError("ScheduleService:schedule with Id: " + eventId + " doesn't exist");
+                res = DbContext.PullObject<Schedule>("timeTable", "schedule", eventId, groupId, "groupName", "eventId");
+                if (res)
+                    logger.LogInformation("ScheduleService:a schedule profile with id : " + eventId + "has been deleted successfully");
+                else
+                    logger.LogError("ScheduleService:schedule with Id: " + eventId + " doesn't exist");
 
             }
+            else
+                logger.LogError("ScheduleService:calendar with name: " + eventId + " doesn't exist in google calendars");
             return res;
 
         }

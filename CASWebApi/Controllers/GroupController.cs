@@ -16,12 +16,10 @@ namespace CASWebApi.Controllers
     {
         private readonly ILogger logger;
         IGroupService _groupService;
-        ITimeTableService _timeTableService;
-        public GroupController(IGroupService groupService,ITimeTableService timeTableService, ILogger<GroupController> logger)
+        public GroupController(IGroupService groupService, ILogger<GroupController> logger)
         {
             this.logger = logger;
             _groupService = groupService;
-            _timeTableService = timeTableService;
         }
 
         /// <summary>
@@ -123,25 +121,12 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Creating a new group and creating timetable for this group");
             if(group != null)
             {
-                TimeTable timeTable = new TimeTable();
-                timeTable.CalendarName = group.GroupNumber;
-                timeTable.GroupSchedule = new Schedule[0];
-                timeTable.status = true;
-                group.Status = true;
+                
                 if (_groupService.Create(group))
-                {
-                    timeTable.CalendarId = CalendarService.CreateCalendar(timeTable.CalendarName);
-                    if (timeTable.CalendarId != null)
-                    {
-                        _timeTableService.Create(timeTable);
-                        return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
-                    }
-                    else
-                        logger.LogError("Failed to create a calendar for Group ");
-                }
+                      return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
                 else
-                    logger.LogError("Failed to access to DB and create a new group");
-            }
+                     logger.LogError("Failed to create a group");
+            }              
             else
                 logger.LogError("Group is null");
             return BadRequest(null);
@@ -161,7 +146,7 @@ namespace CASWebApi.Controllers
             {
                 var group = _groupService.GetById(groupIn.Id);
 
-                if (group == null)
+                if (group != null)
                 {
                    if(_groupService.Update(groupIn.Id, groupIn))
                     {
@@ -169,13 +154,13 @@ namespace CASWebApi.Controllers
                         return Ok(true);
                     }
                     else
-                        logger.LogError("Cannot update the Faculty profile: " + groupIn.Id + " wrong format");
+                        logger.LogError("Cannot update the group profile: " + groupIn.Id + " wrong format");
                 }
                 else
-                    logger.LogError("Faculty with Id: " + groupIn.Id + " doesn't exist");
+                    logger.LogError("group with Id: " + groupIn.Id + " doesn't exist");
             }
             else
-                logger.LogError("CourseIn objest is null");
+                logger.LogError("group objest is null");
             return BadRequest(false);
         }
 
@@ -191,7 +176,7 @@ namespace CASWebApi.Controllers
             if (id != null)
             {
                 var group = _groupService.GetById(id);
-                if (group != null && _groupService.RemoveById(group.Id) && _timeTableService.RemoveById(group.GroupNumber))
+                if (group != null && _groupService.RemoveById(group.Id,group.GroupNumber) )
                     return Ok(true);
                 else
                     logger.LogError("Cannot get access to group collection in Db");

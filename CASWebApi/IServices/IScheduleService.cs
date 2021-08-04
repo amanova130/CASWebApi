@@ -15,6 +15,7 @@ namespace CASWebApi.IServices
         bool Create(string groupId,Schedule newEvent);
         bool Update(string id, Schedule eventIn);
         bool RemoveById(string eventId, string groupId);
+        public Schedule GetEvent(string groupId, string id);
 
     }
 }

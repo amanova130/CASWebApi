@@ -1,12 +1,16 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using BCryptNet = BCrypt.Net.BCrypt;
+
 
 namespace CASWebApi.Services
 {
@@ -14,13 +18,16 @@ namespace CASWebApi.Services
     {
         IDbSettings DbContext;
         private readonly ILogger logger;
+        IMessageService _messageService;
 
 
 
-        public UserService(IDbSettings settings, ILogger<UserService> logger)
+
+        public UserService(IDbSettings settings, ILogger<UserService> logger, IMessageService messageService)
         {
             DbContext = settings;
             this.logger = logger;
+            _messageService = messageService;
 
         }
 
@@ -41,6 +48,32 @@ namespace CASWebApi.Services
                 logger.LogInformation("UserService:Fetched user data by id ");
             return user;
             
+        }
+
+
+        public User checkAuth(User userToCheck)
+        {
+            bool res;
+            var user = GetById(userToCheck.UserName);
+            if (user != null)
+            {
+                logger.LogInformation("Got User");
+                try
+                {
+                    res = BCryptNet.Verify(userToCheck.Password, user.Password);
+                }
+                catch (Exception e)
+                {
+                    res = false;
+                }
+                if (res)
+                    return user;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to user collection in Db");
+            }
+            return null;
         }
         public User getByEmail(string userEmail)
         {
@@ -82,7 +115,9 @@ namespace CASWebApi.Services
         public bool Create(User user)
         {
             logger.LogInformation("UserService:creating a new user profile : " + user);
-
+            user.Status = true;
+            //user.Password = HashPassword(user.Password);
+            user.Password = BCryptNet.HashPassword(user.Password);
             bool res = DbContext.Insert<User>("user", user);
             if (res)
                 logger.LogInformation("UserService:A new user profile added successfully :" + user);
@@ -92,6 +127,7 @@ namespace CASWebApi.Services
             
             
         }
+      
 
         /// <summary>
         /// edit an existing user by changing it to a new user object with the same id
@@ -99,11 +135,11 @@ namespace CASWebApi.Services
         /// <param name="id">user to edit</param>
         /// <param name="userIn">new user object</param>
         /// <returns>true if replaced successfully</returns>
-        public bool Update(string id, User userIn)
+        public bool Update(User userIn)
         {
             logger.LogInformation("userService:updating an existing user profile with id : " + userIn.UserName);
 
-            bool res = DbContext.Update<User>("user", id, userIn); ;
+            bool res = DbContext.Update<User>("user", userIn.UserName, userIn); ;
             if (!res)
                 logger.LogError("userService:user with Id: " + userIn.UserName + " doesn't exist");
             else
@@ -134,7 +170,41 @@ namespace CASWebApi.Services
             return res;
          
         }
+        public bool resetPass(string email)
+        {
+            bool res;
+            var user = getByEmail(email);
 
+            if (user == null)
+            {
+                return false;
+            }
+            else
+            {
+                user.Password = RandomString(6, true);
+                string hashedPass = BCryptNet.HashPassword(user.Password);
+                Message resetPass = new Message();
+                resetPass.Receiver = new string[1];
+                resetPass.Receiver[0] = email;
+                resetPass.Description = "Following your request, a password reset for the system was performed\n"
+                                          + "Your new password is:\n"
+                                          + user.Password + "\n"
+                                          + "Do not reply to this message.\n"
+                                          + "This system message has been sent to you automatically because you have requested a password reset.";
+
+                resetPass.Subject = " Reset password";
+                resetPass.DateTime = new DateTime();
+                resetPass.status = true;
+                res = _messageService.Create(resetPass);
+                if(res)
+                {
+                    user.Password= BCryptNet.HashPassword(user.Password);
+                    res = Update(user);
+                }
+            }
+            return res;
+            }
+        
         public string RandomString(int size, bool lowerCase)
         {
             StringBuilder builder = new StringBuilder();
