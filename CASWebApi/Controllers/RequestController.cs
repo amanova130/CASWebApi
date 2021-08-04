@@ -140,5 +140,27 @@ namespace CASWebApi.Controllers
                 logger.LogError("Id is not valid format or null");
             return NotFound(false);
         }
+
+        [HttpGet("getCountOFNewRequest", Name = nameof(GetCountOFNewRequest))]
+        public ActionResult<int> GetCountOFNewRequest(string fieldName, string value)
+        {
+            if (fieldName != null && value != null)
+            {
+                logger.LogInformation("Getting count of Request");
+                var count = _requestService.GetCountByFilter(fieldName, value);
+                if (count >= 0)
+                {
+                    return Ok(count);
+                }
+                else
+                {
+                    logger.LogError("Cannot get access to Request collection in Db");
+                }
+            }
+            else
+                logger.LogError("Request Id is null or empty string");
+            return BadRequest(null);
+        }
+
     }
 }

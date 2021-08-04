@@ -54,7 +54,7 @@ namespace CASWebApi.Controllers
             {
                 return NotFound();
             }
-            return Ok();
+            return Ok(true);
         }
         [HttpPost("createMsg", Name = nameof(CreateMsg))]
         public ActionResult<Message> CreateMsg(Message message)

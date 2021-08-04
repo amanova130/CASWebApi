@@ -109,5 +109,10 @@ namespace CASWebApi.Services
             return res;
 
         }
+        public int GetCountByFilter(string fieldName, string value)
+        {
+            return DbContext.GetCountOfDocumentsByFilter<Request>("request", fieldName, value);
+
+        }
     }
 }

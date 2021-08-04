@@ -288,7 +288,7 @@ namespace CASWebApi.Models.DbModels
         /// <param name="field">field to filter</param>
         /// <param name="value">value of the field</param>
         /// <returns>number of documents</returns>
-        public int GetCountOfDocumentsByFilter<T>(string collectionName,string field,string value)
+        public int GetCountOfDocumentsByFilter<T>(string collectionName,string field, string value)
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", true) & Builders<T>.Filter.Eq(field, value);

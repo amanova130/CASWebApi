@@ -18,6 +18,8 @@ namespace CASWebApi.Models
 
         [BsonElement("created_date")]
         public string CreatedDate { get; set; }
+        [BsonElement("updated_date")]
+        public string UpdatedDate { get; set; }
 
         [BsonElement("reason")]
         public string Reason { get; set; }

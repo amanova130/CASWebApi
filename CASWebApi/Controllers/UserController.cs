@@ -63,7 +63,7 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
+            return NotFound(false);
         }
 
         [HttpGet("getUserByEmail", Name = nameof(getUserByEmail))]
