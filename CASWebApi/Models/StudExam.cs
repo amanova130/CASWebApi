@@ -17,4 +17,10 @@ namespace CASWebApi.Models.DbModels
         [BsonElement("grade")]
         public int Grade { get; set; }
     }
+
+    public class Average
+    {
+       public string name;
+       public double avg;
+    }
 }

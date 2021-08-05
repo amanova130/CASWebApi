@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using CASWebApi.Models.DbModels;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -128,8 +129,10 @@ namespace CASWebApi.Services
         {
             logger.LogInformation("StudentService:creating a new student profile : " + student);
             student.Status = true;
+            student.Grades = new StudExam[0];
             if (student.Image == null || student.Image == "")
                 student.Image = "Resources/Images/noPhoto.png";
+            
             bool res = DbContext.Insert<Student>("student", student);
             if (res)
             {

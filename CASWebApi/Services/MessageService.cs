@@ -43,6 +43,11 @@ namespace CASWebApi.Services
             return DbContext.GetListByFilter<Message>("messages","receiver_id",id);
 
         }
+        public List<Message> GetAllDeletedBySender(string id)
+        {
+            var deletedMessages = DbContext.GetDeletedDocumentsByFilter<Message>("messages", "sender_id", id);
+            return deletedMessages;
+        }
         public List<Message> GetAllBySenderId(string id)
         {
             return DbContext.GetListByFilter<Message>("messages", "sender_id", id);

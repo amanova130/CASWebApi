@@ -174,8 +174,9 @@ namespace CASWebApi.Services
         {
             bool res;
             var user = getByEmail(email);
+            var student = DbContext.GetDocumentByFilter<Student>("student", "email", email);
 
-            if (user == null)
+            if (user == null || student == null)
             {
                 return false;
             }
@@ -184,6 +185,8 @@ namespace CASWebApi.Services
                 user.Password = RandomString(6, true);
                 string hashedPass = BCryptNet.HashPassword(user.Password);
                 Message resetPass = new Message();
+                resetPass.ReceiverNames = new string[1];
+                resetPass.ReceiverNames[0]=student.First_name + " " + student.Last_name;
                 resetPass.Receiver = new string[1];
                 resetPass.Receiver[0] = email;
                 resetPass.Description = "Following your request, a password reset for the system was performed\n"
@@ -193,7 +196,7 @@ namespace CASWebApi.Services
                                           + "This system message has been sent to you automatically because you have requested a password reset.";
 
                 resetPass.Subject = " Reset password";
-                resetPass.DateTime = new DateTime();
+                resetPass.DateTime = DateTime.Now;
                 resetPass.status = true;
                 res = _messageService.Create(resetPass);
                 if(res)
