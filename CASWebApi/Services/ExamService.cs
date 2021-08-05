@@ -50,6 +50,18 @@ namespace CASWebApi.Services
             return res;
         }
 
+        public List<Exam> GetExamByGroup(string groupNumber, string semester, string year, string testNo)
+        {
+            var examList = DbContext.GetListByFilter<Exam>("examination", "group_num", groupNumber);
+            if (examList != null)
+            {
+                var filteredExamList = examList.FindAll(exam => exam.Year == year.Trim() && exam.Semester == semester.Trim() && exam.Test_num == testNo.Trim());
+                return filteredExamList;
+            }
+            else
+                return null;
+        }
+
         /// <summary>
         /// a function to update existing examination object
         /// </summary>

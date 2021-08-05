@@ -108,25 +108,24 @@ namespace CASWebApi.Controllers
         /// <param name="adminIn">Object that need to update</param>
         /// <returns>Updated Admin profile</returns>
         [HttpPut("updateAdmin", Name = nameof(UpdateAdmin))]
-        public IActionResult UpdateAdmin(string id, Admin adminIn)
+        public IActionResult UpdateAdmin(Admin adminIn)
         {
             logger.LogInformation("Updating existed Admin");
-            if(id != null)
+            if(adminIn != null)
             {
-                var admin = _adminService.GetById(id);
+                var admin = _adminService.GetById(adminIn.Id);
                 if (admin == null)
                 {
-                    logger.LogError("Admin with id: " + id + " not found");
-                    return NotFound();
+                    logger.LogError("Admin with id: " + adminIn.Id + " not found");
+                    return NotFound(false);
                 }
-                adminIn.Id = id;
-                if (!(_adminService.Update(id, adminIn)))
+                if (!(_adminService.Update(adminIn.Id, adminIn)))
                 {
                     logger.LogError("Cannot update the admin profile, something went wrong in UpdateAdmin");
-                    return NotFound();
+                    return NotFound(false);
                 }    
             }
-            return Ok();
+            return Ok(true);
         }
 
         /// <summary>
