@@ -74,9 +74,21 @@ namespace CASWebApi.Controllers
                 logger.LogError("CourseIn objest is null");
             return BadRequest(false);
         }
+        [HttpGet("getExamByGroup", Name = nameof(GetExamByGroup))]
+        public ActionResult<List<Exam>> GetExamByGroup(string groupNumber, string semester, string year, string testNo)
+        {
+            if (groupNumber != null)
+            {
+                var result = _examService.GetExamByGroup(groupNumber, semester, year, testNo);
+                return result;
+            }
+            else
+                return null;
+        }
+
 
         [HttpDelete("deleteExamById", Name = nameof(DeleteExamById))]
-        public IActionResult DeleteExamById(string id)
+        public ActionResult<bool> DeleteExamById(string id)
         {
             if(id != null)
             {

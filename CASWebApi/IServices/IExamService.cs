@@ -13,5 +13,6 @@ namespace CASWebApi.IServices
         bool Create(Exam exam);
         bool Update(string id, Exam examIn);
         bool RemoveById(string id);
+        List<Exam> GetExamByGroup(string groupNumber, string semester, string year, string testNo);
     }
 }

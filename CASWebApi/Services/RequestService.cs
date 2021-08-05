@@ -53,6 +53,24 @@ namespace CASWebApi.Services
             return requests;
 
         }
+        /// <summary>
+        /// Get Request by sender Id
+        /// </summary>
+        /// <param name="groupNumber"></param>
+        /// <param name="semester"></param>
+        /// <param name="year"></param>
+        /// <param name="testNo"></param>
+        /// <returns></returns>
+        public List<Request> GetRequestBySenderId(string senderId)
+        {
+            var requestList = DbContext.GetListByFilter<Request>("request", "sender_id", senderId);
+            if (requestList != null)
+            {
+                return requestList;
+            }
+            else
+                return null;
+        }
 
         /// <summary>
         /// create new course object in db

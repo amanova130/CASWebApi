@@ -14,5 +14,6 @@ namespace CASWebApi.IServices
         bool Update(string id, Request requestIn);
         bool RemoveById(string id);
         int GetCountByFilter(string fieldName, string value);
+        public List<Request> GetRequestBySenderId(string senderId);
     }
 }

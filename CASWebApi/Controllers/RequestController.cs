@@ -44,7 +44,24 @@ namespace CASWebApi.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-                
+
+        [HttpGet("getRequestsListBySenderId", Name = nameof(GetRequestsListBySenderId))]
+        public ActionResult<List<Request>> GetRequestsListBySenderId(string senderId)
+        {
+            logger.LogInformation("Getting all Requests data");
+            var requestList = _requestService.GetRequestBySenderId(senderId);
+            if (requestList != null)
+            {
+                logger.LogInformation("Fetched all data");
+                return requestList;
+            }
+            else
+            {
+                logger.LogError("Cannot get access to Request collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
         /// <summary>
         /// Get request profile by Id
