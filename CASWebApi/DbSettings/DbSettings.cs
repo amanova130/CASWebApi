@@ -295,6 +295,14 @@ namespace CASWebApi.Models.DbModels
             var countOfDocs = (int)collection.Find(filter).CountDocuments();
             return countOfDocs;
         }
+        public List<T> GetDeletedDocumentsByFilter<T>(string collectionName,string field,string value)
+        {
+            var collection = database.GetCollection<T>(collectionName);
+            var filter = Builders<T>.Filter.Eq("status", false) & Builders<T>.Filter.Eq(field, value);
+            var deletedList= collection.Find(filter).ToList();    
+            return deletedList;
+
+        }
 
 
     }

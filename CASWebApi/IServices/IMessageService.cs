@@ -18,6 +18,7 @@ namespace CASWebApi.IServices
         bool RemoveById(string id);
         public List<Message> GetAllByReceiverId(string id);
         public List<Message> GetAllBySenderId(string id);
+        public List<Message> GetAllDeletedBySender(string id);
 
 
 

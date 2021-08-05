@@ -30,6 +30,7 @@ namespace CASWebApi.IServices
         public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value);
         public int GetCountOfDocuments<T>(string collectionName);
         public int GetCountOfDocumentsByFilter<T>(string collectionName, string field, string value);
+        public List<T> GetDeletedDocumentsByFilter<T>(string collectionName, string field, string value);
 
 
 

@@ -32,6 +32,19 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Message>> getAllMsgBySender(string id) =>
             _messageService.GetAllBySenderId(id);
 
+        [HttpGet("getAllDeletedBySender", Name = nameof(GetAllDeletedBySender))]
+        public ActionResult<List<Message>> GetAllDeletedBySender(string id)
+        {
+           var messages= _messageService.GetAllDeletedBySender(id);
+
+            if (messages == null)
+            {
+                return NotFound();
+            }
+
+            return messages;
+        }
+
         [HttpGet("getMsgById", Name = nameof(GetMsgById))]
         public ActionResult<Message> GetMsgById(string id)
         {
@@ -87,8 +100,8 @@ namespace CASWebApi.Controllers
             var message = _messageService.GetById(id);
 
             if (message != null && _messageService.RemoveById(message.Id))
-                return NoContent();
-            return NotFound();
+                return Ok(true);
+            return NoContent();
         }
     }
 }

@@ -28,14 +28,18 @@ namespace CASWebApi.Models
 
         public string[] Receiver { get; set; }
         [BsonElement("sender_id")]
-
         public string Sender { get; set; }
         [BsonElement("dateTime")]
 
         public DateTime DateTime { get; set; }
+
+        [BsonElement("receiverNames")]
+        public string[] ReceiverNames { get; set; }
+
         [BsonElement("status")]
 
         public bool status { get; set; }
+
     }
 
     public class ReceiverDetails
