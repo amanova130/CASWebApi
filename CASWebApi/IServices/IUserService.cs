@@ -18,6 +18,7 @@ namespace CASWebApi.IServices
         bool resetPass(string email);
         User checkAuth(User userToCheck);
         string RandomString(int size, bool lowerCase);
+        bool checkEnteredPass(string newPass, string userId);
 
         bool Update( User userIn);
         bool RemoveById(string id);

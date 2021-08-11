@@ -18,7 +18,7 @@ namespace CASWebApi.IServices
         public List<T> GetAll<T>(string collectionName);
         public T GetById<T>(string collectionName, string id);
         public bool Update<T>(string collectionName, string id, T document);
-        public void UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value);
+        public bool UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value);
         public bool RemoveById<T>(string collectionName, string id);
         public bool RemoveField<T>(string collectionName, string fieldName, string id);
         public bool RemoveByFilter<T>(string collectionName, string fieldName, string value);

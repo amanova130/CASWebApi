@@ -24,6 +24,15 @@ namespace CASWebApi.Controllers
             _userService = userService;
         }
 
+        [HttpGet("checkEnteredPWD", Name = nameof(CheckEnteredPWD))]
+        public ActionResult<bool> CheckEnteredPWD(string pass,string userId)
+        {
+            bool res = _userService.checkEnteredPass(pass, userId);
+            if (!res)
+                return BadRequest(false);
+             return res;
+        }
+
         [HttpGet("getAllUser", Name = nameof(GetAllUser))]
         public ActionResult<List<User>> GetAllUser()
         {
@@ -124,13 +133,13 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Faculty object is null " + user);
-            return BadRequest(null); 
+            return BadRequest(false); 
         }
 
         [HttpPut("updateUser", Name = nameof(UpdateUser))]
         public IActionResult UpdateUser(User userIn)
         {
-            logger.LogInformation("Updating existed faculty: " + userIn.UserName);
+            logger.LogInformation("Updating existed User: " + userIn.UserName);
             if (userIn != null)
             {
                 var user = _userService.GetById(userIn.UserName);
@@ -139,7 +148,7 @@ namespace CASWebApi.Controllers
                 {
                     
                     _userService.Update( userIn);
-                    logger.LogInformation("Given Faculty profile Updated successfully");
+                    logger.LogInformation("Given User profile Updated successfully");
                     return Ok(true);
                 }
                 else
@@ -150,6 +159,8 @@ namespace CASWebApi.Controllers
                 logger.LogError("CourseIn objest is null");
             return BadRequest(false);
         }
+
+
 
 
         [HttpDelete("deleteUserById", Name = nameof(DeleteUserById))]
