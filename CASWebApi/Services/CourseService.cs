@@ -87,6 +87,25 @@ namespace CASWebApi.Services
                 logger.LogInformation("CourseService:fetched All course collection data by facultyName");
             return courses;
         }
+
+        public List<Course> GetCoursesByCourseNames(string[] courses)
+        {
+            List<Course> courseList = new List<Course>();
+            logger.LogInformation("CourseService:Getting all courses by course names");
+            for (int i = 0; i < courses.Length; i++)
+            {
+                var course = DbContext.GetDocumentByFilter<Course>("course", "course_name", courses[i]);
+                if (course != null)
+                {
+                    courseList.Add(course);
+                }
+            }
+            if (courseList == null)
+                logger.LogError("CourseService:Cannot get access to courses collection in Db");
+            else
+                logger.LogInformation("CourseService:fetched All course collection data by course name");
+            return courseList;
+        }
         /// <summary>
         /// create new course object in db
         /// </summary>

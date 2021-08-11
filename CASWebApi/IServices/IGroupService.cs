@@ -19,7 +19,7 @@ namespace CASWebApi.IServices
 
         int GetNumberOfGroups();
         List<Group> GetGroupsByFaculty(string id);
-
+        public Group GetGroupByName(string groupName);
 
 
     }

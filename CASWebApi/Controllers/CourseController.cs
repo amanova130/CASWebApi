@@ -19,10 +19,12 @@ namespace CASWebApi.Controllers
         //Logger to create streammer of logs 
         private readonly ILogger logger;
         ICourseService _courseService;
-        public CourseController(ICourseService courseService, ILogger<CourseController> logger)
+        IGroupService _groupService;
+        public CourseController(ICourseService courseService, ILogger<CourseController> logger, IGroupService groupservice)
         {
             this.logger = logger;
             _courseService = courseService;
+            _groupService = groupservice;
         }
 
         /// <summary>
@@ -91,7 +93,7 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
+            return BadRequest();
 
             
         }
@@ -114,7 +116,34 @@ namespace CASWebApi.Controllers
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
+            return BadRequest(false);
+
+        }
+
+        /// <summary>
+        /// Get courses by groupname
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns>List of Course</returns>
+        [HttpGet("getCourseByGroupName", Name = nameof(GetCourseByGroupName))]
+        public ActionResult<List<Course>> GetCourseByGroupName(string groupName)
+        {
+            if (groupName != null && groupName != "")
+            {
+                var group = _groupService.GetGroupByName(groupName);
+                if (group == null)
+                    logger.LogError("Cannot get access to course collection in Db");
+                else
+                {
+                    var courses = group.courses;
+                    var courseList = _courseService.GetCoursesByCourseNames(courses);
+                    return Ok(courseList);
+                }
+               
+            }
+            else
+                logger.LogError("Course Id is null or empty string");
+            return BadRequest(false);
 
         }
         /// <summary>
@@ -136,7 +165,7 @@ namespace CASWebApi.Controllers
             else
             {
                 logger.LogError("Course object is null " + course);
-                return BadRequest();
+                return BadRequest(course);
             }
 
         }
