@@ -157,12 +157,12 @@ namespace CASWebApi.Services
                 {
                     avg = 0;
 
-                    for (int k = 0; k < students[j].Grades.Length; k++)
-                    {
-                        avg += students[j].Grades[k].Grade;
-                    }
-                    avg /= students[j].Grades.Length;
-                    totalAvg += avg;
+                    //for (int k = 0; k < students[j].Grades.Length; k++)
+                    //{
+                    //    avg += students[j].Grades[k].Grade;
+                    //}
+                    //avg /= students[j].Grades.Length;
+                    //totalAvg += avg;
                 }
                 totalAvg /= students.Count;
 

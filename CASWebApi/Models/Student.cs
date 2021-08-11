@@ -50,13 +50,5 @@ namespace CASWebApi.Models
         [BsonElement("image")]
         public string Image { get; set; }
 
-        [BsonElement("stud_exam")]
-        public StudExam[] Grades { get; set; }
-
-
-      
-        
-
-
     }
 }

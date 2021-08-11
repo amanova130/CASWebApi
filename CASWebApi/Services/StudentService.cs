@@ -19,7 +19,7 @@ namespace CASWebApi.Services
         IGroupService _groupService;
         IUserService _userService;
 
-        public StudentService(IDbSettings settings, ILogger<FacultyService> logger, IUserService userService, IGroupService groupService)
+        public StudentService(IDbSettings settings, ILogger<StudentService> logger, IUserService userService, IGroupService groupService)
         {
             DbContext = settings;
             _groupService = groupService;
@@ -129,7 +129,7 @@ namespace CASWebApi.Services
         {
             logger.LogInformation("StudentService:creating a new student profile : " + student);
             student.Status = true;
-            student.Grades = new StudExam[0];
+            //student.Grades = new StudExam[0];
             if (student.Image == null || student.Image == "")
                 student.Image = "Resources/Images/noPhoto.png";
             

@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -246,8 +247,22 @@ namespace CASWebApi.Models.DbModels
             var updated = collection.UpdateOne(filter, update);
             
             return updated.IsAcknowledged;
+        }
 
+        public List<T> AggregateJoinDocuments<T>(LookUpDetails filterDetails)
+        {
+            var collection2 = database.GetCollection<T>(filterDetails.CollectionName);
 
+            var _match = new BsonDocument("$match", new BsonDocument(filterDetails.MatchField, filterDetails.Match));
+            //var match2 = new BsonDocument("$match", new BsonDocument("CD_CLIENTE", codCond));
+
+            var lookup1 = new BsonDocument { { "$lookup", new BsonDocument { { "from", filterDetails.CollectionNameFrom },
+                                                                            { "localField", filterDetails.LocalField },
+                                                                            { "foreignField", filterDetails.ForeignField }, 
+                                                                            { "as", filterDetails.JoinedField } } } };
+            var pipeline = new[] { _match, lookup1 };
+            var result = collection2.Aggregate<T>(pipeline).ToList();
+            return result;
         }
 
         /// <summary>
