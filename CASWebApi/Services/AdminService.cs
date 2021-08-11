@@ -15,7 +15,7 @@ namespace CASWebApi.Services
         IDbSettings DbContext;
         IUserService _userService;
 
-        public AdminService(IDbSettings settings, IUserService userService, ILogger<TeacherService> logger)
+        public AdminService(IDbSettings settings, IUserService userService, ILogger<AdminService> logger)
         {
             _userService = userService;
             this.logger = logger;

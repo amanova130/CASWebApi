@@ -143,6 +143,7 @@ namespace CASWebApi.Services
                 _user.Password = student.Birth_date.Replace("-", "");
                 _user.Email = student.Email;
                 _user.Role = "Student";
+
                 res = _userService.Create(_user);
                 if(res)
                     logger.LogInformation("StudentService:A new user for student profile added successfully :" + student);
