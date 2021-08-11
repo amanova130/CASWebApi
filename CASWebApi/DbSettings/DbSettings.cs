@@ -219,14 +219,15 @@ namespace CASWebApi.Models.DbModels
         /// <param name="id"></param>
         /// <param name="attributeName"></param>
         /// <param name="value"></param>
-        public void UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value)
+        public bool UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value)
         {
             var collection = database.GetCollection<T>(collectionName);
 
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set(attributeName, value);
 
-            collection.UpdateOne(filter, update);
+           var updated= collection.UpdateOne(filter, update);
+            return updated != null;
         }
 
 
