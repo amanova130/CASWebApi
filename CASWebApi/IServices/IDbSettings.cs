@@ -32,7 +32,7 @@ namespace CASWebApi.IServices
         public int GetCountOfDocumentsByFilter<T>(string collectionName, string field, string value);
         public List<T> GetDeletedDocumentsByFilter<T>(string collectionName, string field, string value);
 
-
+        public List<T> AggregateJoinDocuments<T>(LookUpDetails filterDetails);
 
 
 

@@ -52,6 +52,22 @@ namespace CASWebApi.Services
             return groups;
         }
 
+        /// <summary>
+        /// Get group details by groupName
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
+        public Group GetGroupByName(string groupName)
+        {
+            logger.LogInformation("groupService:Getting all groups by faculty name");
+            var group = DbContext.GetDocumentByFilter<Group>("group", "num_group", groupName);
+            if (group == null)
+                logger.LogError("groupService:Cannot get access to groups collection in Db");
+            else
+                logger.LogInformation("groupService:fetched All group collection data by faculty name");
+            return group;
+        }
+
 
 
         /// <summary>

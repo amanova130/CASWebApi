@@ -18,6 +18,7 @@ namespace CASWebApi.IServices
         bool Update(string id, Course courseIn);
         bool RemoveById(string id);
         int GetNumberOfCourses();
+        public List<Course> GetCoursesByCourseNames(string[] courses);
 
     }
 }
