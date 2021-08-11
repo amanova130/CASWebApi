@@ -14,7 +14,7 @@ using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace CASWebApi.Services
 {
-    public class UserService:IUserService
+    public class UserService : IUserService
     {
         IDbSettings DbContext;
         private readonly ILogger logger;
@@ -43,11 +43,11 @@ namespace CASWebApi.Services
             var user = DbContext.GetById<User>("user", userId);
             if (user == null)
                 logger.LogError("UserService:Cannot get a user with a id: " + userId);
-                    
+
             else
                 logger.LogInformation("UserService:Fetched user data by id ");
             return user;
-            
+
         }
 
 
@@ -80,7 +80,7 @@ namespace CASWebApi.Services
             logger.LogInformation("UserService:Getting user by email");
 
             var user = DbContext.GetDocumentByFilter<User>("user", "email", userEmail);
-      
+
             if (user == null)
                 logger.LogError("UserService:Cannot get a user with an email: " + userEmail);
 
@@ -103,7 +103,7 @@ namespace CASWebApi.Services
             else
                 logger.LogInformation("UserService:fetched All users collection data");
             return users;
-           
+
         }
 
         /// <summary>
@@ -124,10 +124,10 @@ namespace CASWebApi.Services
             else
                 logger.LogError("UserService:Cannot create a user, duplicated id or wrong format");
             return res;
-            
-            
+
+
         }
-      
+
 
         /// <summary>
         /// edit an existing user by changing it to a new user object with the same id
@@ -138,6 +138,20 @@ namespace CASWebApi.Services
         public bool Update(User userIn)
         {
             logger.LogInformation("userService:updating an existing user profile with id : " + userIn.UserName);
+            var user = GetById(userIn.UserName);
+            bool isPwdChanged;
+            try
+            {
+                isPwdChanged = BCryptNet.Verify(userIn.Password, user.Password);
+            }
+            catch (Exception e)
+            {
+                isPwdChanged = false;
+            }
+            if (!isPwdChanged)
+                userIn.Password = BCryptNet.HashPassword(userIn.Password);
+            else
+                userIn.Password = user.Password;
 
             bool res = DbContext.Update<User>("user", userIn.UserName, userIn); ;
             if (!res)
@@ -146,8 +160,9 @@ namespace CASWebApi.Services
                 logger.LogInformation("userService:user with Id" + userIn.UserName + "has been updated successfully");
 
             return res;
-            
+
         }
+
 
         /// <summary>
         /// remove user by id from db
@@ -168,25 +183,33 @@ namespace CASWebApi.Services
 
             }
             return res;
-         
+
         }
         public bool resetPass(string email)
         {
             bool res;
+            Student student = new Student();
+            Admin admin = new Admin();
             var user = getByEmail(email);
-            var student = DbContext.GetDocumentByFilter<Student>("student", "email", email);
-
-            if (user == null || student == null)
+            if (user != null)
             {
-                return false;
+                if (user.Role == "Student")
+                    student = DbContext.GetById<Student>("student", user.UserName);
+                else
+                    admin = DbContext.GetById<Admin>("admin", user.UserName);
             }
+
             else
+                return false;
+            if ((user.Role == "Student" && student != null) || (user.Role == "Admin" && admin != null))
             {
                 user.Password = RandomString(6, true);
-                string hashedPass = BCryptNet.HashPassword(user.Password);
                 Message resetPass = new Message();
                 resetPass.ReceiverNames = new string[1];
-                resetPass.ReceiverNames[0]=student.First_name + " " + student.Last_name;
+                if (user.Role == "Student")
+                    resetPass.ReceiverNames[0] = student.First_name + " " + student.Last_name;
+                else
+                    resetPass.ReceiverNames[0] = admin.First_name + " " + admin.Last_name;
                 resetPass.Receiver = new string[1];
                 resetPass.Receiver[0] = email;
                 resetPass.Description = "Following your request, a password reset for the system was performed\n"
@@ -199,14 +222,34 @@ namespace CASWebApi.Services
                 resetPass.DateTime = DateTime.Now;
                 resetPass.status = true;
                 res = _messageService.Create(resetPass);
-                if(res)
+                if (res)
                 {
-                    user.Password= BCryptNet.HashPassword(user.Password);
                     res = Update(user);
                 }
             }
+            else
+                res = false;
             return res;
+        }
+    
+        public bool checkEnteredPass(string newPass, string userId)
+        {
+            var user = GetById(userId);
+            bool res;
+            if(user != null)
+            {
+                try
+                {
+                    res = BCryptNet.Verify( newPass, user.Password);
+                }
+                catch (Exception e)
+                {
+                    res = false;
+                }
+                return res;
             }
+            return false;
+        }
         
         public string RandomString(int size, bool lowerCase)
         {
