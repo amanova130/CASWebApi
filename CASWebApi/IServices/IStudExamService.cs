@@ -9,5 +9,7 @@ namespace CASWebApi.IServices
     public interface IStudExamService
     {
         public List<StudExam> GetStudentsDetailByExamId(string examId);
+        public bool Create(StudExam exam);
+
     }
 }

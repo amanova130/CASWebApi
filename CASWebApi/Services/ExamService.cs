@@ -1,5 +1,6 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
+using CASWebApi.Models.DbModels;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -12,9 +13,14 @@ namespace CASWebApi.Services
     public class ExamService : IExamService
     {
         IDbSettings DbContext;
+        IStudentService _studentService;
+        IStudExamService _studExamService;
 
-        public ExamService(IDbSettings settings)
+
+        public ExamService(IDbSettings settings, IStudentService studentService, IStudExamService studExamService)
         {
+            _studentService = studentService;
+            _studExamService= studExamService;
             DbContext = settings;
         }
        
@@ -45,7 +51,24 @@ namespace CASWebApi.Services
         /// <returns>true if added successfully</returns>
         public bool Create(Exam exam)
         {
-           exam.Id = ObjectId.GenerateNewId().ToString();
+            exam.Id = ObjectId.GenerateNewId().ToString();
+            var students = _studentService.GetAllStudentsByGroup(exam.Group_num);
+            StudExam studExam = new StudExam();
+            if (students != null)
+            {
+                for (int i=0;i<students.Count;i++)
+                {
+                    studExam.Id = ObjectId.GenerateNewId().ToString();
+                    studExam.StudId = students[i].Id;
+                    studExam.ExamId = exam.Id;
+                    studExam.Year = exam.Year;
+                    studExam.Grade = 0;
+                    studExam.Status = true;
+                   
+                    if (!_studExamService.Create(studExam))
+                        return false;
+                }
+            }
            bool res= DbContext.Insert<Exam>("examination", exam);
             return res;
         }

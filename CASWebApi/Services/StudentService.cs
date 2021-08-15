@@ -137,9 +137,9 @@ namespace CASWebApi.Services
             if (res)
             {
                 logger.LogInformation("StudentService:A new student profile added successfully :" + student);
-
                 User _user = new User();
                 _user.UserName = student.Id;
+                _user.ChangePwdDate = DateTime.Now.AddYears(1).ToString("MM/dd/yyyy");
                 _user.Password = student.Birth_date.Replace("-", "");
                 _user.Email = student.Email;
                 _user.Role = "Student";

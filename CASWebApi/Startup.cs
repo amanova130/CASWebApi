@@ -46,6 +46,8 @@ namespace CASWebApi
             services.AddScoped<IExtendedLinkService, ExtendedLinkService>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IStudExamService, StudExamService>();
+            services.AddScoped<IReportService, ReportService>();
+
             services.AddScoped<HelperService>();
 
 
