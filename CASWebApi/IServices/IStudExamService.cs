@@ -11,5 +11,6 @@ namespace CASWebApi.IServices
         public StudExam GetById(string studExamId);
         public List<StudExam> GetStudentsDetailByExamId(string examId);
         public bool Update(StudExam studExam);
+        public bool Create(StudExam studExam);
     }
 }

@@ -68,6 +68,7 @@ namespace CASWebApi.Models
                     newSchedule.EventId = newEvent.Id;
                     
                 }
+               
             return newSchedule.EventId != null;
             
         }
@@ -139,6 +140,7 @@ namespace CASWebApi.Models
             
             //calendar.Id = calendarName;
            var addedCalendar= service.Calendars.Insert(calendar).Execute();
+            
             return addedCalendar.Id;
             
         }
@@ -159,6 +161,7 @@ namespace CASWebApi.Models
                     if (calendar.Summary.Equals(calendarName))
                     {
                         calendarId = calendar.Id;
+                       
                         break;
                     }
                 }

@@ -68,6 +68,7 @@ namespace CASWebApi.Services
             client.Credentials = new System.Net.NetworkCredential("casmanagment78@gmail.com", "casmanagment1337");
 
             var mailMessage = new System.Net.Mail.MailMessage();
+            mailMessage.IsBodyHtml = true;
             mailMessage.From = new System.Net.Mail.MailAddress("casmanagment78@gmail.com");
             string emailReceivers = String.Empty;
             for (int i = 0; i < message.Receiver.Length; i++)
