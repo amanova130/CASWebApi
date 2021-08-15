@@ -90,26 +90,6 @@ namespace CASWebApi.Controllers
             return BadRequest(null);
         }
 
-        [HttpGet("getAvgOfFacultiesByCourse", Name = nameof(GetAvgOfFacultiesByCourse))]
-        public ActionResult<List<object>> GetAvgOfFacultiesByCourse(string courseName,string facId)
-        {
-            logger.LogInformation("Getting Faculty by Id");
-            if (courseName != null && facId != null)
-            {
-                var faculties = _facultyService.GetAvgOfFacultiesByCourse(courseName,facId);
-                if (faculties != null)
-                {
-                    return Ok(faculties);
-                }
-                else
-                {
-                    logger.LogError("Cannot get access to faculty collection in Db");
-                }
-            }
-            else
-                logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
-        }
 
         /// <summary>
         /// Create a new Faculty

@@ -47,10 +47,26 @@ namespace CASWebApi.Services
             filterDetails.Match = examId;
             filterDetails.LocalField = "stud_id";
             filterDetails.ForeignField = "_id";
-            filterDetails.JoinedField = "JoinedField";
+            filterDetails.JoinedField = "joinedField";
 
              var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
             return list;
+        }
+        public bool Create(StudExam studExam)
+        {
+            logger.LogInformation("got a new studExam profile in studexamService: " + studExam);
+            bool res = DbContext.Insert<StudExam>("stud_exam", studExam);
+            if (res)
+            {
+                logger.LogInformation("A new studExam profile and his user profile added successfully and got in studExamService" + studExam);
+            }
+            else
+                logger.LogError("studExamService:Cannot create a studExam, duplicated id or wrong format");
+
+
+
+
+            return res;
         }
     }
 }

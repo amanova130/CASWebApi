@@ -19,8 +19,10 @@ namespace CASWebApi.Controllers
         //Logger to create streammer of logs 
         private readonly ILogger logger;
         ITimeTableService _timeTableService;
-        public TimeTableController(ITimeTableService timeTableService, ILogger<TimeTableController> logger)
+        IStudentService _studentService;
+        public TimeTableController(ITimeTableService timeTableService, IStudentService studentService,ILogger<TimeTableController> logger)
         {
+            _studentService=studentService;
             this.logger = logger;
             _timeTableService = timeTableService;
         }
@@ -76,6 +78,7 @@ namespace CASWebApi.Controllers
             }
         }
 
+      
         /// <summary>
         /// get single time table by group id
         /// </summary>

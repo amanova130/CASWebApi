@@ -15,7 +15,7 @@ namespace CASWebApi.Services
         IDbSettings DbContext;
         IUserService _userService;
 
-        public AdminService(IDbSettings settings, IUserService userService, ILogger<TeacherService> logger)
+        public AdminService(IDbSettings settings, IUserService userService, ILogger<AdminService> logger)
         {
             _userService = userService;
             this.logger = logger;
@@ -69,7 +69,9 @@ namespace CASWebApi.Services
             bool res =DbContext.Insert<Admin>("admin", admin);
             if (res)
             {
+
                 User _user = new User();
+                _user.ChangePwdDate = DateTime.Now.AddYears(1).ToString("MM/dd/yyyy");
                 _user.UserName = admin.Id;
                 _user.Password = admin.Birth_date.Replace("-", "");
                 _user.Role = "Admin";

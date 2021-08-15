@@ -4,14 +4,15 @@ using MongoDB.Bson.Serialization.IdGenerators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
 namespace CASWebApi.Models.DbModels
 { /*
     StudExam class
     Contains all methods and properties for StudExam Model
 */
-    public class StudExam
+
+    public partial class StudExam
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonIgnoreIfDefault]
@@ -28,8 +29,14 @@ namespace CASWebApi.Models.DbModels
         public string UpdatedDate { get; set; }
         [BsonElement("year")]
         public string Year { get; set; }
-        [BsonElement("JoinedField")]
+        
+         
+        [BsonElement("joinedField")]
+        [BsonIgnoreIfNull]
         public Object[] JoinedField { get; set; }
+        
+       [BsonElement("status")]
+        public bool Status;
     }
 
     public class Average

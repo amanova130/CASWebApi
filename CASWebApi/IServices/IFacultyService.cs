@@ -17,7 +17,6 @@ namespace CASWebApi.IServices
         bool Create(Faculty faculty);
         bool Update(string id, Faculty facultyIn);
         bool RemoveById(string id);
-        List<Average> GetAvgOfFacultiesByCourse(string courseName, string facId);
         int GetNumberOfFaculties();
 
     }
