@@ -27,6 +27,24 @@ namespace CASWebApi.Services
             _studentService = studentService;
         }
 
+
+        /// <summary>
+        /// get student by given id
+        /// </summary>
+        /// <param name="studExamId"></param>
+        /// <returns> student object by given id</returns>
+        public StudExam GetById(string studExamId)
+        {
+            logger.LogInformation("StudExamService:Getting student by id");
+
+            var student = DbContext.GetById<StudExam>("stud_exam", studExamId);
+            if (student == null)
+                logger.LogError("StudExamService:Cannot get a student with a StudExamId: " + studExamId);
+            else
+                logger.LogInformation("StudExamService:Fetched student data by id ");
+            return student;
+
+        }
         public List<StudExam> GetListOfGradesByExamId(string examID)
         {
             logger.LogInformation("Getting list of studExam by examID");
@@ -51,6 +69,18 @@ namespace CASWebApi.Services
 
              var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
             return list;
+        }
+
+        public bool Update(StudExam studExam)
+        {
+            logger.LogInformation("StudExamService:updating an existing student grade profile with id: " + studExam.Id);
+
+            bool res = DbContext.Update<StudExam>("stud_exam", studExam.Id, studExam);
+            if (!res)
+                logger.LogError("StudExamService:student with Id: " + studExam.Id + " doesn't exist");
+            else
+                logger.LogInformation("StudExam:student with Id" + studExam.Id + "has been updated successfully");
+            return res;
         }
     }
 }

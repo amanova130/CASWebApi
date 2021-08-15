@@ -8,6 +8,8 @@ namespace CASWebApi.IServices
 {
     public interface IStudExamService
     {
+        public StudExam GetById(string studExamId);
         public List<StudExam> GetStudentsDetailByExamId(string examId);
+        public bool Update(StudExam studExam);
     }
 }

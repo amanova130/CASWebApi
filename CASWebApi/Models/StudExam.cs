@@ -11,6 +11,7 @@ namespace CASWebApi.Models.DbModels
     StudExam class
     Contains all methods and properties for StudExam Model
 */
+
     public class StudExam
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
@@ -24,12 +25,20 @@ namespace CASWebApi.Models.DbModels
 
         [BsonElement("grade")]
         public int Grade { get; set; }
+
         [BsonElement("updated_date")]
         public string UpdatedDate { get; set; }
+
         [BsonElement("year")]
         public string Year { get; set; }
+
+        
         [BsonElement("JoinedField")]
+        [BsonIgnoreIfNull]
         public Object[] JoinedField { get; set; }
+
+        [BsonElement("status")]
+        public bool Status { get; set; }
     }
 
     public class Average

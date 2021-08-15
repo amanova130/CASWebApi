@@ -42,5 +42,29 @@ namespace CASWebApi.Controllers
             }
 
         }
+
+        /// <summary>
+        /// Update grade for student
+        /// </summary>
+        /// <param name="gradeIn">StudExam document to update </param>
+        /// <returns>Updated grade profile</returns>
+        [HttpPut("updateGrade", Name = nameof(UpdateGrade))]
+        public IActionResult UpdateGrade(StudExam gradeIn)
+        {
+
+            bool res = false;
+            gradeIn.Status = true;
+
+            var student = _studExamService.GetById(gradeIn.Id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+            res = _studExamService.Update(gradeIn);
+
+
+            return Ok(res);
+        }
     }
 }
