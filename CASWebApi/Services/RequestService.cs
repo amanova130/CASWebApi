@@ -15,7 +15,7 @@ namespace CASWebApi.Services
 
         IDbSettings DbContext;
 
-        public RequestService(IDbSettings settings, ILogger<FacultyService> logger)
+        public RequestService(IDbSettings settings, ILogger<RequestService> logger)
         {
             DbContext = settings;
             this.logger = logger;
