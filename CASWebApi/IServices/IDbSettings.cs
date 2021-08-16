@@ -1,4 +1,5 @@
 ﻿using CASWebApi.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace CASWebApi.IServices
         public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName);
         public bool PullElement<T>(string collectionName, string fieldName, string id);
         public bool PullObject<T>(string collectionName, string arrayName, string objectId, string fieldId, string fieldName, string objectKey);
-
+        public List<T> AggregateWithProject<T>(LookUpDetails filterDetails, BsonDocument project);
         public T GetDocumentByFilter<T>(string collectionName, string fieldName, string value);
         public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value);
         public int GetCountOfDocuments<T>(string collectionName);

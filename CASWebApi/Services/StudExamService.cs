@@ -2,6 +2,8 @@
 using CASWebApi.Models;
 using CASWebApi.Models.DbModels;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,12 +64,82 @@ namespace CASWebApi.Services
             filterDetails.CollectionName = "stud_exam";
             filterDetails.CollectionNameFrom = "student";
             filterDetails.MatchField = "exam_id";
-            filterDetails.Match = examId;
+            filterDetails.Match = new BsonDocument
+                {
+                    {
+                        "$match",
+                        new BsonDocument
+                            {
+                                {"exam_id", examId}
+                            }
+                    }
+                };
             filterDetails.LocalField = "stud_id";
             filterDetails.ForeignField = "_id";
             filterDetails.JoinedField = "JoinedField";
 
              var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
+            return list;
+        }
+
+        public List<StudExam> GetGradesByStudentIdAndYear(string studentId, string year)
+        {
+            LookUpDetails filterDetails = new LookUpDetails();
+            filterDetails.CollectionName = "stud_exam";
+            filterDetails.CollectionNameFrom = "examination";
+            filterDetails.MatchField = "stud_id";
+            filterDetails.LocalField = "exam_id";
+            filterDetails.ForeignField = "_id";
+            filterDetails.JoinedField = "JoinedField";
+            filterDetails.Match = new BsonDocument
+                {
+                    {
+                        "$match",
+                        new BsonDocument
+                            {
+                                {"stud_id", studentId},
+                                {"year", year}
+                            }
+                    }
+                };
+            var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
+            return list;
+        }
+
+        public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string semester)
+        {
+            LookUpDetails filterDetails = new LookUpDetails();
+            filterDetails.CollectionName = "stud_exam";
+            filterDetails.CollectionNameFrom = "examination";
+            filterDetails.MatchField = "stud_id";
+            filterDetails.LocalField = "exam_id";
+            filterDetails.ForeignField = "_id";
+            filterDetails.JoinedField = "JoinedField";
+            
+            filterDetails.Match = new BsonDocument
+                {
+                    {
+                        "$match",
+                        new BsonDocument
+                            {
+                                {"stud_id", studentId},
+                                {"year", year},
+                                {"JoinedField.semester", semester},
+                            }
+                    }
+                };
+            var mergeObj = new BsonDocument("$merge", "output");
+            var project = new BsonDocument { { "$project",  new BsonDocument
+                            {
+                                {"_id", 0},
+                {"year", 1 },
+                {"JoinedField.course", 1 },
+                {"JoinedField.semester", 1 },
+                {"JoinedField.test_num", 1 },
+                {"grade", 1 }
+                              
+                            } } };
+            var list = DbContext.AggregateWithProject<GradeDetails>(filterDetails, project);
             return list;
         }
         public bool Create(StudExam studExam)

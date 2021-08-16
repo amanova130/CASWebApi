@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CASWebApi.Models.DbModels;
 using System.Linq;
 using System.Threading.Tasks;
+using CASWebApi.Models;
 
 namespace CASWebApi.IServices
 {
@@ -10,6 +11,8 @@ namespace CASWebApi.IServices
     {
         public StudExam GetById(string studExamId);
         public List<StudExam> GetStudentsDetailByExamId(string examId);
+        public List<StudExam> GetGradesByStudentIdAndYear(string studentId, string year);
+        public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string semester);
         public bool Update(StudExam studExam);
         public bool Create(StudExam studExam);
     }
