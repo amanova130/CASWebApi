@@ -259,7 +259,7 @@ namespace CASWebApi.Models.DbModels
 
             var lookup1 = new BsonDocument { { "$lookup", new BsonDocument { { "from", filterDetails.CollectionNameFrom },
                                                                             { "localField", filterDetails.LocalField },
-                                                                            { "foreignField", filterDetails.ForeignField }, 
+                                                                            { "foreignField", filterDetails.ForeignField },
                                                                             { "as", filterDetails.JoinedField } } } };
             var pipeline = new[] { lookup1, _match };
             var result = collection2.Aggregate<T>(pipeline).ToList();
@@ -281,6 +281,7 @@ namespace CASWebApi.Models.DbModels
             var result = collection2.Aggregate<T>(pipeline).ToList();
             return result;
         }
+
 
         /// <summary>
         /// delete document by specific filter

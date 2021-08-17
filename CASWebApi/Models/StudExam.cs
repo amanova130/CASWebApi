@@ -43,7 +43,28 @@ namespace CASWebApi.Models.DbModels
 
     public class Average
     {
-       public string name;
-       public double avg;
+       public string Name;
+       public string Id;
+       public List<CourseAvg> courseAvg;
+
+        public Average(string id,string studentName)
+        {
+            Id = id;
+            Name = studentName;
+            courseAvg = new List<CourseAvg>();
+        }
     }
+
+    public class CourseAvg
+    {
+        public string courseName;
+        public double avg;
+        public CourseAvg(string course, double avg)
+        {
+            courseName = course;
+            this.avg = avg;
+            
+        }
+    }
+    
 }

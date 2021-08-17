@@ -1,4 +1,5 @@
-﻿using CASWebApi.Models.DbModels;
+﻿using CASWebApi.Models;
+using CASWebApi.Models.DbModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,11 @@ namespace CASWebApi.IServices
 {
     public interface IReportService
     {
-        public List<Average> GetAvgOfFacultiesByCourse(string courseName, string facId);
+        public List<Average> GetAvgByGroup(string groupName, string year);
+        public LookUpDetails BuildFilter(string groupName, string year, string semester, string course);
+        public int setSemesterGrade(int currentGrade,string studentId, Exam exam);
+        public int setCourseDuration(int grade1, int grade2, int grade3);
+
 
     }
 }
