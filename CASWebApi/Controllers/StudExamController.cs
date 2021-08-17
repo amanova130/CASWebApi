@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CASWebApi.IServices;
+using CASWebApi.Models;
 using CASWebApi.Models.DbModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,42 @@ namespace CASWebApi.Controllers
         {
             logger.LogInformation("Getting all Course from CourseController");
             var list = _studExamService.GetStudentsDetailByExamId(examId);
+            if (list != null)
+            {
+                logger.LogInformation("Fetched All course data");
+                return Ok(list);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to course collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("getGradesByStudentId", Name = nameof(GetGradesByStudentId))]
+        public ActionResult<List<StudExam>> GetGradesByStudentId(string studentId, string year)
+        {
+            logger.LogInformation("Getting all Course from CourseController");
+            var list = _studExamService.GetGradesByStudentIdAndYear(studentId, year);
+            if (list != null)
+            {
+                logger.LogInformation("Fetched All course data");
+                return Ok(list);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to course collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("getSemiGradesByStudentId", Name = nameof(GetSemiGradesByStudentId))]
+        public ActionResult<List<GradeDetails>> GetSemiGradesByStudentId(string studentId, string year, string semester)
+        {
+            logger.LogInformation("Getting all Course from CourseController");
+            var list = _studExamService.GetSemiGradesByStudentIdAndYear(studentId, year, semester);
             if (list != null)
             {
                 logger.LogInformation("Fetched All course data");
