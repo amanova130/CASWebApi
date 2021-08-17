@@ -254,17 +254,18 @@ namespace CASWebApi.Models.DbModels
         {
             var collection2 = database.GetCollection<T>(filterDetails.CollectionName);
 
-            var _match = new BsonDocument("$match", new BsonDocument(filterDetails.MatchField, filterDetails.Match));
+            var _match = filterDetails.Match;
             //var match2 = new BsonDocument("$match", new BsonDocument("CD_CLIENTE", codCond));
 
             var lookup1 = new BsonDocument { { "$lookup", new BsonDocument { { "from", filterDetails.CollectionNameFrom },
                                                                             { "localField", filterDetails.LocalField },
-                                                                            { "foreignField", filterDetails.ForeignField }, 
+                                                                            { "foreignField", filterDetails.ForeignField },
                                                                             { "as", filterDetails.JoinedField } } } };
             var pipeline = new[] { _match, lookup1 };
             var result = collection2.Aggregate<T>(pipeline).ToList();
             return result;
         }
+
 
         /// <summary>
         /// delete document by specific filter

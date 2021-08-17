@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using CASWebApi.Models.DbModels;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using System;
@@ -49,6 +50,10 @@ namespace CASWebApi.Models
 
         [BsonElement("examDate")]
         public string ExamDate{get;set;}
+        [BsonElement("JoinedField")]
+        [BsonIgnoreIfNull]
+        public StudExam[] JoinedField { get; set; }
+
 
         [BsonElement("status")]
         public Boolean Status { get; set; }

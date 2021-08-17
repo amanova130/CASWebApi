@@ -2,6 +2,7 @@
 using CASWebApi.Models;
 using CASWebApi.Models.DbModels;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,8 +62,19 @@ namespace CASWebApi.Services
             LookUpDetails filterDetails = new LookUpDetails();
             filterDetails.CollectionName = "stud_exam";
             filterDetails.CollectionNameFrom = "student";
-            filterDetails.MatchField = "exam_id";
-            filterDetails.Match = examId;
+            filterDetails.MatchField =  "exam_id";
+            filterDetails.Match = new BsonDocument
+                {
+                    {
+                        "$match",
+                        new BsonDocument
+                            {
+                                {"exam_id", examId},
+                      
+                            }
+                    }
+                };
+
             filterDetails.LocalField = "stud_id";
             filterDetails.ForeignField = "_id";
             filterDetails.JoinedField = "JoinedField";
