@@ -15,6 +15,6 @@ namespace CASWebApi.Models
         public string Year { get; set; }
         [BsonElement("JoinedField")]
         [BsonIgnoreIfNull]
-        public Object[] JoinedField { get; set; }
+        public Exam[] JoinedField { get; set; }
     }
 }

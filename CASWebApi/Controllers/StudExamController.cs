@@ -62,11 +62,31 @@ namespace CASWebApi.Controllers
 
         }
 
-        [HttpGet("getSemiGradesByStudentId", Name = nameof(GetSemiGradesByStudentId))]
-        public ActionResult<List<GradeDetails>> GetSemiGradesByStudentId(string studentId, string year, string semester)
+        [HttpGet("getAvgOfGradesByStudentId", Name = nameof(GetAvgOfGradesByStudentId))]
+        public ActionResult<List<GradeDetails>> GetAvgOfGradesByStudentId(string studentId, string year, string groupNumber)
         {
-            logger.LogInformation("Getting all Course from CourseController");
-            var list = _studExamService.GetSemiGradesByStudentIdAndYear(studentId, year, semester);
+            logger.LogInformation("Getting all Course from StudExamController");
+
+            var list = _studExamService.GetGradesAverage(studentId.Trim(), year.Trim(), groupNumber.Trim());
+            if (list != null)
+            {
+                logger.LogInformation("Fetched All course data");
+                return Ok(list);
+            }
+            else
+            {
+                logger.LogError("Cannot get access to course collection in Db");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("getSemiGradesByStudentId", Name = nameof(GetSemiGradesByStudentId))]
+        public ActionResult<List<GradeDetails>> GetSemiGradesByStudentId(string studentId, string year, string course)
+        {
+            logger.LogInformation("Getting all Course from StudExamController");
+
+            var list = _studExamService.GetSemiGradesByStudentIdAndYear(studentId, year, course);
             if (list != null)
             {
                 logger.LogInformation("Fetched All course data");
