@@ -40,9 +40,10 @@ namespace CASWebApi.Models.DbModels
             {
                 collection.InsertOne(document);
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                res = false;
+              
+               throw e;
             }
 
             return res;

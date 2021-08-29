@@ -14,10 +14,12 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
         IDbSettings DbContext;
         IUserService _userService;
+        IMessageService _messageService;
 
-        public AdminService(IDbSettings settings, IUserService userService, ILogger<AdminService> logger)
+        public AdminService(IDbSettings settings, IUserService userService,IMessageService messageService, ILogger<AdminService> logger)
         {
             _userService = userService;
+            _messageService = messageService;
             this.logger = logger;
             DbContext = settings;
         }
@@ -62,6 +64,22 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="admin">admin object to add</param>
         /// <returns>true if added,otherwise false</returns>
+        /// 
+        private bool sendEmailToNewAdmin(User user, string adminName)
+        {
+            Message message = new Message();
+            message.Description = String.Format("Dear {0},\n Welcome to our college!\n" +
+                                                  "Your authorization details: " +
+                                                  "User name: {1}" +
+                                                  "Password:{2}", adminName, user.UserName, user.Password);
+            message.Subject = "Authorization Details";
+            message.Receiver = new String[] { user.Email };
+            message.DateTime = DateTime.Now;
+            message.status = true;
+            message.ReceiverNames = new string[] { adminName };
+            bool res = _messageService.Create(message);
+            return res;
+        }
         public bool Create(Admin admin)
         {
             logger.LogInformation("got a new admin profile in adminService: " + admin);
@@ -75,8 +93,13 @@ namespace CASWebApi.Services
                 _user.UserName = admin.Id;
                 _user.Password = admin.Birth_date.Replace("-", "");
                 _user.Role = "Admin";
-                 res = _userService.Create(_user);
-                logger.LogInformation("A new admin profile and his user profile added successfully and got in adminService" + admin);
+                res = _userService.Create(_user);
+                if (res)
+                {
+                    sendEmailToNewAdmin(_user, admin.First_name + " " + admin.Last_name);
+
+                    logger.LogInformation("A new admin profile and his user profile added successfully and got in adminService" + admin);
+                }
             }
             else
                 logger.LogError("AdminService:Cannot create a admin, duplicated id or wrong format");

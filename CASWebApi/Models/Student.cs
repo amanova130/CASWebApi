@@ -41,9 +41,9 @@ namespace CASWebApi.Models
 
         [BsonElement("address")]
         public AddressBook Address { get; set; }
-        
+
         [BsonElement("status")]
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
 
         [BsonElement("group")]
         public string Group_Id { get; set; }
