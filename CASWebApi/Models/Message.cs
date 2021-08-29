@@ -42,13 +42,6 @@ namespace CASWebApi.Models
 
     }
 
-    public class ReceiverDetails
-    {
-        [BsonElement("Id")]
-
-        public string Id;
-        [BsonElement("Email")]
-        public string Email;
-    }
+   
 
 }

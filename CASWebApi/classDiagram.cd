@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="CASWebApi.Models.AddressBook" Collapsed="true">
+    <Position X="13.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAABAAIAAAAAAAA=</HashCode>
+      <FileName>Models\AddressBook.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Admin" Collapsed="true">
+    <Position X="10.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAiAAAEACAAAACAAAEAAAAAAAAAABACAABAIAAAAAA=</HashCode>
+      <FileName>Models\Admin.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Address" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.Course" Collapsed="true">
+    <Position X="5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACCAAAEAAAiAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Course.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Exam" Collapsed="true">
+    <Position X="10.25" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IACCAAAEBAAAAAAAIJBAAAAAIAAgCAAAACAAEAAAAAA=</HashCode>
+      <FileName>Models\Exam.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="JoinedField" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.ExtendedLink" Collapsed="true">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAgAEAAAAAAAAAAACAAABAAAAAAEAAAAAA=</HashCode>
+      <FileName>Models\ExtendedLink.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Faculty" Collapsed="true">
+    <Position X="3" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAgAAAAAAAAAACAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Models\Faculty.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.GradeDetails" Collapsed="true">
+    <Position X="4.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAAAAAAAAAAAAAACAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Models\GradeDetails.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Group" Collapsed="true">
+    <Position X="6.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAAAAAAIIAAkAAAAAAAAAAAEgAAAAAAAAA=</HashCode>
+      <FileName>Models\Group.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Holiday" Collapsed="true">
+    <Position X="8.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAABAEAAAAAAAAAgAAAAAAAAAQAAAEAAAAA=</HashCode>
+      <FileName>Models\Holiday.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.LookUpDetails" Collapsed="true">
+    <Position X="3" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQgAAAABAEAAAAAAAAgAAAAAACAAAAAAAAAAACAA=</HashCode>
+      <FileName>Models\LookUpDetails.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Message" Collapsed="true">
+    <Position X="4.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQCAAAACAAgAAAAAIAAAAAAAAAEAAQAAAAAAAAIAAA=</HashCode>
+      <FileName>Models\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Request" Collapsed="true">
+    <Position X="6.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABACAAAkAAAAAAIAAIAAAAAAAAABAAAAAgAAAAIAAAA=</HashCode>
+      <FileName>Models\Request.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.Schedule" Collapsed="true">
+    <Position X="6.75" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAMAAAAgACAAAEAAAAAAAAAAAAAAAABAAAAAgAAAAAA=</HashCode>
+      <FileName>Models\Schedule.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Teacher" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.Student" Collapsed="true">
+    <Position X="16.75" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAiAAAEACAAAACAACEAAAAAAAAAABACAABAIAAAAAA=</HashCode>
+      <FileName>Models\Student.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Address" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.Teacher" Collapsed="true">
+    <Position X="10.25" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAiAAAEACAAAACAAAEAAAAAAAAAABACAABAIAAAACA=</HashCode>
+      <FileName>Models\Teacher.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Address" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.TimeTable" Collapsed="true">
+    <Position X="3" Y="4.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABQCAAAAAAAAAAAAAAAAAAAAAAAEAAAAAACAAAAAAAA=</HashCode>
+      <FileName>Models\TimeTable.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="GroupSchedule" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.User" Collapsed="true">
+    <Position X="8.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEACAAAAAAMAAAAAAAAAAAABACAQAAAAQAAAA=</HashCode>
+      <FileName>Models\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.DbModels.StudExam" Collapsed="true">
+    <Position X="13.5" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEBAAAAAAAAAAAAAAAQAAACAAAAAAAAAOAAAA=</HashCode>
+      <FileName>Models\StudExam.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CASWebApi.Models.DbModels.Average">
+    <Position X="3" Y="0.5" Width="1.25" />
+    <AssociationLine Name="courseAvg" Type="CASWebApi.Models.DbModels.CourseAvg">
+      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
+        <Position X="0.225" Y="0.07" Height="0.182" Width="2.04" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\StudExam.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="courseAvg" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CASWebApi.Models.DbModels.CourseAvg">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgCA=</HashCode>
+      <FileName>Models\StudExam.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="CASWebApi.Models.UserRole" Collapsed="true">
+    <Position X="3" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\UserRole.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

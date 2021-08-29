@@ -102,10 +102,14 @@ namespace CASWebApi.Controllers
                     return CreatedAtRoute("getTeacherById", new { id = teacher.Id }, teacher);
                 }
                 else
+                {
                     logger.LogError("Cannot create a teacher, duplicated id or wrong format");
+                    return NotFound("duplicated id or wrong id format");
+                }
+
             }
 
-            return BadRequest(null);
+            return BadRequest(false);
         }
 
         /// <summary>

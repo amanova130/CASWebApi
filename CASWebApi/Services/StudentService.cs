@@ -18,12 +18,14 @@ namespace CASWebApi.Services
         IDbSettings DbContext;
         IGroupService _groupService;
         IUserService _userService;
+        IMessageService _messageService;
 
-        public StudentService(IDbSettings settings, ILogger<StudentService> logger, IUserService userService, IGroupService groupService)
+        public StudentService(IDbSettings settings, ILogger<StudentService> logger,IMessageService messageService,IUserService userService, IGroupService groupService)
         {
             DbContext = settings;
             _groupService = groupService;
             _userService = userService;
+            _messageService = messageService;
             this.logger = logger;
 
         }
@@ -119,7 +121,21 @@ namespace CASWebApi.Services
             logger.LogInformation("StudentService:fetched number of students in class");
             return res;
         }
-
+        private bool sendEmailToNewStudent(User user,string studentName)
+        {
+            Message message = new Message();
+            message.Description = String.Format("Dear {0},Welcome to our college!"  +"\n"+
+                                                 "Your authorization details: " + "\n" +
+                                                 "User name: {1}"+"\n"+
+                                                 "Password:{2}",studentName,user.UserName,user.Password);
+            message.Subject = "Authorization Details";
+            message.Receiver = new String[] { user.Email };
+            message.ReceiverNames = new string[] { studentName };
+            message.DateTime = DateTime.Now;
+            message.status = true;
+           bool res= _messageService.Create(message);
+            return res;
+        }
         /// <summary>
         /// add new student object to db 
         /// </summary>
@@ -129,11 +145,20 @@ namespace CASWebApi.Services
         {
             logger.LogInformation("StudentService:creating a new student profile : " + student);
             student.Status = true;
+            bool res;
             //student.Grades = new StudExam[0];
             if (student.Image == null || student.Image == "")
                 student.Image = "Resources/Images/noPhoto.png";
-            
-            bool res = DbContext.Insert<Student>("student", student);
+            try
+            {
+                 res = DbContext.Insert<Student>("student", student);
+            }
+            catch (Exception e)
+            {
+                if (e is MongoWriteException)
+                    throw new Exception(String.Format("Student with Id: {0} already exists",student.Id), e);
+                throw e;
+            }
             if (res)
             {
                 logger.LogInformation("StudentService:A new student profile added successfully :" + student);
@@ -143,10 +168,14 @@ namespace CASWebApi.Services
                 _user.Password = student.Birth_date.Replace("-", "");
                 _user.Email = student.Email;
                 _user.Role = "Student";
-
+                string unhashedPass = _user.Password;
                 res = _userService.Create(_user);
-                if(res)
+                if (res)
+                {
+                    _user.Password = unhashedPass;
+                    sendEmailToNewStudent(_user, student.First_name + " " + student.Last_name);
                     logger.LogInformation("StudentService:A new user for student profile added successfully :" + student);
+                }
                 else
                     logger.LogError("StudentService:Cannot create a user for a student, duplicated id or wrong format");
              }

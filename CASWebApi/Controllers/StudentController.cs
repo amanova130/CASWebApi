@@ -119,15 +119,23 @@ namespace CASWebApi.Controllers
         {
             if (student != null)
             {
-                if (_studentService.Create(student))
-                { 
-                    return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
+                try
+                {
+                    if (_studentService.Create(student))
+                    {
+                        return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
+                    }
+                    else
+                        return NotFound("duplicated id or wrong id format");
                 }
-                else
-                    return NotFound("duplicated id or wrong id format");
+                catch (Exception e)
+                {
+                   
+                        return NotFound(e);
+                }
             }
             else
-                return BadRequest(null);
+                return BadRequest(false);
             
         }
 

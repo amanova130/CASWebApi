@@ -42,8 +42,5 @@ namespace CASWebApi.Models
         [BsonElement("status")]
 
         public bool Status { get; set; }
-
-       
-
     }
 }
