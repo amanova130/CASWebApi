@@ -13,6 +13,7 @@ namespace CASWebApi.IServices
         public List<StudExam> GetStudentsDetailByExamId(string examId);
         public List<StudExam> GetGradesByStudentIdAndYear(string studentId, string year);
         public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string semester);
+        public List<CourseAvg> GetGradesAverage(string studentId, string year, string groupNumber);
         public bool Update(StudExam studExam);
         public bool Create(StudExam studExam);
     }

@@ -106,7 +106,66 @@ namespace CASWebApi.Services
             return list;
         }
 
-        public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string semester)
+        public List<CourseAvg> GetGradesAverage(string studentId, string year, string groupNumber)
+        {
+            int finalGradeA = 0, finalGradeB = 0, finalGradeC = 0;
+            int courseDuration = 0;
+            double average = 0;
+            List<CourseAvg> totalAvg = new List<CourseAvg>();
+            var courses = _groupService.GetGroupByName(groupNumber).courses;
+            if(courses != null)
+            {
+                for (int i = 0; i < courses.Length; i++)
+                {
+                    courseDuration = finalGradeA = finalGradeB = finalGradeC = 0;
+                    average = 0;
+                    var grades = GetSemiGradesByStudentIdAndYear(studentId, year, courses[i]);
+                    if(grades != null)
+                    {
+                        for(int k = 0; k < grades.Count; k++)
+                        {
+                            if(grades[k].JoinedField[0].Semester == "A")
+                            {
+                                finalGradeA = setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeA);
+                            }
+                            else if(grades[k].JoinedField[0].Semester == "B")
+                            {
+                                finalGradeB += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeB);
+                            }
+                            else if(grades[k].JoinedField[0].Semester == "C")
+                            {
+                                finalGradeC += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeC);
+                            }
+                        }
+                    }
+                    average += finalGradeA + finalGradeB + finalGradeC;
+                    if (average > 0)
+                        average /= courseDuration;
+                    totalAvg.Add(new CourseAvg(courses[i], average));
+                }
+
+            }
+
+            return totalAvg;
+        }
+
+        public int setGrade(string testNumber, int grade, ref int courseDuration, int finalGrade)
+        {
+            if (testNumber == "A")
+            {
+                if(finalGrade == 0)
+                    finalGrade = grade;
+                courseDuration++;
+            }
+            else if (testNumber == "B")
+            {
+                if (grade != 0)
+                    finalGrade = grade;
+            }
+            return finalGrade;
+        }
+
+        public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string course)
         {
             LookUpDetails filterDetails = new LookUpDetails();
             filterDetails.CollectionName = "stud_exam";
@@ -123,8 +182,9 @@ namespace CASWebApi.Services
                         new BsonDocument
                             {
                                 {"stud_id", studentId},
+                                 {"status", true},
                                 {"year", year},
-                                {"JoinedField.semester", semester},
+                                {"JoinedField.course", course},
                             }
                     }
                 };
