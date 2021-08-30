@@ -104,16 +104,13 @@ namespace CASWebApi.Controllers
                 catch(Exception e)
                 {
                     return Conflict(e);
-                }
-                    
+                }       
             }
             else
             {
                 logger.LogError("A new admin model is not valid");
                 return BadRequest("admin param or his Id is null ");
-            }
-            
-            
+            }  
         }
         
         /// <summary>
@@ -150,7 +147,7 @@ namespace CASWebApi.Controllers
 
             }
             logger.LogError("A given admin model is not valid");
-            return BadRequest("admin param or his Id is null ");
+            return BadRequest("admin param or Id is null ");
         }
 
         /// <summary>
@@ -176,7 +173,7 @@ namespace CASWebApi.Controllers
                 }
             }
             logger.LogError("Id is not valid or empty string");
-            return NotFound();
+            return NotFound("Id is not valid or empty string");
 
         }
     }

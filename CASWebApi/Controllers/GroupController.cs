@@ -93,7 +93,11 @@ namespace CASWebApi.Controllers
         }
 
 
-
+        /// <summary>
+        /// Get Groups by Faculty name
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>List of Group</returns>
         [HttpGet("getGroupsByFaculty", Name = nameof(GetGroupsByFaculty))]
         public ActionResult<List<Group>> GetGroupsByFaculty(string id)
         {
@@ -177,10 +181,6 @@ namespace CASWebApi.Controllers
                 logger.LogError("Cannot get access to db");
                 return BadRequest("No connection to database");
             }
-
-
-
-
         }
 
         /// <summary>

@@ -366,12 +366,9 @@ namespace CASWebApi.Services
             {
                 bool res = DbContext.RemoveById<Student>("student", id) && _userService.RemoveById(id);
                 if (res)
-                {
                     logger.LogInformation("StudentService:a student profile with id : " + id + "has been deleted successfully");
-                }
-                {
+                else
                     logger.LogError("StudentService:student with Id: " + id + " doesn't exist");
-                }
                 return res;
             }
             catch(Exception e)

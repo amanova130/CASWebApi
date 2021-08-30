@@ -120,7 +120,7 @@ namespace CASWebApi.Services
                     courseDuration = finalGradeA = finalGradeB = finalGradeC = 0;
                     average = 0;
                     var grades = GetSemiGradesByStudentIdAndYear(studentId, year, courses[i]);
-                    if(grades != null)
+                    if(grades.Count > 0)
                     {
                         for(int k = 0; k < grades.Count; k++)
                         {
@@ -137,15 +137,15 @@ namespace CASWebApi.Services
                                 finalGradeC += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeC);
                             }
                         }
+                        average += finalGradeA + finalGradeB + finalGradeC;
                     }
-                    average += finalGradeA + finalGradeB + finalGradeC;
                     if (average > 0)
+                    {
                         average /= courseDuration;
-                    totalAvg.Add(new CourseAvg(courses[i], average));
+                        totalAvg.Add(new CourseAvg(courses[i], average));
+                    }          
                 }
-
             }
-
             return totalAvg;
         }
 
