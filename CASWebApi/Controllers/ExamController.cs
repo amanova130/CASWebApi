@@ -24,6 +24,10 @@ namespace CASWebApi.Controllers
             _examService = examService;
         }
 
+        /// <summary>
+        /// Get All Exams
+        /// </summary>
+        /// <returns> List of Exams</returns>
         [HttpGet("getAllExam", Name = nameof(GetAllExam))]
         public ActionResult<List<Exam>> GetAllExam()
         {
@@ -37,6 +41,11 @@ namespace CASWebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Get Exam by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Exam object</returns>
         [HttpGet("getExamById", Name = nameof(GetExamById))]
         public ActionResult<Exam> GetExamById(string id)
         {
@@ -57,6 +66,11 @@ namespace CASWebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Create a new Exam
+        /// </summary>
+        /// <param name="exam">Exam that should be created</param>
+        /// <returns>Exam</returns>
         [HttpPost("createExam", Name = nameof(CreateExam))]
         public ActionResult<Exam> CreateExam(Exam exam)
         {
@@ -75,6 +89,11 @@ namespace CASWebApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an existed exam
+        /// </summary>
+        /// <param name="examIn"></param>
+        /// <returns>Bool or error</returns>
         [HttpPut("updateExam", Name = nameof(UpdateExam))]
         public IActionResult UpdateExam(Exam examIn)
         {
@@ -103,6 +122,15 @@ namespace CASWebApi.Controllers
                 return BadRequest("No connection to database");
             }
         }
+
+        /// <summary>
+        /// Get Exam by Id
+        /// </summary>
+        /// <param name="groupNumber"></param>
+        /// <param name="semester"></param>
+        /// <param name="year"></param>
+        /// <param name="testNo"></param>
+        /// <returns>List of exam by group number</returns>
         [HttpGet("getExamByGroup", Name = nameof(GetExamByGroup))]
         public ActionResult<List<Exam>> GetExamByGroup(string groupNumber, string semester, string year, string testNo)
         {
@@ -121,7 +149,11 @@ namespace CASWebApi.Controllers
 
         }
 
-
+        /// <summary>
+        /// Delete Exam by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Boolean</returns>
         [HttpDelete("deleteExamById", Name = nameof(DeleteExamById))]
         public ActionResult<bool> DeleteExamById(string id)
         {

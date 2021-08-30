@@ -159,7 +159,7 @@ namespace CASWebApi.Services
             catch (Exception e)
             {
                 if (e is MongoWriteException)
-                    throw new Exception(String.Format("User with Id: {0} already exists", course.Id), e);
+                    throw new Exception(String.Format("Course with Id: {0} already exists", course.Id), e);
                 throw e;
             }
         }

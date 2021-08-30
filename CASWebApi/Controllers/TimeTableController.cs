@@ -35,13 +35,13 @@ namespace CASWebApi.Controllers
         public ActionResult<List<TimeTable>> GetAllTTable()
         {
             logger.LogInformation("Getting all TimeTables data");
-            var timeList = _timeTableService.GetAll();
-            if (timeList != null)
+            try
             {
+                var timeList = _timeTableService.GetAll();
                 logger.LogInformation("Fetched all data");
                 return timeList;
             }
-            else
+           catch(Exception e)
             {
                 logger.LogError("Cannot get access to Time-table collection in Db");
                 return StatusCode(500, "Internal server error");
@@ -60,15 +60,23 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Getting TimeTable data");
             if (id != null && id != "")
             {
-                var timeTable = _timeTableService.GetById(id);
-                if (timeTable == null)
+                try
                 {
-                    return NotFound();
+                    var timeTable = _timeTableService.GetById(id);
+                    if (timeTable == null)
+                    {
+                        return NotFound("Time Table not found");
+                    }
+                    else
+                    {
+                        logger.LogInformation("Got timeTable by Id" + timeTable);
+                        return Ok(timeTable);
+                    }
                 }
-                else
+               catch(Exception e)
                 {
-                    logger.LogInformation("Got timeTable by Id" + timeTable);
-                    return Ok(timeTable);
+                    logger.LogError("Cannot get access to Db");
+                    return StatusCode(500, "Internal server error");
                 }
             }
             else
@@ -90,23 +98,30 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Getting time table by group id");
             if(id != null)
             {
-                var timeTable = _timeTableService.GetByCalendarName(id);
-                if (timeTable == null)
+                try
                 {
-                    return NotFound();
+                    var timeTable = _timeTableService.GetByCalendarName(id);
+                    if (timeTable == null)
+                    {
+                        return NotFound("Time table not found");
+                    }
+                    else
+                    {
+                        logger.LogInformation("Got timeTable by Id" + timeTable);
+                        return Ok(timeTable);
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    logger.LogInformation("Got timeTable by Id" + timeTable);
-                    return Ok(timeTable);
-                }
+                    logger.LogError("Cannot get access to Db");
+                    return StatusCode(500, "Internal server error");
+                } 
             }
             else
             {
                 logger.LogError("Id is null or empty string");
-                return NotFound();
+                return BadRequest("Id is null or empty string");
             }
-
         }
 
         /// <summary>
@@ -117,53 +132,89 @@ namespace CASWebApi.Controllers
         [HttpPost("createTimeTable", Name = nameof(CreateTimeTable))]
         public ActionResult<TimeTable> CreateTimeTable(TimeTable timeTable)
         {
-          bool res=_timeTableService.Create(timeTable);
-            if(res)
-                return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
-                
-            return NotFound("cannot create timeTable");
-      
+            if (timeTable != null)
+            {
+                try
+                {
+                    _timeTableService.Create(timeTable);
+                    return CreatedAtRoute("getTTById", new { id = timeTable.Id }, timeTable);
+                }
+                catch (Exception e)
+                {
+                    return Conflict(e);
+                }
+            }
+            else
+            {
+                logger.LogError("A new timetable model is not valid");
+                return BadRequest("A new timetable model is not valid");
+            }
         }
 
+        /// <summary>
+        /// Update Time table by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="timeTableIn"></param>
+        /// <returns></returns>
         [HttpPut("updateById", Name = nameof(UpdateById))]
         public IActionResult UpdateById(string id, TimeTable timeTableIn)
         {
             logger.LogInformation("Updating TimeTable ");
             if (id != null && timeTableIn != null)
             {
-                var timeTable = _timeTableService.GetById(id);
-                if (timeTable != null)
+                try
                 {
-                    timeTableIn.Id = id;
-                    _timeTableService.Update(id, timeTableIn);
-                    logger.LogInformation("Timetable is updated");
-                    return Ok(true);
+                    var timeTable = _timeTableService.GetById(id);
+                    if (timeTable != null)
+                    {
+                        timeTableIn.Id = id;
+                        _timeTableService.Update(id, timeTableIn);
+                        logger.LogInformation("Timetable is updated");
+                        return Ok(true);
+                    }
+                    else
+                        logger.LogError("Failed to get Timetable by Id");
                 }
-                else
-                    logger.LogError("Failed to get Timetable by Id");
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
+               
             }
             else
                 logger.LogError("id and timeTableIn are null");
-            return BadRequest(null);
+            return BadRequest("id and timeTableIn are null");
         }
 
+        /// <summary>
+        /// Delete Time table by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Result or error if timetable object is not valid</returns>
         [HttpDelete("deleteTTById", Name = nameof(DeleteTTById))]
         public IActionResult DeleteTTById(string id)
         {
             logger.LogInformation("DEleting Time table by Id");
             if (id != null)
             {
-                var timeTable = _timeTableService.GetById(id);
-                if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
+                try
                 {
-                    logger.LogInformation("Deleted successfully");
-                    return Ok(true);
+                    var timeTable = _timeTableService.GetById(id);
+                    if (timeTable != null && _timeTableService.RemoveById(timeTable.Id))
+                    {
+                        logger.LogInformation("Deleted successfully");
+                        return Ok(true);
+                    }
                 }
-                    
-            }
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
+            } 
             else
                 logger.LogError("Id is null");
-            return BadRequest(false);
+            return NotFound("Id is not valid or empty string");
         }
 
     }

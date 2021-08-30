@@ -29,15 +29,19 @@ namespace CASWebApi.Services
         public Teacher GetById(string teacherId)
         {
             logger.LogInformation("TeacherService:Getting teacher by id");
-
-            var teacher = DbContext.GetById<Teacher>("teachers", teacherId);
-            if (teacher == null)
-                logger.LogError("TeacherService:Cannot get a teacher with a Id: " + teacherId);
-            else
-                logger.LogInformation("TeacherService:Fetched teacher data by id ");
-            return teacher;
-
-           
+            try
+            {
+                var teacher = DbContext.GetById<Teacher>("teachers", teacherId);
+                if (teacher == null)
+                    logger.LogError("TeacherService:Cannot get a teacher with a Id: " + teacherId);
+                else
+                    logger.LogInformation("TeacherService:Fetched teacher data by id ");
+                return teacher;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -48,14 +52,19 @@ namespace CASWebApi.Services
         public List<Teacher> GetTeachersByCourseName(string courseName)
         {
             logger.LogInformation("TeacherService:Getting list of teacher by courseName");
-
-            var teachers = DbContext.GetListByFilter<Teacher>("teachers", "teachesCourses", courseName);
-            if (teachers == null)
-                logger.LogError("TeacherService:Cannot get a list of  teachers with a courseName: " + courseName);
-            else
-                logger.LogInformation("TeacherService:Fetched list of teachers by courseName ");
-            return teachers;
-            
+            try
+            {
+                var teachers = DbContext.GetListByFilter<Teacher>("teachers", "teachesCourses", courseName);
+                if (teachers == null)
+                    logger.LogError("TeacherService:Cannot get a list of  teachers with a courseName: " + courseName);
+                else
+                    logger.LogInformation("TeacherService:Fetched list of teachers by courseName ");
+                return teachers;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -66,15 +75,20 @@ namespace CASWebApi.Services
         public List<Teacher> GetAll()
         {
             logger.LogInformation("TeacherService:Getting all Teachers");
-            var teachers =DbContext.GetAll<Teacher>("teachers");
-
-            if (teachers == null)
-                logger.LogError("TeacherService:Cannot get access to teachers collection in Db");
-            else
-                logger.LogInformation("TeacherService:fetched All teachers collection data");
-            return teachers;
-
-
+            try
+            {
+                var teachers = DbContext.GetAll<Teacher>("teachers");
+                if (teachers == null)
+                    logger.LogError("TeacherService:Cannot get access to teachers collection in Db");
+                else
+                    logger.LogInformation("TeacherService:fetched All teachers collection data");
+                return teachers;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("TeacherService:Cannot get access to admin collection in Db");
+                throw e;
+            }
         }
 
         /// <summary>
@@ -84,9 +98,17 @@ namespace CASWebApi.Services
         public int GetNumberOfTeachers()
         {
             logger.LogInformation("TeacherService:Getting count of teacher collections");
-            int res = DbContext.GetCountOfDocuments<Teacher>("teachers");
-            logger.LogInformation("TeacherService:fetched number of teachers");
-            return res;
+            try
+            {
+                int res = DbContext.GetCountOfDocuments<Teacher>("teachers");
+                logger.LogInformation("TeacherService:fetched number of teachers");
+                return res;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+            
         }
 
         /// <summary>
@@ -97,14 +119,23 @@ namespace CASWebApi.Services
         public bool Create(Teacher teacher)
         {
             teacher.Status = true;
-            if (teacher.Image == null || teacher.Image == "")
-                teacher.Image = "Resources/Images/noPhoto.png";
-            bool res =  DbContext.Insert<Teacher>("teachers", teacher);
-            if (res)
-                logger.LogInformation("TeacherService:A new teacher profile added successfully :" + teacher);
-            else
-                logger.LogError("TeacherService:Cannot create a teachers, duplicated id or wrong format");
-            return res;
+            try
+            {
+                if (teacher.Image == null || teacher.Image == "")
+                    teacher.Image = "Resources/Images/noPhoto.png";
+                bool res = DbContext.Insert<Teacher>("teachers", teacher);
+                if (res)
+                    logger.LogInformation("TeacherService:A new teacher profile added successfully :" + teacher);
+                else
+                    logger.LogError("TeacherService:Cannot create a teachers, duplicated id or wrong format");
+                return res;
+            }
+            catch (Exception e)
+            {
+                if (e is MongoWriteException)
+                    throw new Exception(String.Format("Teacher with Id: {0} already exists", teacher.Id), e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -116,12 +147,20 @@ namespace CASWebApi.Services
         public bool Update(string id, Teacher teacherIn)
         {
             logger.LogInformation("TeacherService:updating an existing teacher profile with id : " + teacherIn.Id);
-            bool res = DbContext.Update<Teacher>("teachers", id, teacherIn);
-            if (!res)
-                logger.LogError("TeacherService:teacher with Id: " + teacherIn.Id + " doesn't exist");
-            else
-                logger.LogInformation("TeacherService:teacher with Id" + teacherIn.Id + "has been updated successfully");
-            return res;
+            try
+            {
+                bool res = DbContext.Update<Teacher>("teachers", id, teacherIn);
+                if (!res)
+                    logger.LogError("TeacherService:teacher with Id: " + teacherIn.Id + " doesn't exist");
+                else
+                    logger.LogInformation("TeacherService:teacher with Id" + teacherIn.Id + "has been updated successfully");
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
         }
 
         /// <summary>
@@ -131,15 +170,19 @@ namespace CASWebApi.Services
         /// <returns>true if removed successfully</returns>
         public bool RemoveById(string id)
         {
-            var deleted = DbContext.RemoveById<Teacher>("teachers", id);
-            if (deleted)
+            try
             {
-                logger.LogInformation("TeacherService:a teacher profile with id : " + id + "has been deleted successfully");
+                logger.LogInformation("TeacherService: deleting a teacher profile with id : " + id);
+                var deleted = DbContext.RemoveById<Teacher>("teachers", id);
+                return deleted;
             }
+            catch (Exception e)
             {
-                logger.LogError("TeacherService:teacher with Id: " + id + " doesn't exist");
+                logger.LogError("TeacherService:got error: " + e);
+                throw e;
             }
-            return deleted;
+
+
         }
             
     }

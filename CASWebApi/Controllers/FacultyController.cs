@@ -163,8 +163,6 @@ namespace CASWebApi.Controllers
         }
 
 
-
-
         /// <summary>
         /// Delete Faculty by Id
         /// </summary>
