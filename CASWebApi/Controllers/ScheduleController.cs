@@ -36,18 +36,25 @@ namespace CASWebApi.Controllers
         public ActionResult<Schedule> getEvent(string groupId,string id)
         {
             logger.LogInformation("Getting Event by group id and id of event");
-            if (groupId != null && id != null)
+            if (id == null || groupId == null)
             {
-               var schedule = _scheduleService.GetEvent(groupId, id);
-                if (schedule != null)
-                    return schedule;                
-                else
-                    logger.LogError("schedule doesn't exist");
+                logger.LogError("groupId or id is null or empty string");
+                return BadRequest("Incorrect format of id or groupId");
             }
-            else
-                logger.LogError("GoupId and Id are null");
-            return BadRequest(null);
-           
+            try
+            { 
+            var schedule = _scheduleService.GetEvent(groupId, id);
+                if (schedule != null)
+                    return schedule;                            
+                    logger.LogError("schedule doesn't exist");
+                return NotFound("event with given id doesn't exists");
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
         }
 
         /// <summary>
@@ -60,16 +67,21 @@ namespace CASWebApi.Controllers
         public ActionResult<Schedule> createEvent(string groupId,Schedule newEvent)
         {
             logger.LogInformation("Creating a new Event for calendar");
-            if(groupId != null && newEvent != null)
+            if (newEvent == null || groupId == null)
             {
-                if (_scheduleService.Create(groupId, newEvent))
-                    return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);
-                else
-                    logger.LogError("Faied to create a new event");
+                logger.LogError("groupId or newEvent is null");
+                return BadRequest("Incorrect format of groupId or newEvent");
             }
-            else
-                logger.LogError("GroupId and newEvent  objects are null ");
-            return BadRequest(null);
+            try
+            {
+                _scheduleService.Create(groupId, newEvent);
+                    return CreatedAtRoute("createEvent", new { id = newEvent.Title }, newEvent);   
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -83,21 +95,29 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateEvent(string groupId, Schedule eventIn)
         {
             logger.LogInformation("Updating a event");
-            if (groupId != null && eventIn != null)
+            if (eventIn == null || groupId == null)
             {
-
+                logger.LogError("groupId or eventIn is null");
+                return BadRequest("Incorrect format of groupId or eventIn");
+            }
+            try
+            {
                 if (_scheduleService.Update(groupId, eventIn))
                 {
                     logger.LogInformation("event updated successfully");
                     return CreatedAtRoute("createEvent", new { id = eventIn.Title }, eventIn);
                 }
                 else
+                {
                     logger.LogError("Faied to update an event");
-
+                    return NotFound("event with given id doesn't exists");
+                }
             }
-            else
-                logger.LogError("groupId and eventIn null");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -110,16 +130,26 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteEvent(string eventId, string groupId)
         {
             logger.LogInformation("Deleting a event");
-            if (eventId != null && groupId != null)
+            if (eventId == null || groupId == null)
             {
-                if (_scheduleService.RemoveById(eventId, groupId))
+                logger.LogError("groupId or eventIn is null");
+                return BadRequest("Incorrect format of groupId or eventIn");
+            }
+            try
+            {
+                if(_scheduleService.RemoveById(eventId, groupId))
                     return Ok(true);
                 else
-                    logger.LogError("Cannot remove an event");
+                    logger.LogError("event with given id not found");
+                return NotFound("event with given id not found");
             }
-            else
-                logger.LogError("eventId and groupId are null");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+        }
+           
 
         }
     }

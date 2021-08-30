@@ -68,101 +68,119 @@ namespace CASWebApi.Services
             return duration;
         }
             public List<Average> GetAvgByGroup(string groupName,string year)
-        {
+            {
             List<Exam> semesterA, semesterB, semesterSummer;
             List<Average> studentsAverage = new List<Average>();
-            var group = _groupService.GetGroupByName(groupName);
-            var students = _studentService.GetAllStudentsByGroup(groupName);
-            for(int i=0;i<students.Count;i++)
+            try
             {
-                studentsAverage.Add(new Average(students[i].Id, students[i].First_name + " " + students[i].Last_name));
-            }
-            int finalGradeA=0, finalGradeB=0, finalGradeSummer=0;
-            int courseDuration = 0;
-            double totalAvg = 0;
-
-            for(int i=0;i<group.courses.Length;i++)
-            {
-                courseDuration = 0;
-                LookUpDetails filterDetails = BuildFilter(groupName, year, "A", group.courses[i]);
-                semesterA = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
-                
-                filterDetails = BuildFilter(groupName, year, "B", group.courses[i]);
-                semesterB= DbContext.AggregateJoinDocuments<Exam>(filterDetails);
-
-                filterDetails = BuildFilter(groupName, year, "C", group.courses[i]);
-                semesterSummer = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
-                for(int j=0;j<students.Count;j++)
+                var group = _groupService.GetGroupByName(groupName);
+                var students = _studentService.GetAllStudentsByGroup(groupName);
+                for (int i = 0; i < students.Count; i++)
                 {
-                   // studentsAverage.Add(new Average(students[j].Id, students[j].First_name + students[j].Last_name, group.courses.Length));
-
-                    totalAvg = 0;
-                    courseDuration=finalGradeA = finalGradeB = finalGradeSummer = 0;
-                    for (int k = 0;k < semesterA.Count; k++)
-                    {
-                       finalGradeA = setSemesterGrade(finalGradeA,students[j].Id, semesterA[k]);                                   
-                    }
-                   
-                    for (int k = 0; k < semesterB.Count; k++)
-                    {
-                        finalGradeB = setSemesterGrade(finalGradeB,students[j].Id, semesterB[k]);
-                    }
-                    
-                    for (int k = 0; k < semesterSummer.Count; k++)
-                    {    
-                        finalGradeSummer = setSemesterGrade(finalGradeSummer,students[j].Id, semesterSummer[k]);
-                    }
-                    courseDuration = setCourseDuration(finalGradeA, finalGradeB, finalGradeSummer);
-                    totalAvg += finalGradeA + finalGradeB + finalGradeSummer;
-                    if(totalAvg > 0)
-                        totalAvg /= courseDuration;               
-                    for (int k = 0; k < studentsAverage.Count; k++)
-                    {
-                        if (studentsAverage[k].Id == students[j].Id)
-                        {
-                            studentsAverage[k].courseAvg.Add(new CourseAvg(group.courses[i], totalAvg));
-                            break;
-                        }
-                    }
-
+                    studentsAverage.Add(new Average(students[i].Id, students[i].First_name + " " + students[i].Last_name));
                 }
+                int finalGradeA = 0, finalGradeB = 0, finalGradeSummer = 0;
+                int courseDuration = 0;
+                double totalAvg = 0;
+
+                for (int i = 0; i < group.courses.Length; i++)
+                {
+                    courseDuration = 0;
+                    LookUpDetails filterDetails = BuildFilter(groupName, year, "A", group.courses[i]);
+                    semesterA = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
+
+                    filterDetails = BuildFilter(groupName, year, "B", group.courses[i]);
+                    semesterB = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
+
+                    filterDetails = BuildFilter(groupName, year, "C", group.courses[i]);
+                    semesterSummer = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
+                    for (int j = 0; j < students.Count; j++)
+                    {
+                        // studentsAverage.Add(new Average(students[j].Id, students[j].First_name + students[j].Last_name, group.courses.Length));
+
+                        totalAvg = 0;
+                        courseDuration = finalGradeA = finalGradeB = finalGradeSummer = 0;
+                        for (int k = 0; k < semesterA.Count; k++)
+                        {
+                            finalGradeA = setSemesterGrade(finalGradeA, students[j].Id, semesterA[k]);
+                        }
+
+                        for (int k = 0; k < semesterB.Count; k++)
+                        {
+                            finalGradeB = setSemesterGrade(finalGradeB, students[j].Id, semesterB[k]);
+                        }
+
+                        for (int k = 0; k < semesterSummer.Count; k++)
+                        {
+                            finalGradeSummer = setSemesterGrade(finalGradeSummer, students[j].Id, semesterSummer[k]);
+                        }
+                        courseDuration = setCourseDuration(finalGradeA, finalGradeB, finalGradeSummer);
+                        totalAvg += finalGradeA + finalGradeB + finalGradeSummer;
+                        if (totalAvg > 0)
+                            totalAvg /= courseDuration;
+                        for (int k = 0; k < studentsAverage.Count; k++)
+                        {
+                            if (studentsAverage[k].Id == students[j].Id)
+                            {
+                                studentsAverage[k].courseAvg.Add(new CourseAvg(group.courses[i], totalAvg));
+                                break;
+                            }
+                        }
+
+                    }
+                }
+                return studentsAverage;
             }
-            return studentsAverage;
+            catch(Exception e)
+            {
+                logger.LogError("ReportService:got error : " + e);
+                throw e;
+            }
         }
 
         public List<Average> GetAvgOfAllTeachers(string year)
         {
             double totalAvg = 0;
             int numOfGrades = 0;
-            var teachers = _teacherService.GetAll();
             List<Average> teachersAverage = new List<Average>();
-            List<Exam> teacherAvg = new List<Exam>(); ;
-            for(int i=0;i<teachers.Count;i++)
+            List<Exam> teacherAvg = new List<Exam>();
+            try
             {
-                teachersAverage.Add(new Average(teachers[i].Id, teachers[i].First_name +' '+ teachers[i].Last_name));
-                
-                for (int j=0;j<teachers[i].TeachesCourses.Length;j++)
-                {
-                    totalAvg = 0;
-                    numOfGrades = 0;
-                    LookUpDetails filterDetails = BuildFilterByTeacher(teachers[i].Id, year, teachers[i].TeachesCourses[j]);
-                    teacherAvg = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
-                    for(int k=0;k<teacherAvg.Count;k++)
-                    {
-                        for (int l = 0; l < teacherAvg[k].JoinedField.Length; l++)
-                        {
-                            totalAvg += teacherAvg[k].JoinedField[l].Grade;
-                            numOfGrades++;
-                        }
-                    }
-                    if(numOfGrades != 0)
-                    totalAvg /= numOfGrades;
-                    teachersAverage[teachersAverage.Count - 1].courseAvg.Add(new CourseAvg(teachers[i].TeachesCourses[j], totalAvg));
-                }
-               
+                var teachers = _teacherService.GetAll();
 
+                for (int i = 0; i < teachers.Count; i++)
+                {
+                    teachersAverage.Add(new Average(teachers[i].Id, teachers[i].First_name + ' ' + teachers[i].Last_name));
+
+                    for (int j = 0; j < teachers[i].TeachesCourses.Length; j++)
+                    {
+                        totalAvg = 0;
+                        numOfGrades = 0;
+                        LookUpDetails filterDetails = BuildFilterByTeacher(teachers[i].Id, year, teachers[i].TeachesCourses[j]);
+                        teacherAvg = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
+                        for (int k = 0; k < teacherAvg.Count; k++)
+                        {
+                            for (int l = 0; l < teacherAvg[k].JoinedField.Length; l++)
+                            {
+                                totalAvg += teacherAvg[k].JoinedField[l].Grade;
+                                numOfGrades++;
+                            }
+                        }
+                        if (numOfGrades != 0)
+                            totalAvg /= numOfGrades;
+                        teachersAverage[teachersAverage.Count - 1].courseAvg.Add(new CourseAvg(teachers[i].TeachesCourses[j], totalAvg));
+                    }
+
+
+                }
+                return teachersAverage;
             }
-            return teachersAverage;
+            catch (Exception e)
+            {
+                logger.LogError("ReportService:got error : " + e);
+                throw e;
+            }
+
 
         }
 

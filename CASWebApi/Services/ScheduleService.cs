@@ -38,28 +38,47 @@ namespace CASWebApi.Services
         public List<Schedule> GetAll()
         {
             logger.LogInformation("ScheduleService:Getting all Schedule objects");
-            var schedules = DbContext.GetAll<Schedule>("faculty");
-            if (schedules == null)
-                logger.LogError("ScheduleService:Cannot get access to Schedule collection in Db");
-            else
-                logger.LogInformation("ScheduleService:fetched All Schedule objects collection data");
-            return schedules;
-           
+            try
+            {
+                var schedules = DbContext.GetAll<Schedule>("faculty");
+                    logger.LogInformation("ScheduleService:fetched All Schedule objects collection data");
+                return schedules;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("ScheduleService:got error : " + e);
+                throw e;
+            }
+
         }
+        /// <summary>
+        /// get event by id and by his groupId
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="id"></param>
+        /// <returns>schedule object if found,null otherwise</returns>
         public Schedule GetEvent(string groupId,string id)
         {
-            var timeTable = _timeTableService.GetById(groupId);
-            if (timeTable != null)
+            try
             {
-                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                var timeTable = _timeTableService.GetById(groupId);
+                if (timeTable != null)
                 {
-                    if (timeTable.GroupSchedule[i].EventId == id)
-                        return timeTable.GroupSchedule[i];
+                    for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                    {
+                        if (timeTable.GroupSchedule[i].EventId == id)
+                            return timeTable.GroupSchedule[i];
+                    }
                 }
+                else
+                    logger.LogError("Time table doesn't exist");
+                return null;
             }
-            else
-                logger.LogError("Time table doesn't exist");
-            return null;
+            catch (Exception e)
+            {
+                logger.LogError("ScheduleService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -70,16 +89,18 @@ namespace CASWebApi.Services
         /// <returns>true if added</returns>
         public bool Create(string groupId,Schedule newEvent)
         {
-           bool res= CalendarService.CreateEvent(newEvent, groupId);
-            if (res)
-            {
-                res = DbContext.PushElement<Schedule>("timeTable", "schedule", newEvent, groupId, "groupName");
-                if (res)
-                    logger.LogInformation("ScheduleService:A new schedule object added successfully :" + newEvent);
-                else
-                    logger.LogError("ScheduleService:Cannot create a schedule object, duplicated id or wrong format");
+            try
+            { 
+            CalendarService.CreateEvent(newEvent, groupId);
+            DbContext.PushElement<Schedule>("timeTable", "schedule", newEvent, groupId, "groupName");
+            logger.LogInformation("ScheduleService:A new schedule object added successfully :" + newEvent);    
+            return true;
             }
-            return res;
+            catch (Exception e)
+            {
+                logger.LogError("ScheduleService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -90,29 +111,37 @@ namespace CASWebApi.Services
         public bool Update(string groupId, Schedule eventIn)
         {
             logger.LogInformation("ScheduleService:updating an existing schedule object with id : " + eventIn.EventId);
-            var timeTable = _timeTableService.GetByCalendarName(groupId);
-            bool res=false;
-            if (timeTable != null)
+            try
             {
-                for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
+                var timeTable = _timeTableService.GetByCalendarName(groupId);
+                bool res = false;
+                if (timeTable != null)
                 {
-                    if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                    for (int i = 0; i < timeTable.GroupSchedule.Length; i++)
                     {
-                        timeTable.GroupSchedule[i] = eventIn;
-                        break;
+                        if (timeTable.GroupSchedule[i].EventId == eventIn.EventId)
+                        {
+                            timeTable.GroupSchedule[i] = eventIn;
+                            break;
+                        }
+                    }
+                    res = _timeTableService.Update(groupId, timeTable) && CalendarService.UpdateEvent(eventIn, groupId) != null;
+                    if (res)
+                    {
+                        logger.LogInformation("event updated successfully");
+                    }
+                    else
+                    {
+                        logger.LogError("Faied to update an event");
                     }
                 }
-                     res = _timeTableService.Update(groupId, timeTable) && CalendarService.UpdateEvent(eventIn, groupId) != null;
-                if(res)
-                {
-                    logger.LogInformation("event updated successfully");
-                }
-                else
-                {
-                    logger.LogError("Faied to update an event");
-                }
+                return res;
             }
-            return res;
+            catch (Exception e)
+            {
+                logger.LogError("ScheduleService:got error : " + e);
+                throw e;
+            }
         }
 
 
@@ -125,20 +154,27 @@ namespace CASWebApi.Services
         public bool RemoveById(string eventId,string groupId)
         {
             logger.LogInformation("ScheduleService:deleting a schedule object with id : " + eventId);
-            bool res = CalendarService.DeleteEvent(groupId, eventId);
-            if (res)
+            try
             {
-                res = DbContext.PullObject<Schedule>("timeTable", "schedule", eventId, groupId, "groupName", "eventId");
+                bool res = CalendarService.DeleteEvent(groupId, eventId);
                 if (res)
-                    logger.LogInformation("ScheduleService:a schedule profile with id : " + eventId + "has been deleted successfully");
+                {
+                    res = DbContext.PullObject<Schedule>("timeTable", "schedule", eventId, groupId, "groupName", "eventId");
+                    if (res)
+                        logger.LogInformation("ScheduleService:a schedule profile with id : " + eventId + "has been deleted successfully");
+                    else
+                        logger.LogError("ScheduleService:schedule with Id: " + eventId + " doesn't exist");
+
+                }
                 else
-                    logger.LogError("ScheduleService:schedule with Id: " + eventId + " doesn't exist");
-
+                    logger.LogError("ScheduleService:calendar with name: " + eventId + " doesn't exist in google calendars");
+                return res;
             }
-            else
-                logger.LogError("ScheduleService:calendar with name: " + eventId + " doesn't exist in google calendars");
-            return res;
-
+            catch (Exception e)
+            {
+                logger.LogError("ScheduleService:got error : " + e);
+                throw e;
+            }
         }
     }
 }

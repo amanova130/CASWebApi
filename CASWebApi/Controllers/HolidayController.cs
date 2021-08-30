@@ -38,6 +38,7 @@ namespace CASWebApi.Controllers
             }
             catch (Exception e)
             {
+                logger.LogError("Cannot get access to db");
                 return BadRequest("No connection to database");
             }
         }

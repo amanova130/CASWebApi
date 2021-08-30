@@ -33,7 +33,7 @@ namespace CASWebApi.Services
             {
                 Holiday holiday = DbContext.GetById<Holiday>("holiday", holidayId);
                 if (holiday == null)              
-                 logger.LogError("holiday service with given id doesn't exists: ");
+                 logger.LogError("holiday with given id doesn't exists: ");
                 else
                     logger.LogInformation("HolidayService:Fetched holiday data by id ");
                 return holiday;

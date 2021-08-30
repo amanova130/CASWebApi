@@ -32,16 +32,16 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Request>> GetAllRequests()
         {
             logger.LogInformation("Getting all Requests data");
-            var requestList = _requestService.GetAll();
-            if (requestList != null)
+            try
             {
+                var requestList = _requestService.GetAll();
                 logger.LogInformation("Fetched all data");
                 return requestList;
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to Request collection in Db");
-                return StatusCode(500, "Internal server error");
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
             }
         }
 
@@ -49,16 +49,21 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Request>> GetRequestsListBySenderId(string senderId)
         {
             logger.LogInformation("Getting all Requests data");
-            var requestList = _requestService.GetRequestBySenderId(senderId);
-            if (requestList != null)
+            if (senderId == null || senderId == "")
             {
-                logger.LogInformation("Fetched all data");
-                return requestList;
+                logger.LogError("sender Id is null or empty string");
+                return BadRequest("Incorrect format of sender param");
             }
-            else
+            try
             {
-                logger.LogError("Cannot get access to Request collection in Db");
-                return StatusCode(500, "Internal server error");
+                var requestList = _requestService.GetRequestBySenderId(senderId);
+                    logger.LogInformation("Fetched all data");
+                    return requestList;             
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
             }
         }
 
@@ -71,9 +76,14 @@ namespace CASWebApi.Controllers
         [HttpGet("getRequestbyId", Name = nameof(GetRequestbyId))]
         public ActionResult<Request> GetRequestbyId(string id)
         {
-            if (id != null)
+            logger.LogInformation("Getting Request by Id");
+            if (id == null || id == "")
             {
-                logger.LogInformation("Getting Request by Id");
+                logger.LogError("Id is null or empty string");
+                return BadRequest("Incorrect format of id param");
+            }
+            try
+            {
                 var request = _requestService.GetById(id);
                 if (request != null)
                 {
@@ -81,12 +91,14 @@ namespace CASWebApi.Controllers
                 }
                 else
                 {
-                    logger.LogError("Cannot get access to Request collection in Db");
+                    return NotFound("request with given id not found");
                 }
             }
-            else
-                logger.LogError("Request Id is null or empty string");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -98,18 +110,24 @@ namespace CASWebApi.Controllers
         public ActionResult<Request> CreateNewRequest(Request request)
         {
             logger.LogInformation("Creating a new request");
-            if (request != null)
+            if (request == null)
             {
-                request.Status = true;
-                if (_requestService.Create(request))
-                    return CreatedAtRoute("getFacById", new { id = request.Id }, request);
-                else
-                    return StatusCode(409, "Duplicated Id");
+                logger.LogError("request Id is null or empty string");
+                return BadRequest("Incorrect format of request param");
             }
-            else
-                logger.LogError("request object is null " + request);
-            return BadRequest(null);
-        }
+            request.Status = true;
+            try
+            {
+               _requestService.Create(request);
+                logger.LogInformation("A new request profile added successfully " + request);
+                return Ok(request);           
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+}
 
         /// <summary>
         /// Update existed requestIn profile
@@ -119,21 +137,29 @@ namespace CASWebApi.Controllers
         [HttpPut("updateRequest", Name = nameof(UpdateRequest))]
         public IActionResult UpdateRequest(Request requestIn)
         {
-            logger.LogInformation("Updating existed requestIn: " + requestIn.Id);
-            var link = _requestService.GetById(requestIn.Id);
-
-            if (link == null)
+            if (requestIn == null)
             {
-                logger.LogError("requestIn with Id: " + requestIn.Id + " doesn't exist");
-                return NotFound(false);
+                logger.LogError("requestIn object is null or empty string");
+                return BadRequest("Incorrect format of requestIn param");
             }
-            bool updated = _requestService.Update(requestIn.Id, requestIn);
-            if (updated)
-                logger.LogInformation("Given requestIn profile Updated successfully");
-            else
-                logger.LogError("Cannot update the requestIn profile: " + requestIn.Id + " wrong format");
-
-            return Ok(updated);
+            logger.LogInformation("Updating existed requestIn: " + requestIn.Id);
+            try
+            {
+                var link = _requestService.GetById(requestIn.Id);
+                if (link == null)
+                {
+                    logger.LogError("requestIn with Id: " + requestIn.Id + " doesn't exist");
+                    return NotFound("request with given id doesn't exists");
+                }
+                 _requestService.Update(requestIn.Id, requestIn);
+                    logger.LogInformation("Given requestIn profile Updated successfully");
+                return Ok(requestIn);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -145,38 +171,52 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteRequestById(string id)
         {
             logger.LogInformation("Deleting Request by Id " + id);
-            if (id != null)
+            if (id == null)
+            {
+                logger.LogError("id is null or empty string");
+                return BadRequest("Incorrect format of id param");
+            }
+            try
             {
                 var request = _requestService.GetById(id);
-                if (request != null && _requestService.RemoveById(request.Id))
-                    return Ok(true);
-                else
-                    logger.LogError("Cannot get access to request collection in Db");
+                if (request == null)
+                    return NotFound("request with given id not found");
+                _requestService.RemoveById(request.Id);
+                return Ok(true);
             }
-            else
-                logger.LogError("Id is not valid format or null");
-            return NotFound(false);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
-
+        /// <summary>
+        /// function to get count of requests with status "new"
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <param name="value"></param>
+        /// <returns>number of new requests </returns>
         [HttpGet("getCountOFNewRequest", Name = nameof(GetCountOFNewRequest))]
         public ActionResult<int> GetCountOFNewRequest(string fieldName, string value)
         {
-            if (fieldName != null && value != null)
+            if (fieldName == null && value == null)
             {
-                logger.LogInformation("Getting count of Request");
-                var count = _requestService.GetCountByFilter(fieldName, value);
-                if (count >= 0)
-                {
-                    return Ok(count);
-                }
-                else
-                {
-                    logger.LogError("Cannot get access to Request collection in Db");
-                }
+                logger.LogError("fieldName or value is null");
+                return BadRequest("Incorrect format of parameters");
             }
-            else
-                logger.LogError("Request Id is null or empty string");
-            return BadRequest(null);
+                logger.LogInformation("Getting count of Request");
+            try
+            { 
+                var count = _requestService.GetCountByFilter(fieldName, value);
+                    return Ok(count);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
+
         }
 
     }

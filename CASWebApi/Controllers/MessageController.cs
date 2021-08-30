@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CASWebApi.IServices;
 using CASWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,94 +15,176 @@ namespace CASWebApi.Controllers
     [ApiController]
     public class MessageController : ControllerBase
     {
+        private readonly ILogger logger;
         IMessageService _messageService;
         public MessageController(IMessageService messageService)
         {
+            this.logger = logger;
             _messageService = messageService;
         }
 
         [HttpGet("getAllMsg", Name = nameof(GetAllMsg))]
-        public ActionResult<List<Message>> GetAllMsg() =>
-             _messageService.GetAll();
+        public ActionResult<List<Message>> GetAllMsg()
+        {
+            try
+            {
+                var messages = _messageService.GetAll();
+                logger.LogInformation("Fetched All messages data");
+                return messages;
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+        }
 
         [HttpGet("getAllMsgByReceiver", Name = nameof(getAllMsgByReceiver))]
-        public ActionResult<List<Message>> getAllMsgByReceiver(string id) =>
-             _messageService.GetAllByReceiverId(id);
+        public ActionResult<List<Message>> getAllMsgByReceiver(string id)
+        {
+            if(id == null || id == "")
+            {
+                logger.LogError("message Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
+            }
+            try
+            {
+                var messages = _messageService.GetAllByReceiverId(id);
+                logger.LogInformation("Fetched All messages data by receiver id");
+                return messages;
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+        }
 
         [HttpGet("getAllMsgBySender", Name = nameof(getAllMsgBySender))]
-        public ActionResult<List<Message>> getAllMsgBySender(string id) =>
-            _messageService.GetAllBySenderId(id);
+        public ActionResult<List<Message>> getAllMsgBySender(string id)
+        {
+            if (id == null || id == "")
+            {
+                logger.LogError("message Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
+            }
+            try
+            {
+                var messages = _messageService.GetAllBySenderId(id);
+                logger.LogInformation("Fetched All messages data by sender id");
+                return messages;
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+        }
 
         [HttpGet("getAllDeletedBySender", Name = nameof(GetAllDeletedBySender))]
         public ActionResult<List<Message>> GetAllDeletedBySender(string id)
         {
-           var messages= _messageService.GetAllDeletedBySender(id);
-
-            if (messages == null)
+            if (id == null || id == "")
             {
-                return NotFound();
+                logger.LogError("message Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
             }
+            try
+            {
+                var messages = _messageService.GetAllDeletedBySender(id);
+                logger.LogInformation("Fetched All deleted messages data by sender id");
+                return messages;
+            }
+            catch (Exception e)
 
-            return messages;
+            {
+                return BadRequest("No connection to database");
+            }
         }
+        
 
         [HttpGet("getMsgById", Name = nameof(GetMsgById))]
         public ActionResult<Message> GetMsgById(string id)
         {
-            var message = _messageService.GetById(id);
-
-            if (message == null)
+            if (id == null || id == "")
             {
-                return NotFound();
+                logger.LogError("message Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
+            }
+            try
+            {
+                var message = _messageService.GetById(id);
+                logger.LogInformation("Fetched message by id");
+                return message;
+            }
+            catch (Exception e)
+
+            {
+                return BadRequest("No connection to database");
             }
 
-            return message;
+
+
+
         }
 
 
         [HttpPost("sendEmail", Name = nameof(SendMail))]
         public  IActionResult SendMail([FromBody] Message email)
         {
-            bool res = _messageService.Create(email);
-            if(res == false)
+            if(email == null)
             {
-                return NotFound();
+                logger.LogError("email object is null");
+                return BadRequest("Incorrect format of email param");
             }
-            return Ok(true);
+            try
+            {
+                _messageService.Create(email);
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
         [HttpPost("createMsg", Name = nameof(CreateMsg))]
         public ActionResult<Message> CreateMsg(Message message)
         {
-            if (!(_messageService.Create(message)))
-                return NotFound();
-
-            return CreatedAtRoute("getMsgById", new { id = message.Id }, message);
-        }
-
-        [HttpPut("updateMsg", Name = nameof(UpdateMsg))]
-        public IActionResult UpdateMsg(string id, Message messageIn)
-        {
-            var message = _messageService.GetById(id);
-
             if (message == null)
             {
-                return NotFound();
+                logger.LogError("email object is null");
+                return BadRequest("Incorrect format of email param");
             }
-            messageIn.Id = id;
+            try
+            {
+                _messageService.Create(message);
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
 
-            _messageService.Update(id, messageIn);
-
-            return NoContent();
         }
+
 
         [HttpDelete("deleteMsgById", Name = nameof(DeleteMsgById))]
         public IActionResult DeleteMsgById(string id)
         {
-            var message = _messageService.GetById(id);
+            if (id == null)
+            {
+                logger.LogError("id is null");
+                return BadRequest("Incorrect format of id param");
+            }
+            try
+            {
+                var message = _messageService.GetById(id);
+                if (message != null && _messageService.RemoveById(message.Id))
+                    return Ok(true);
+                return NotFound("message with given id not found");
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
 
-            if (message != null && _messageService.RemoveById(message.Id))
-                return Ok(true);
-            return NoContent();
         }
     }
 }
