@@ -26,5 +26,12 @@ namespace CASWebApi.Controllers
             var avgList = _reportService.GetAvgByGroup(groupName, year);
             return Ok(avgList);
         }
+        [HttpGet("getAvgOFAllTeachers", Name = nameof(GetAvgOFAllTeachers))]
+        public ActionResult<List<Average>> GetAvgOFAllTeachers(string year)
+        {
+            var avgList = _reportService.GetAvgOfAllTeachers(year);
+            return Ok(avgList);
+        }
+
     }
 }
