@@ -33,16 +33,38 @@ namespace CASWebApi.Services
         public Faculty GetById(string facultyId)
         {
             logger.LogInformation("FacultyService:Getting faculty by id");
+            try
+            {
+                var faculty = DbContext.GetById<Faculty>("faculty", facultyId);
+                if (faculty == null)
+                    logger.LogError("FacultyService:Cannot get a faculty with a facId: " + facultyId);
+                else
+                    logger.LogInformation("FacultyService:Fetched faculty data by id ");
+                return faculty;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
-            var faculty = DbContext.GetById<Faculty>("faculty", facultyId);
-            if(faculty == null)
-                logger.LogError("FacultyService:Cannot get a faculty with a facId: " + facultyId);
-            else
-                logger.LogInformation("FacultyService:Fetched faculty data by id ");
-            return faculty;
+        }
+        public Faculty GetByFacultyName(string facultyName)
+        {
+            logger.LogInformation("FacultyService:Getting faculty by id");
+            try
+            {
+                var faculty = DbContext.GetDocumentByFilter<Faculty>("faculty", "fac_name", facultyName);
 
-
-
+                if (faculty == null)
+                    logger.LogError("FacultyService:Cannot get a faculty with a facName: " + facultyName);
+                else
+                    logger.LogInformation("FacultyService:Fetched faculty data by id ");
+                return faculty;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -52,12 +74,15 @@ namespace CASWebApi.Services
         public List<Faculty> GetAll()
         {
             logger.LogInformation("FacultyService:Getting all faculties");
-            var faculties= DbContext.GetAll<Faculty>("faculty");
-            if (faculties == null)
-                logger.LogError("FacultyService:Cannot get access to faculties collection in Db");
-            else
-                logger.LogInformation("FacultyService:fetched All faculties collection data");
-            return faculties;
+            try
+            {
+                var faculties = DbContext.GetAll<Faculty>("faculty");
+                return faculties;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
 
@@ -68,10 +93,16 @@ namespace CASWebApi.Services
         public int GetNumberOfFaculties()
         {
             logger.LogInformation("FacultyService:Getting count of faculty collections");
-            int res = DbContext.GetCountOfDocuments<Faculty>("faculty");
-            logger.LogInformation("FacultyService:fetched number of faculties");
-            return res;
-           
+            try
+            {
+                int res = DbContext.GetCountOfDocuments<Faculty>("faculty");
+                logger.LogInformation("FacultyService:fetched number of faculties");
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -85,12 +116,15 @@ namespace CASWebApi.Services
 
             faculty.Id = ObjectId.GenerateNewId().ToString();
             faculty.Status = true;
-            bool res=DbContext.Insert<Faculty>("faculty", faculty);
-            if (res)
-                logger.LogInformation("FacultyService:A new faculty profile added successfully :" + faculty);
-            else
-                logger.LogError("FacultyService:Cannot create a faculty, duplicated id or wrong format");
-            return res;
+            try
+            {
+                 return DbContext.Insert<Faculty>("faculty", faculty);           
+            }
+            catch (Exception e)
+            {
+                logger.LogError("FacultyService:Cannot create a faculty");
+                throw e;
+            }
         }
 
         /// <summary>
@@ -99,18 +133,24 @@ namespace CASWebApi.Services
         /// <param name="id">id of the faculty to edit</param>
         /// <param name="facultyIn">edited faculty's object to replace with the old one</param>
         /// <returns></returns>
-        public bool Update(string id, Faculty facultyIn)
+        public bool Update(Faculty facultyIn)
         {
             logger.LogInformation("facultyService:updating an existing faculty profile with id : " + facultyIn.Id);
+            try
+            {
+                bool res = DbContext.Update<Faculty>("faculty", facultyIn.Id, facultyIn);
+                if (!res)
+                    logger.LogError("facultyService:faculty with Id: " + facultyIn.Id + " doesn't exist");
+                else
+                    logger.LogInformation("facultyService:faculty with Id" + facultyIn.Id + "has been updated successfully");
 
-            bool res = DbContext.Update<Faculty>("faculty", id, facultyIn);
-            if (!res)
-                logger.LogError("facultyService:faculty with Id: " + facultyIn.Id + " doesn't exist");
-            else
-                logger.LogInformation("facultyService:faculty with Id" + facultyIn.Id + "has been updated successfully");
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
-            return res;
-     
         }
 
         /// <summary>
@@ -121,19 +161,17 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             logger.LogInformation("facultyService:deleting a faculty profile with id : " + id);
-
-            bool res =DbContext.RemoveById<Faculty>("faculty", id);
-            if (res)
+            try
             {
-                DbContext.RemoveField<Faculty>("group", "fac_id", id);
-                logger.LogInformation("facultyService:a faculty profile with id : " + id + "has been deleted successfully");
+                bool res = DbContext.RemoveById<Faculty>("faculty", id);
+                DbContext.RemoveField<Faculty>("group", "fac_id", id);      
+                return res;
             }
+            catch (Exception e)
             {
-                logger.LogError("facultyService:faculty with Id: " + id + " doesn't exist");
-
+                logger.LogError("facultyService:got error: "+e);
+                throw e;
             }
-            return res;
-            
         }
 
        

@@ -21,7 +21,7 @@ namespace CASWebApi.Models.DbModels
             }
             catch (Exception e)
             {
-                throw;
+                throw e;
             }
             // database = client.GetDatabase(settings.Value.Database);
         }
@@ -49,6 +49,13 @@ namespace CASWebApi.Models.DbModels
             return res;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="listOfDocuments"></param>
+        /// <returns></returns>
         public bool InsertMany<T>(string collectionName, List<T> listOfDocuments)
         {
             bool res = true;
@@ -74,8 +81,15 @@ namespace CASWebApi.Models.DbModels
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", true);
-            var result = collection.Find(filter).ToList();
-            return result;
+            try
+            {
+                var result = collection.Find(filter).ToList();
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -90,6 +104,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
             try
@@ -111,6 +126,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public T GetDocumentByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
             try
@@ -135,6 +151,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public bool RemoveField<T>(string collectionName, string fieldName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
             var update = Builders<T>.Update.Unset(fieldName);
@@ -158,6 +175,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public bool PullElement<T>(string collectionName, string fieldName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
             var update = Builders<T>.Update.Pull(fieldName, id);
@@ -182,6 +200,8 @@ namespace CASWebApi.Models.DbModels
         public bool PullObject<T>(string collectionName, string arrayName, string objectId, string fieldId, string fieldName,string objectKey)
         {
             UpdateResult result;
+            objectId = objectId.Trim();
+            fieldId = fieldId.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
             var update = Builders<T>.Update.PullFilter(arrayName, Builders<T>.Filter.Eq(objectKey, objectId));
@@ -211,6 +231,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if added,false otherwise </returns>
         public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName)
         {
+            fieldId = fieldId.Trim();
             UpdateResult result;
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
@@ -235,6 +256,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>found object</returns>
         public T GetById<T>(string collectionName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
             try
@@ -258,7 +280,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if updated successfully</returns>
         public bool Update<T>(string collectionName, string id, T document)
         {
-            
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filterId = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
             try
@@ -282,6 +304,7 @@ namespace CASWebApi.Models.DbModels
         /// <param name="value"></param>
         public bool UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set(attributeName, value);
@@ -306,6 +329,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if removed successfully</returns>
         public bool RemoveById<T>(string collectionName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set("status", false);
@@ -391,6 +415,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if removed successfully</returns>
         public bool RemoveByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value);
             var update = Builders<T>.Update.Set("status", false);
@@ -435,6 +460,7 @@ namespace CASWebApi.Models.DbModels
         /// <returns>number of documents</returns>
         public int GetCountOfDocumentsByFilter<T>(string collectionName,string field, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", true) & Builders<T>.Filter.Eq(field, value);
             try
@@ -449,6 +475,7 @@ namespace CASWebApi.Models.DbModels
         }
         public List<T> GetDeletedDocumentsByFilter<T>(string collectionName,string field,string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", false) & Builders<T>.Filter.Eq(field, value);
             try

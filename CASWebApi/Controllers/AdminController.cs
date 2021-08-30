@@ -33,17 +33,16 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Admin>> GetAllAdmin()
         {
             logger.LogInformation("Getting all Admins data");
-            var adminList = _adminService.GetAll();
-            if (adminList != null)
+            try
             {
-                logger.LogInformation("Fetched all data");
-                 return adminList;
-            }  
-            else
+                var adminList = _adminService.GetAll();
+                    return adminList;   
+            }
+            catch(Exception e)
             {
-                logger.LogError("Cannot get access to admin collection in Db");
+                logger.LogError("Cannot get access to Db");
                 return StatusCode(500, "Internal server error");
-            }   
+            }
 
         }
              
@@ -59,21 +58,30 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Getting Admin data");
             if(id != null && id != "")
             {
-                var admin = _adminService.GetById(id);
-                if (admin == null)
+                try
                 {
-                    return NotFound();
+                    var admin = _adminService.GetById(id);
+
+                    if (admin == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        logger.LogInformation("Got Admin by Id" + admin);
+                        return Ok(admin);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    logger.LogInformation("Got Admin by Id" + admin);
-                    return Ok(admin);
-                }    
+                    logger.LogError("Cannot get access to Db");
+                    return StatusCode(500, "Internal server error");
+                }
             }
             else
             {
                 logger.LogError("Id is null or empty string");
-                return NotFound();
+                return BadRequest("Id param is null or empty string");
             }   
         }
 
@@ -86,16 +94,23 @@ namespace CASWebApi.Controllers
         public ActionResult<Admin> CreateNewAdmin(Admin admin)
         {
             logger.LogInformation("Creating a new Admin profile");
-            if(admin != null)
+            if(admin != null && admin.Id != null)
             {
-                if (!(_adminService.Create(admin)))
-                    return NotFound("duplicated id or wrong id format");
-                return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);
+                try
+                {
+                    _adminService.Create(admin);
+                    return CreatedAtRoute("getAdminById", new { id = admin.Id }, admin);
+                }
+                catch(Exception e)
+                {
+                    return Conflict(e);
+                }
+                    
             }
             else
             {
                 logger.LogError("A new admin model is not valid");
-                return BadRequest(admin);
+                return BadRequest("admin param or his Id is null ");
             }
             
             
@@ -111,21 +126,31 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateAdmin(Admin adminIn)
         {
             logger.LogInformation("Updating existed Admin");
-            if(adminIn != null)
+            if(adminIn != null && adminIn.Id != null)
             {
-                var admin = _adminService.GetById(adminIn.Id);
-                if (admin == null)
+                try
                 {
-                    logger.LogError("Admin with id: " + adminIn.Id + " not found");
-                    return NotFound(false);
+                    var admin = _adminService.GetById(adminIn.Id);
+                    if (admin == null)
+                    {
+                        logger.LogError("Admin with id: " + adminIn.Id + " not found");
+                        return NotFound("Admin with given id not found");
+                    }
+                    if (!(_adminService.Update(adminIn.Id, adminIn)))
+                    {
+                        logger.LogError("Cannot update the admin profile, something went wrong in UpdateAdmin");
+                        return NotFound(false);
+                    }
+                    return Ok(true);
                 }
-                if (!(_adminService.Update(adminIn.Id, adminIn)))
+                catch (Exception e)
                 {
-                    logger.LogError("Cannot update the admin profile, something went wrong in UpdateAdmin");
-                    return NotFound(false);
-                }    
+                    return BadRequest("No connection to database");
+                }
+
             }
-            return Ok(true);
+            logger.LogError("A given admin model is not valid");
+            return BadRequest("admin param or his Id is null ");
         }
 
         /// <summary>
@@ -139,9 +164,16 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Deleting Admin by Id");
             if(id != null)
             {
-                var admin = _adminService.GetById(id);
-                if (admin != null && _adminService.RemoveById(admin.Id))
-                    return Ok();
+                try
+                {
+                    var admin = _adminService.GetById(id);
+                    if (admin != null && _adminService.RemoveById(admin.Id))
+                        return Ok();
+                }
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
             logger.LogError("Id is not valid or empty string");
             return NotFound();

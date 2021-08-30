@@ -29,12 +29,20 @@ namespace CASWebApi.Services
         public Holiday GetById(string holidayId)
         {
             logger.LogInformation("HolidayService:Getting holiday by id");
-            Holiday holiday = DbContext.GetById<Holiday>("holiday", holidayId);
-            if (holiday == null)
-                logger.LogError("HolidayService:Cannot get a holiday with a holidayId: " + holidayId);
-            else
-                logger.LogInformation("HolidayService:Fetched holiday data by id ");
-            return holiday;
+            try
+            {
+                Holiday holiday = DbContext.GetById<Holiday>("holiday", holidayId);
+                if (holiday == null)              
+                 logger.LogError("holiday service with given id doesn't exists: ");
+                else
+                    logger.LogInformation("HolidayService:Fetched holiday data by id ");
+                return holiday;
+            }
+            catch(Exception e)
+            {
+                logger.LogError("HolidayService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -44,13 +52,17 @@ namespace CASWebApi.Services
         public List<Holiday> GetAll()
         {
             logger.LogInformation("HolidayService:Getting all holidays");
-            var holidays = DbContext.GetAll<Holiday>("holiday");
-
-            if (holidays == null)
-                logger.LogError("HolidayService:Cannot get access to holidays collection in Db");
-            else
-                logger.LogInformation("HolidayService:fetched All holidays collection data");
-            return holidays;
+            try
+            {
+                var holidays = DbContext.GetAll<Holiday>("holiday");
+                    logger.LogInformation("HolidayService:fetched All holidays collection data");
+                return holidays;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("HolidayService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -63,12 +75,17 @@ namespace CASWebApi.Services
             logger.LogInformation("HolidayService:creating a new holiday profile : " + holiday);
 
             holiday.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<Holiday>("holiday", holiday);
-            if (res)
-                logger.LogInformation("HolidayService:A new holiday profile added successfully :" + holiday);
-            else
-                logger.LogError("HolidayService:Cannot create a holiday, duplicated id or wrong format");
-            return res;
+            try
+            {
+                DbContext.Insert<Holiday>("holiday", holiday);
+                    logger.LogInformation("HolidayService:A new holiday profile added successfully :" + holiday); 
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("HolidayService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -80,15 +97,21 @@ namespace CASWebApi.Services
         public bool Update(string id, Holiday holiday)
         {
             logger.LogInformation("HolidayService:updating an existing holiday profile with id : " + holiday.Id);
+            try
+            {
+                bool res = DbContext.Update<Holiday>("holiday", id, holiday);
+                if (!res)
+                    logger.LogError("HolidayService:holiday with Id: " + holiday.Id + " doesn't exist");
+                else
+                    logger.LogInformation("HolidayService:holiday with Id" + holiday.Id + "has been updated successfully");
 
-            bool res = DbContext.Update<Holiday>("holiday", id, holiday);
-            if (!res)
-                logger.LogError("HolidayService:holiday with Id: " + holiday.Id + " doesn't exist");
-            else
-                logger.LogInformation("HolidayService:holiday with Id" + holiday.Id + "has been updated successfully");
-
-            return res;
-            
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("HolidayService:got error : " + e);
+                throw e;
+            }
         }
     
         /// <summary>
@@ -99,15 +122,21 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             logger.LogInformation("HolidayService:deleting a holiday profile with id : " + id);
+            try
+            {
+                bool res = DbContext.RemoveById<Holiday>("holiday", id);
+                if (res)
+                    logger.LogInformation("HolidayService:a holiday profile with id : " + id + "has been deleted successfully");
+                else
+                    logger.LogError("HolidayService:holiday with Id: " + id + " doesn't exist");
 
-            bool res = DbContext.RemoveById<Holiday>("holiday", id);
-            if (res)
-                logger.LogInformation("HolidayService:a holiday profile with id : " + id + "has been deleted successfully");
-           else
-                logger.LogError("HolidayService:holiday with Id: " + id + " doesn't exist");
-
-            return res;
-
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("HolidayService:got error : " + e);
+                throw e;
+            }
         }
     
     }

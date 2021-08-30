@@ -25,78 +25,122 @@ namespace CASWebApi.Controllers
         }
 
         [HttpGet("getAllExam", Name = nameof(GetAllExam))]
-        public ActionResult<List<Exam>> GetAllExam() =>
-             _examService.GetAll();
+        public ActionResult<List<Exam>> GetAllExam()
+        {
+            try
+            {
+                return _examService.GetAll();
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+        }
 
         [HttpGet("getExamById", Name = nameof(GetExamById))]
         public ActionResult<Exam> GetExamById(string id)
         {
-            var exam = _examService.GetById(id);
-
-            if (exam == null)
+            if(id == null)
+                return BadRequest("given id was null");
+            try
             {
-                return NotFound();
+                var exam = _examService.GetById(id);
+                if (exam == null)
+                {
+                    return NotFound("examination with given id doesn't exists in db");
+                }
+                return exam;
             }
-
-            return exam;
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
 
         [HttpPost("createExam", Name = nameof(CreateExam))]
         public ActionResult<Exam> CreateExam(Exam exam)
         {
-            if (!(_examService.Create(exam)))
-                 return NotFound();
+            if(exam == null)
+                return BadRequest("given id was null");
+            try
+            {
+                if (!(_examService.Create(exam)))
+                    return NotFound();
 
-            return CreatedAtRoute("getExamById", new { id = exam.Id }, exam);
+                return CreatedAtRoute("getExamById", new { id = exam.Id }, exam);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e);
+            }
         }
 
         [HttpPut("updateExam", Name = nameof(UpdateExam))]
         public IActionResult UpdateExam(Exam examIn)
         {
             logger.LogInformation("Updating existed exam: " + examIn.Id);
-            if (examIn != null)
+            if (examIn == null)
             {
-                var course = _examService.GetById(examIn.Id);
-                if (course != null)
-                {
-                    if (_examService.Update(examIn.Id, examIn))
-                    {
-                        logger.LogInformation("Given Course profile Updated successfully");
-                        return Ok(true);
-                    }
-                    else
-                        logger.LogError("Cannot update the Course profile: " + examIn.Id + " wrong format");
-                }
-                else
-                    logger.LogError("Course with Id: " + examIn.Id + " doesn't exist");
-            }
-            else
                 logger.LogError("CourseIn objest is null");
-            return BadRequest(false);
+                return BadRequest("CourseIn objest is null");
+            }
+            try
+            {
+                var exam = _examService.GetById(examIn.Id);
+                if (exam == null)
+                {
+                    logger.LogError("examination with Id: " + examIn.Id + " doesn't exist");
+                    return NotFound("examination doesn't exists");
+                }
+
+                _examService.Update(examIn.Id, examIn);
+                        logger.LogInformation("Given Course profile Updated successfully");
+                        return Ok(true);                  
+            }
+            catch (Exception e)
+            {
+                logger.LogError("error catched: "+ e);
+                return BadRequest("No connection to database");
+            }
         }
         [HttpGet("getExamByGroup", Name = nameof(GetExamByGroup))]
         public ActionResult<List<Exam>> GetExamByGroup(string groupNumber, string semester, string year, string testNo)
         {
-            if (groupNumber != null)
+            if (groupNumber == null || semester == null || year == null || testNo == null)
+                return BadRequest("one of the given parameters is null");
+            try
             {
                 var result = _examService.GetExamByGroup(groupNumber, semester, year, testNo);
                 return result;
             }
-            else
-                return null;
+            catch (Exception e)
+            {
+                logger.LogError("error catched: " + e);
+                return BadRequest("No connection to database");
+            }
+
         }
 
 
         [HttpDelete("deleteExamById", Name = nameof(DeleteExamById))]
         public ActionResult<bool> DeleteExamById(string id)
         {
-            if(id != null)
+            if (id == null)
             {
-                var exam = _examService.GetById(id);
-                if (exam != null && _examService.RemoveById(exam.Id))
-                    return Ok(true);
+                return BadRequest("given id is null");
             }
-            return NotFound(false);
+            try
+            { 
+            var exam = _examService.GetById(id);
+            if (exam != null && _examService.RemoveById(exam.Id))
+                 return Ok(true);
+                return NotFound("exam with given id doesn't exists");
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No Connection to database");
+            }
+
         }
     }
 }

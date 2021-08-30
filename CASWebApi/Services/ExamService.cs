@@ -23,7 +23,7 @@ namespace CASWebApi.Services
             _studExamService= studExamService;
             DbContext = settings;
         }
-       
+
         /// <summary>
         /// get examination object from db by id
         /// </summary>
@@ -31,7 +31,15 @@ namespace CASWebApi.Services
         /// <returns>found examination object</returns>
         public Exam GetById(string examId)
         {
+        try 
+        {
             return DbContext.GetById<Exam>("examination", examId);
+        }
+        catch(Exception e)
+        {
+            throw e;
+        }
+      
         }
 
         /// <summary>
@@ -40,7 +48,14 @@ namespace CASWebApi.Services
         /// <returns>list of examinations</returns>
         public List<Exam> GetAll()
         {
-            return DbContext.GetAll<Exam>("examination");
+            try
+            { 
+                 return DbContext.GetAll<Exam>("examination");
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
 
@@ -51,38 +66,60 @@ namespace CASWebApi.Services
         /// <returns>true if added successfully</returns>
         public bool Create(Exam exam)
         {
-            exam.Id = ObjectId.GenerateNewId().ToString();
-            var students = _studentService.GetAllStudentsByGroup(exam.Group_num);
-            StudExam studExam = new StudExam();
-            if (students != null)
+            bool res;
+            exam.Id = ObjectId.GenerateNewId().ToString();            
+            try
             {
-                for (int i=0;i<students.Count;i++)
+                res = DbContext.Insert<Exam>("examination", exam);
+                var students = _studentService.GetAllStudentsByGroup(exam.Group_num);
+                StudExam studExam = new StudExam();
+                if (students != null)
                 {
-                    studExam.Id = ObjectId.GenerateNewId().ToString();
-                    studExam.StudId = students[i].Id;
-                    studExam.ExamId = exam.Id;
-                    studExam.Year = exam.Year;
-                    studExam.Grade = 0;
-                    studExam.Status = true;
-                   
-                    if (!_studExamService.Create(studExam))
-                        return false;
+                    for (int i = 0; i < students.Count; i++)
+                    {
+                        studExam.Id = ObjectId.GenerateNewId().ToString();
+                        studExam.StudId = students[i].Id;
+                        studExam.ExamId = exam.Id;
+                        studExam.Year = exam.Year;
+                        studExam.Grade = 0;
+                        studExam.Status = true;
+                        if (!_studExamService.Create(studExam))
+                            return false;
+                    }
                 }
+                return res;
             }
-           bool res= DbContext.Insert<Exam>("examination", exam);
-            return res;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
+        /// <summary>
+        /// get exam object by group name,semester,year,and test number
+        /// </summary>
+        /// <param name="groupNumber"></param>
+        /// <param name="semester"></param>
+        /// <param name="year"></param>
+        /// <param name="testNo"></param>
+        /// <returns></returns>
         public List<Exam> GetExamByGroup(string groupNumber, string semester, string year, string testNo)
         {
-            var examList = DbContext.GetListByFilter<Exam>("examination", "group_num", groupNumber);
-            if (examList != null)
+            try
             {
-                var filteredExamList = examList.FindAll(exam => exam.Year == year.Trim() && exam.Semester == semester.Trim() && exam.Test_num == testNo.Trim());
-                return filteredExamList;
+                var examList = DbContext.GetListByFilter<Exam>("examination", "group_num", groupNumber);
+                if (examList != null)
+                {
+                    var filteredExamList = examList.FindAll(exam => exam.Year == year.Trim() && exam.Semester == semester.Trim() && exam.Test_num == testNo.Trim());
+                    return filteredExamList;
+                }
+                else
+                    return null;
             }
-            else
-                return null;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -92,16 +129,35 @@ namespace CASWebApi.Services
         /// <param name="examIn">exam object to replace the old one</param>
         /// <returns>true if updated</returns>
 
-        public bool Update(string id, Exam examIn) =>
-          DbContext.Update<Exam>("examination", id, examIn);
+        public bool Update(string id, Exam examIn)
+        {
+            try 
+            {
+                return DbContext.Update<Exam>("examination", id, examIn);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
-       
+
         /// <summary>
         /// remove examination by id
         /// </summary>
         /// <param name="id"></param>
         /// <returns>true if removed successfully</returns>
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Exam>("examination", id);
+        public bool RemoveById(string id)
+        {
+            try
+            {
+                return DbContext.RemoveById<Exam>("examination", id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+        }
     }
 }

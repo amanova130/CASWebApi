@@ -30,16 +30,15 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Group>> GetAllGroups()
         {
             logger.LogInformation("Getting all Faculties data");
+            try
+            { 
             var groupList = _groupService.GetAll();
-            if(groupList != null)
-            {
-                logger.LogInformation("Fetched all data");
+             logger.LogInformation("Fetched all data");
                 return groupList;
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to Group collection in Db");
-                return StatusCode(500, "Internal server error");
+                return BadRequest("No connection to database");
             }
         }
              
@@ -52,15 +51,15 @@ namespace CASWebApi.Controllers
         public ActionResult<int> getNumberOfGroups()
         {
             logger.LogInformation("Getting number of Groups");
-            var numberOfGroups = _groupService.GetNumberOfGroups();
-            if (numberOfGroups > 0)
+            try
             {
-                return Ok(numberOfGroups);
+                var numberOfGroups = _groupService.GetNumberOfGroups();
+                   return numberOfGroups;                                     
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to Group collection in Db");
-                return StatusCode(500, "Internal server error");
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
             }
         }
              
@@ -73,42 +72,49 @@ namespace CASWebApi.Controllers
         [HttpGet("getGroupById", Name = nameof(GetGroupById))]
         public ActionResult<Group> GetGroupById(string id)
         {
-            if (id != null)
+            if (id == null || id == "")
+            {
+                logger.LogError("Group Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
+            }
+            try
             {
                 var group = _groupService.GetById(id);
-                if (group != null)
-                {
-                    return Ok(group);
-                }
-                else
-                {
-                    logger.LogError("Cannot get access to Group collection in Db");
-                }
+                if (group != null)             
+                    return Ok(group);    
+                    logger.LogError("group with given id doesn't exists");
+                        return NotFound("group with given id doesn't exists");     
             }
-            else
-                logger.LogError("Group Id is null or empty string");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
+
+
 
         [HttpGet("getGroupsByFaculty", Name = nameof(GetGroupsByFaculty))]
         public ActionResult<List<Group>> GetGroupsByFaculty(string id)
         {
             logger.LogInformation("Getting group by Faculty id ");
-            if(id != null)
+            if (id == null)
+            {
+                logger.LogError("Faculty Id is null");
+                return BadRequest("incorrect format of id param");
+            }
+            try
             {
                 var groups = _groupService.GetGroupsByFaculty(id);
-                if (groups != null)
-                {
-                    return Ok(groups);
-                }
-                else
-                    logger.LogError("Groups by Faculty id not found or cannot access to DB");
+                    return Ok(groups);   
             }
-            else
-                logger.LogError("Faculty Id is null");
-            return BadRequest(null);
-
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
+        
 
         /// <summary>
         /// Create a new Group
@@ -119,18 +125,21 @@ namespace CASWebApi.Controllers
         public ActionResult<Group> CreateGroup(Group group)
         {
             logger.LogInformation("Creating a new group and creating timetable for this group");
-            if(group != null)
+            if (group == null)
             {
-                
-                if (_groupService.Create(group))
-                      return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
-                else
-                     logger.LogError("Failed to create a group");
-            }              
-            else
                 logger.LogError("Group is null");
-            return BadRequest(null);
-
+                return BadRequest(null);
+            }
+            try
+            {
+             _groupService.Create(group);
+             return CreatedAtRoute("getGroupById", new { id = group.Id }, group);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -142,26 +151,36 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateGroup(Group groupIn)
         {
             logger.LogInformation("Updating existed group profile");
-            if(groupIn != null)
+            if (groupIn == null)
+            {
+                logger.LogError("group objest is null");
+                return BadRequest("Incorrect format of group object");
+            }
+            try
             {
                 var group = _groupService.GetById(groupIn.Id);
 
                 if (group != null)
                 {
-                   if(_groupService.Update(groupIn.Id, groupIn))
-                    {
-                        logger.LogInformation("Given Group profile Updated successfully");
-                        return Ok(true);
-                    }
-                    else
-                        logger.LogError("Cannot update the group profile: " + groupIn.Id + " wrong format");
+                    _groupService.Update(groupIn.Id, groupIn);
+                    logger.LogInformation("Given Group profile Updated successfully");
+                    return Ok(true);
                 }
                 else
+                {
                     logger.LogError("group with Id: " + groupIn.Id + " doesn't exist");
+                    return NotFound("group with given id doesn't exists");
+                }
             }
-            else
-                logger.LogError("group objest is null");
-            return BadRequest(false);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
+
+
+
         }
 
         /// <summary>
@@ -173,17 +192,28 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteGroupById(string id)
         {
             logger.LogInformation("Deleting Course by Id " + id);
-            if (id != null)
+            if (id == null)
+            {
+                logger.LogError("Id is not valid format or null");
+                return NotFound("Incorrect format of given id param");
+            }
+            try
             {
                 var group = _groupService.GetById(id);
-                if (group != null && _groupService.RemoveById(group.Id,group.GroupNumber) )
+                if (group != null)
+                {
+                    _groupService.RemoveById(group.Id, group.GroupNumber);
                     return Ok(true);
-                else
-                    logger.LogError("Cannot get access to group collection in Db");
+                }
+                    logger.LogError("group with given id not found");
+                return NotFound("group with given id not found");
             }
-            else
-                logger.LogError("Id is not valid format or null");
-            return NotFound(false);
-        }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+        }                  
     }
 }
+

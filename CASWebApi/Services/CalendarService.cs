@@ -27,10 +27,15 @@ namespace CASWebApi.Models
         {
             UserCredential credential = GetCredential(UserRole.Admin);
             Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
-            var calendars = service.CalendarList.List().Execute().Items;
-            
-                
-            return calendars;
+            try
+            {
+                var calendars = service.CalendarList.List().Execute().Items;
+                return calendars;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }                              
         }
 
 
@@ -41,6 +46,8 @@ namespace CASWebApi.Models
         /// <param name="calendarName">the name of the calendar where we want to add the event</param>
         public static bool CreateEvent(Schedule newSchedule,string calendarName)
         {
+            try
+            { 
             UserCredential credential = GetCredential(UserRole.Admin);
             Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
             var calendars = GetCalendarList();
@@ -70,38 +77,54 @@ namespace CASWebApi.Models
                 }
                
             return newSchedule.EventId != null;
-            
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
+
+        /// <summary>
+        /// function to update schedule object(event) 
+        /// </summary>
+        /// <param name="scheduleIn">new schedule object to update with</param>
+        /// <param name="calendarName">location of event to update</param>
+        /// <returns></returns>
         public static Schedule UpdateEvent(Schedule scheduleIn, string calendarName)
         {
-            UserCredential credential = GetCredential(UserRole.Admin);
-            Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
-            var calendars = GetCalendarList();
-            string calendarId = getCalendarIdByName(calendarName);
-            string reccurence;
-            string description = String.Empty;
-            string untilDate;
-            if (scheduleIn.Teacher != null)
-                description = String.Format("Teacher: {0} {1}   ID:{2}", scheduleIn.Teacher.First_name, scheduleIn.Teacher.Last_name, scheduleIn.Teacher.Id);
-
-            untilDate = scheduleIn.LastDate.ToString("yyyyMMdd");
-            reccurence = String.Format("RRULE:FREQ=WEEKLY;UNTIL={0}", untilDate);
-            Event newEvent = new Event()
+            try
             {
-                Summary = scheduleIn.Title,
-                Start = new EventDateTime() { DateTime = scheduleIn.Start, TimeZone = "Asia/Jerusalem" },
-                End = new EventDateTime() { DateTime = scheduleIn.End, TimeZone = "Asia/Jerusalem" },
-                Description = description,
-                Recurrence = new String[] { reccurence }
-            };
+                UserCredential credential = GetCredential(UserRole.Admin);
+                Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
+                var calendars = GetCalendarList();
+                string calendarId = getCalendarIdByName(calendarName);
+                string reccurence;
+                string description = String.Empty;
+                string untilDate;
+                if (scheduleIn.Teacher != null)
+                    description = String.Format("Teacher: {0} {1}   ID:{2}", scheduleIn.Teacher.First_name, scheduleIn.Teacher.Last_name, scheduleIn.Teacher.Id);
 
-            if (!(String.IsNullOrEmpty(calendarId)))
-            {
-                newEvent = service.Events.Update(newEvent,calendarId,scheduleIn.EventId).Execute();
+                untilDate = scheduleIn.LastDate.ToString("yyyyMMdd");
+                reccurence = String.Format("RRULE:FREQ=WEEKLY;UNTIL={0}", untilDate);
+                Event newEvent = new Event()
+                {
+                    Summary = scheduleIn.Title,
+                    Start = new EventDateTime() { DateTime = scheduleIn.Start, TimeZone = "Asia/Jerusalem" },
+                    End = new EventDateTime() { DateTime = scheduleIn.End, TimeZone = "Asia/Jerusalem" },
+                    Description = description,
+                    Recurrence = new String[] { reccurence }
+                };
 
+                if (!(String.IsNullOrEmpty(calendarId)))
+                {
+                    newEvent = service.Events.Update(newEvent, calendarId, scheduleIn.EventId).Execute();
+                }
+                return scheduleIn;
             }
-            return scheduleIn;
-
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -112,15 +135,21 @@ namespace CASWebApi.Models
         /// <returns>true if deleted,false otherwise</returns>
         public static bool DeleteEvent(string calendarName,string eventId)
         {
-            UserCredential credential = GetCredential(UserRole.Admin);
-
-            Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
-            var calendars = GetCalendarList();
-            // var events = ShowUpCommingEvent(calendarName);
-            string calendarId = getCalendarIdByName(calendarName);
-            if (!String.IsNullOrEmpty(calendarId))
-                return service.Events.Delete(calendarId, eventId).Execute() != null;
-            return false;
+            try
+            {
+                UserCredential credential = GetCredential(UserRole.Admin);
+                Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
+                var calendars = GetCalendarList();
+                // var events = ShowUpCommingEvent(calendarName);
+                string calendarId = getCalendarIdByName(calendarName);
+                if (!String.IsNullOrEmpty(calendarId))
+                    return service.Events.Delete(calendarId, eventId).Execute() != null;
+                return false;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
             
         }
         
@@ -132,7 +161,9 @@ namespace CASWebApi.Models
         /// <returns>id of created calendar</returns>
         public static string CreateCalendar(string calendarName)
         {
-            UserCredential credential = GetCredential(UserRole.Admin);
+           try
+            {
+                UserCredential credential = GetCredential(UserRole.Admin);
 
             Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
             Google.Apis.Calendar.v3.Data.Calendar calendar=new Google.Apis.Calendar.v3.Data.Calendar();
@@ -142,7 +173,11 @@ namespace CASWebApi.Models
            var addedCalendar= service.Calendars.Insert(calendar).Execute();
             
             return addedCalendar.Id;
-            
+            }
+           catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -152,21 +187,28 @@ namespace CASWebApi.Models
         /// <returns>id of calendar</returns>
         private static string getCalendarIdByName(string calendarName)
         {
-            var calendars = GetCalendarList();
-            string calendarId = string.Empty;
-            if (calendars != null)
+            try
             {
-                foreach (var calendar in calendars)
+                var calendars = GetCalendarList();
+                string calendarId = string.Empty;
+                if (calendars != null)
                 {
-                    if (calendar.Summary.Equals(calendarName))
+                    foreach (var calendar in calendars)
                     {
-                        calendarId = calendar.Id;
-                       
-                        break;
+                        if (calendar.Summary.Equals(calendarName))
+                        {
+                            calendarId = calendar.Id;
+
+                            break;
+                        }
                     }
                 }
+                return calendarId;
             }
-            return calendarId;
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -176,50 +218,70 @@ namespace CASWebApi.Models
         /// <returns>true if deleted,false otherwise</returns>
         public static bool DeleteCalendar(string calendarName)
         {
-            UserCredential credential = GetCredential(UserRole.Admin);
-
-            Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
-           
-            
-            string calendarId =getCalendarIdByName(calendarName);
-            if (!(String.IsNullOrEmpty(calendarId)))
+            try
             {
-                var deletedCalendar = service.Calendars.Delete(calendarId).Execute();
-                return deletedCalendar != null;
-            }
-            return false;
+                UserCredential credential = GetCredential(UserRole.Admin);
 
+                Google.Apis.Calendar.v3.CalendarService service = GetService(credential);
+
+
+                string calendarId = getCalendarIdByName(calendarName);
+                if (!(String.IsNullOrEmpty(calendarId)))
+                {
+                    var deletedCalendar = service.Calendars.Delete(calendarId).Execute();
+                    return deletedCalendar != null;
+                }
+                return false;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         private static Google.Apis.Calendar.v3.CalendarService GetService(UserCredential credential)
         {
             // Creat Google Calendar API service.
-            var service = new Google.Apis.Calendar.v3.CalendarService(new BaseClientService.Initializer()
+            try
             {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
+                var service = new Google.Apis.Calendar.v3.CalendarService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = ApplicationName,
+                });
 
-            return service;
+                return service;
+            }
+            catch(Exception e)
+            { 
+                throw e;
+            }
         }
 
         private static UserCredential GetCredential(UserRole userRole)
         {
-            UserCredential credential;
-            using (var stream =
-                new FileStream(CredentialsPath, FileMode.Open, FileAccess.Read))
+            try
             {
-                string credPath = "token.json";
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                GoogleClientSecrets.Load(stream).Secrets,
-                Scopes,
-                userRole.ToString(),
-                CancellationToken.None,
-                new FileDataStore(credPath, true)).Result;
+                UserCredential credential;
+                using (var stream =
+                    new FileStream(CredentialsPath, FileMode.Open, FileAccess.Read))
+                {
+                    string credPath = "token.json";
+                    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    GoogleClientSecrets.Load(stream).Secrets,
+                    Scopes,
+                    userRole.ToString(),
+                    CancellationToken.None,
+                    new FileDataStore(credPath, true)).Result;
 
-                Console.WriteLine($"Credential file saved to: {credPath}");
+                    Console.WriteLine($"Credential file saved to: {credPath}");
+                }
+
+                return credential;
             }
-
-            return credential;
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

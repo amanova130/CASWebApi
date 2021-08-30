@@ -33,16 +33,13 @@ namespace CASWebApi.Controllers
         public ActionResult<List<ExtendedLink>> GetAllLinks()
         {
             logger.LogInformation("Getting all Admins data");
-            var linkList = _linkService.GetAll();
-            if(linkList != null)
+            try
             {
-                logger.LogInformation("Fetched all data");
-                return linkList;
+                return _linkService.GetAll();   
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to link collection in Db");
-                return StatusCode(500, "Internal server error");
+                return BadRequest("No connection to database");
             }
         }
                  
@@ -56,8 +53,13 @@ namespace CASWebApi.Controllers
         public ActionResult<ExtendedLink> GetLinkbyId(string id)
         {
             logger.LogInformation("Getting Link by Id");
-            if (id != null)
+            if (id == null)
             {
+                logger.LogError("Given Link Id is null");
+                return BadRequest("given id was null");
+            }
+            try
+            { 
                 var link = _linkService.GetById(id);
                 if (link != null)
                 {
@@ -65,11 +67,16 @@ namespace CASWebApi.Controllers
                     return Ok(link);
                 }
                 else
+                {
                     logger.LogError("Link is doesn't exist");
+                    return NotFound("link with given id is doesn't exists");
+                }
             }
-            else
-                logger.LogError("Given Link Id is null");
-            return BadRequest();
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+
         }
 
         /// <summary>
@@ -81,18 +88,23 @@ namespace CASWebApi.Controllers
         public ActionResult<ExtendedLink> CreateNewLink(ExtendedLink link)
         {
             logger.LogError("Creating a new Link");
-            if (link != null)
+            if (link == null)
+            {
+                logger.LogError("Link is null");
+                return BadRequest("Link is null");
+            }
+            try
             {
                 link.Status = true;
-                if (_linkService.Create(link))
-                    return CreatedAtRoute("getLinkbyId", new { id = link.Id }, link);
-                else
-                    logger.LogError("Cannot create a new link");
+                _linkService.Create(link);
+                    return CreatedAtRoute("getLinkbyId", new { id = link.Id }, link);                  
             }
-            else
-                logger.LogError("Link is null");
-            return BadRequest(null);
-            
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+
+
         }
 
         /// <summary>
@@ -104,25 +116,28 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateLink(ExtendedLink linkIn)
         {
             logger.LogInformation("Updating existed link: " + linkIn.Id);
-            if (linkIn != null)
+            if (linkIn == null || linkIn.Id == null)
+            {
+                logger.LogError("Given object is null");
+                return BadRequest("Given object model is not correct");
+            }
+            try
             {
                 var link = _linkService.GetById(linkIn.Id);
                 if (link != null)
                 {
-                    if (_linkService.Update(linkIn.Id, linkIn))
-                    {
-                        logger.LogInformation("Given link profile Updated successfully");
-                        return Ok(true);
-                    }
-                    else
-                        logger.LogError("Cannot update given link in DB");
+                    logger.LogInformation("Given link profile Updated successfully");
+                    return Ok(true);
                 }
                 else
-                    logger.LogError("Cannot update the link profile: " + linkIn.Id + " wrong format");
+                    logger.LogError("link with given id is desesn't exists");
+                return NotFound("link with given id is desesn't exists");
+
             }
-            else
-                logger.LogError("Given object is null");
-            return BadRequest(false);
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -134,17 +149,26 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteLinkById(string id)
         {
             logger.LogInformation("Deleting link By Id");
-            if (id != null)
+            if (id == null)
+            {
+                logger.LogError("Given Link Id is null");
+                return NotFound(false);
+            }
+            try
             {
                 var link = _linkService.GetById(id);
                 if (link != null && _linkService.RemoveById(link.Id))
                     return Ok(true);
                 else
                     logger.LogError("Cannot access to Link collection in DB");
+                return NotFound("link with given id doesn't exists in database");
             }
-            else
-                logger.LogError("Given Link Id is null");
-            return NotFound(false);
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+
+
         }
     }
 }

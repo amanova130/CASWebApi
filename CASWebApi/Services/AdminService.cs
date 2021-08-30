@@ -32,14 +32,22 @@ namespace CASWebApi.Services
         public Admin GetById(string adminId)
         {
             logger.LogInformation("AdminService:Getting course by id");
-            var admin= DbContext.GetById<Admin>("admin", adminId);
-            if (admin == null)
+            try
             {
-                logger.LogError("AdminService:Cannot get access to admin collection in Db");
-            }
-            logger.LogInformation("AdminService:Fetched admin data by id ");
+                var admin = DbContext.GetById<Admin>("admin", adminId);
+                if (admin == null)
+                {
+                    logger.LogError("AdminService:object with given id doesn't exists in db");
+                }
+                else
+                logger.LogInformation("AdminService:Fetched admin data by id ");
 
-            return admin;
+                return admin;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -49,13 +57,17 @@ namespace CASWebApi.Services
         public List<Admin> GetAll()
         {
             logger.LogInformation("AdminService:Getting all Admins from adminService");
-
-            var adminList=DbContext.GetAll<Admin>("admin");
-            if (adminList != null)
-                logger.LogInformation("AdminService:Fetched All admin data");
-            else
+            try
+            {
+                var adminList = DbContext.GetAll<Admin>("admin");
+                    logger.LogInformation("AdminService:Fetched All admin data");        
+                return adminList;
+            }
+            catch(Exception e)
+            {
                 logger.LogError("AdminService:Cannot get access to admin collection in Db");
-            return adminList;
+                throw e;
+            }
 
         }
 
@@ -77,36 +89,55 @@ namespace CASWebApi.Services
             message.DateTime = DateTime.Now;
             message.status = true;
             message.ReceiverNames = new string[] { adminName };
-            bool res = _messageService.Create(message);
-            return res;
+            try
+            {
+                _messageService.Create(message);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+            return true;
         }
+        /// <summary>
+        /// add new admin object to db
+        /// </summary>
+        /// <param name="admin">object to add</param>
+        /// <returns>true if added</returns>
         public bool Create(Admin admin)
         {
             logger.LogInformation("got a new admin profile in adminService: " + admin);
             admin.Status = true;
-            bool res =DbContext.Insert<Admin>("admin", admin);
+            bool res;
+            try
+            {
+                 res = DbContext.Insert<Admin>("admin", admin);
+            }
+            catch (Exception e)
+            {
+                if (e is MongoWriteException)
+                    throw new Exception(String.Format("Admin with Id: {0} already exists", admin.Id), e);
+                throw e;
+            }
             if (res)
             {
-
                 User _user = new User();
                 _user.ChangePwdDate = DateTime.Now.AddYears(1).ToString("MM/dd/yyyy");
                 _user.UserName = admin.Id;
                 _user.Password = admin.Birth_date.Replace("-", "");
                 _user.Role = "Admin";
-                res = _userService.Create(_user);
-                if (res)
+                try
                 {
+                    res = _userService.Create(_user);
                     sendEmailToNewAdmin(_user, admin.First_name + " " + admin.Last_name);
-
                     logger.LogInformation("A new admin profile and his user profile added successfully and got in adminService" + admin);
                 }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+
             }
-            else
-                logger.LogError("AdminService:Cannot create a admin, duplicated id or wrong format");
-
-
-
-
             return res;
         }
 
@@ -118,26 +149,32 @@ namespace CASWebApi.Services
         /// <returns>true if replaced successfully</returns>
         public bool Update(string id, Admin adminIn)
         {
-           bool res=DbContext.Update<Admin>("admin", id, adminIn);
-            if(!res)
-                logger.LogError("AdminService:Admin with Id: " + adminIn.Id + " doesn't exist");
-            else
+
+            try
             {
-                logger.LogInformation("AdminService:Admin with Id" + adminIn.Id +"has been updated successfully");
-                var user = _userService.GetById(adminIn.Id);
-                if (user.Email != adminIn.Email)
+                bool res = DbContext.Update<Admin>("admin", id, adminIn);
+                if (!res)
+                    logger.LogError("AdminService:Admin with Id: " + adminIn.Id + " doesn't exist");
+                else
                 {
-                    user.Email = adminIn.Email;
-                   res= _userService.Update(user);
-                    if(res)
-                        logger.LogInformation("AdminService:user profile with Id" + adminIn.Id + "has been updated successfully");
-                    else
-                        logger.LogError("AdminService:User with Id: " + adminIn.Id + " doesn't exist");
-
-
+                    logger.LogInformation("AdminService:Admin with Id" + adminIn.Id + "has been updated successfully");
+                    var user = _userService.GetById(adminIn.Id);
+                    if (user.Email != adminIn.Email)
+                    {
+                        user.Email = adminIn.Email;
+                        res = _userService.Update(user);
+                        if (res)
+                            logger.LogInformation("AdminService:user profile with Id" + adminIn.Id + "has been updated successfully");
+                        else
+                            logger.LogError("AdminService:User with Id: " + adminIn.Id + " doesn't exist");
+                    }
                 }
+                return res;
             }
-            return res;
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
 
@@ -147,7 +184,8 @@ namespace CASWebApi.Services
         /// <param name="id">id of the admin to remove</param>
         /// <returns>true if deleted</returns>
         public bool RemoveById(string id)
-        { 
+        {
+            try { 
             bool res=DbContext.RemoveById<Admin>("admin", id);
             if (res)
             {
@@ -156,14 +194,19 @@ namespace CASWebApi.Services
                 if(res)
                 {
                     logger.LogInformation("AdminService:User with Id" + id + "has been deleted successfully");
-
                 }
             }
             else
                 logger.LogError("AdminService:Admin with Id: " + id + " doesn't exist");
 
             return res;
+        }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
+
     }
 }
