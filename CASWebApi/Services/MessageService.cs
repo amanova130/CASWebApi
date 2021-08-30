@@ -1,6 +1,7 @@
 ﻿using CASWebApi.IServices;
 using CASWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -13,9 +14,12 @@ namespace CASWebApi.Services
     public class MessageService : IMessageService
     {
         IDbSettings DbContext;
+        private readonly ILogger logger;
 
-        public MessageService(IDbSettings settings)
+
+        public MessageService(IDbSettings settings, ILogger<HolidayService> logger)
         {
+            this.logger = logger;
             DbContext = settings;
         }
 
@@ -26,7 +30,20 @@ namespace CASWebApi.Services
         /// <returns>message object with given id</returns>
         public Message GetById(string messageId)
         {
-            return DbContext.GetById<Message>("messages", messageId);
+            try
+            {
+                var message = DbContext.GetById<Message>("messages", messageId);
+                if (message != null)
+                    logger.LogInformation("MessageService:Fetched message data by id ");
+                else
+                    logger.LogError("message with given id doesn't exists: ");
+                return message;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -35,23 +52,60 @@ namespace CASWebApi.Services
         /// <returns>list of messages</returns>
         public List<Message> GetAll()
         {
-            return DbContext.GetAll<Message>("messages");
-
+            logger.LogInformation("MessageService:Getting all messages");
+            try
+            {
+                var messages = DbContext.GetAll<Message>("messages");
+                logger.LogInformation("MessageService:fetched All messages collection data");
+                return messages;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
+        /// <summary>
+        /// getting all messages by receiver id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>list of messages</returns>
         public List<Message> GetAllByReceiverId(string id)
         {
-            return DbContext.GetListByFilter<Message>("messages","receiver_id",id);
-
+            try
+            {
+                return DbContext.GetListByFilter<Message>("messages", "receiver_id", id);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
         public List<Message> GetAllDeletedBySender(string id)
         {
-            var deletedMessages = DbContext.GetDeletedDocumentsByFilter<Message>("messages", "sender_id", id);
-            return deletedMessages;
+            try
+            {
+                var deletedMessages = DbContext.GetDeletedDocumentsByFilter<Message>("messages", "sender_id", id);
+                return deletedMessages;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
         public List<Message> GetAllBySenderId(string id)
         {
-            return DbContext.GetListByFilter<Message>("messages", "sender_id", id);
-
+            try
+            {
+                return DbContext.GetListByFilter<Message>("messages", "sender_id", id);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -75,24 +129,32 @@ namespace CASWebApi.Services
                 emailReceivers += message.Receiver[i] + ',';
             emailReceivers = emailReceivers.TrimEnd(',');
             message.Sender = "Admin";
-            mailMessage.To.Add(emailReceivers);
+            try
+            {
+                mailMessage.To.Add(emailReceivers);
 
 
-            mailMessage.Body = message.Description;
+                mailMessage.Body = message.Description;
 
-            mailMessage.Subject = message.Subject;
+                mailMessage.Subject = message.Subject;
 
-            mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
-            mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
+                mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
+                mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
 
-            client.SendMailAsync(mailMessage);
+                client.SendMailAsync(mailMessage);
 
 
-            message.Id= ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<Message>("messages", message);
-            return res;
+                message.Id = ObjectId.GenerateNewId().ToString();
+                bool res = DbContext.Insert<Message>("messages", message);
+                return res;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
         }
-        
+
 
         /// <summary>
         /// edit an existing message by changing it to a new message object with the same id
@@ -100,8 +162,17 @@ namespace CASWebApi.Services
         /// <param name="id">message to edit</param>
         /// <param name="messageIn">new message object</param>
         /// <returns>true if replaced successfully</returns>
-        public void Update(string id, Message messageIn) =>
-          DbContext.Update<Message>("messages", id, messageIn);
+        public bool Update(string id, Message messageIn) {
+            try
+            {
+                return DbContext.Update<Message>("messages", id, messageIn);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
+        }
 
 
         /// <summary>
@@ -109,7 +180,17 @@ namespace CASWebApi.Services
         /// </summary>
         /// <param name="id">id of the message to remove</param>
         /// <returns>true if deleted</returns>
-        public bool RemoveById(string id) =>
-            DbContext.RemoveById<Message>("messages", id);
+        public bool RemoveById(string id)
+        {
+            try
+            {
+                return DbContext.RemoveById<Message>("messages", id);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("MessageService:got error : " + e);
+                throw e;
+            }
+        }
     }
 }

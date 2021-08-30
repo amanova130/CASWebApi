@@ -23,14 +23,38 @@ namespace CASWebApi.Controllers
         [HttpGet("getAvgByGroup", Name = nameof(GetAvgByGroup))]
         public ActionResult<List<Average>> GetAvgByGroup(string groupName, string year)
         {
-            var avgList = _reportService.GetAvgByGroup(groupName, year);
-            return Ok(avgList);
+            if(groupName == null || year == null)
+            {
+                logger.LogError("one of parameters is null");
+                return BadRequest("Incorrect format of groupName or year");
+            }
+            try
+            {
+                var avgList = _reportService.GetAvgByGroup(groupName, year);
+                return Ok(avgList);
+            }
+            catch(Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
         [HttpGet("getAvgOFAllTeachers", Name = nameof(GetAvgOFAllTeachers))]
         public ActionResult<List<Average>> GetAvgOFAllTeachers(string year)
         {
-            var avgList = _reportService.GetAvgOfAllTeachers(year);
-            return Ok(avgList);
+            if (year == null)
+            {
+                logger.LogError("one of parameters is null");
+                return BadRequest("Incorrect format of year param");
+            }
+            try
+            {
+                var avgList = _reportService.GetAvgOfAllTeachers(year);
+                return Ok(avgList);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
 
     }

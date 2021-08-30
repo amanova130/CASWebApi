@@ -47,17 +47,31 @@ namespace CASWebApi.Services
             return student;
 
         }
+        /// <summary>
+        /// get all grades from studExam table by examId
+        /// </summary>
+        /// <param name="examID"></param>
+        /// <returns></returns>
         public List<StudExam> GetListOfGradesByExamId(string examID)
         {
             logger.LogInformation("Getting list of studExam by examID");
-            var listOfGrades = DbContext.GetListByFilter<StudExam>("stud_exam", "exam_id", examID);
-            if (listOfGrades == null)
-                logger.LogError("StudExamService:Cannot get a grades with a examID: " + examID);
-            else
+            try
+            {
+                var listOfGrades = DbContext.GetListByFilter<StudExam>("stud_exam", "exam_id", examID);
                 logger.LogInformation("StudExamService:Fetched all grades data by examId ");
-            return listOfGrades;
+                return listOfGrades;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
         }
-
+        /// <summary>
+        /// get all studeExam objects by examId
+        /// </summary>
+        /// <param name="examId"></param>
+        /// <returns></returns>
         public List<StudExam> GetStudentsDetailByExamId(string examId)
         {
             LookUpDetails filterDetails = new LookUpDetails();
@@ -78,9 +92,23 @@ namespace CASWebApi.Services
             filterDetails.ForeignField = "_id";
             filterDetails.JoinedField = "JoinedField";
 
-             var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
-            return list;
+            try
+            {
+                var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
         }
+        /// <summary>
+        /// get all studExam objects by studentId and year
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="year"></param>
+        /// <returns>list of studExam objects</returns>
 
         public List<StudExam> GetGradesByStudentIdAndYear(string studentId, string year)
         {
@@ -102,53 +130,82 @@ namespace CASWebApi.Services
                             }
                     }
                 };
-            var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
-            return list;
-        }
-
+            try
+            {
+                var list = DbContext.AggregateJoinDocuments<StudExam>(filterDetails);
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
+}
+        /// <summary>
+        /// function to calculate average to student for every course by year
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="year"></param>
+        /// <param name="groupNumber"></param>
+        /// <returns>list of courseAvg objects</returns>
         public List<CourseAvg> GetGradesAverage(string studentId, string year, string groupNumber)
         {
             int finalGradeA = 0, finalGradeB = 0, finalGradeC = 0;
             int courseDuration = 0;
             double average = 0;
             List<CourseAvg> totalAvg = new List<CourseAvg>();
-            var courses = _groupService.GetGroupByName(groupNumber).courses;
-            if(courses != null)
+            try
             {
-                for (int i = 0; i < courses.Length; i++)
+                var courses = _groupService.GetGroupByName(groupNumber).courses;
+                if (courses != null)
                 {
-                    courseDuration = finalGradeA = finalGradeB = finalGradeC = 0;
-                    average = 0;
-                    var grades = GetSemiGradesByStudentIdAndYear(studentId, year, courses[i]);
-                    if(grades != null)
+                    for (int i = 0; i < courses.Length; i++)
                     {
-                        for(int k = 0; k < grades.Count; k++)
+                        courseDuration = finalGradeA = finalGradeB = finalGradeC = 0;
+                        average = 0;
+                        var grades = GetSemiGradesByStudentIdAndYear(studentId, year, courses[i]);
+                        if (grades != null)
                         {
-                            if(grades[k].JoinedField[0].Semester == "A")
+                            for (int k = 0; k < grades.Count; k++)
                             {
-                                finalGradeA = setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeA);
-                            }
-                            else if(grades[k].JoinedField[0].Semester == "B")
-                            {
-                                finalGradeB += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeB);
-                            }
-                            else if(grades[k].JoinedField[0].Semester == "C")
-                            {
-                                finalGradeC += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeC);
+                                if (grades[k].JoinedField[0].Semester == "A")
+                                {
+                                    finalGradeA = setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeA);
+                                }
+                                else if (grades[k].JoinedField[0].Semester == "B")
+                                {
+                                    finalGradeB += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeB);
+                                }
+                                else if (grades[k].JoinedField[0].Semester == "C")
+                                {
+                                    finalGradeC += setGrade(grades[k].JoinedField[0].Test_num, grades[k].Grade, ref courseDuration, finalGradeC);
+                                }
                             }
                         }
+                        average += finalGradeA + finalGradeB + finalGradeC;
+                        if (average > 0)
+                            average /= courseDuration;
+                        totalAvg.Add(new CourseAvg(courses[i], average));
                     }
-                    average += finalGradeA + finalGradeB + finalGradeC;
-                    if (average > 0)
-                        average /= courseDuration;
-                    totalAvg.Add(new CourseAvg(courses[i], average));
+
                 }
 
+                return totalAvg;
             }
-
-            return totalAvg;
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
         }
-
+        /// <summary>
+        /// function to set final grade of course
+        /// </summary>
+        /// <param name="testNumber"></param>
+        /// <param name="grade"></param>
+        /// <param name="courseDuration"></param>
+        /// <param name="finalGrade"></param>
+        /// <returns></returns>
         public int setGrade(string testNumber, int grade, ref int courseDuration, int finalGrade)
         {
             if (testNumber == "A")
@@ -164,7 +221,13 @@ namespace CASWebApi.Services
             }
             return finalGrade;
         }
-
+        /// <summary>
+        /// get list of grade details of student by years and course
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="year"></param>
+        /// <param name="course"></param>
+        /// <returns>list of gradeDetails object</returns>
         public List<GradeDetails> GetSemiGradesByStudentIdAndYear(string studentId, string year, string course)
         {
             LookUpDetails filterDetails = new LookUpDetails();
@@ -199,32 +262,57 @@ namespace CASWebApi.Services
                 {"grade", 1 }
                               
                             } } };
-            var list = DbContext.AggregateWithProject<GradeDetails>(filterDetails, project);
-            return list;
+            try
+            {
+                var list = DbContext.AggregateWithProject<GradeDetails>(filterDetails, project);
+                return list;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
         }
+        /// <summary>
+        /// function to create new studExam object
+        /// </summary>
+        /// <param name="studExam"></param>
+        /// <returns></returns>
         public bool Create(StudExam studExam)
         {
             logger.LogInformation("got a new studExam profile in studexamService: " + studExam);
-            bool res = DbContext.Insert<StudExam>("stud_exam", studExam);
-            if (res)
+            try
             {
+                bool res = DbContext.Insert<StudExam>("stud_exam", studExam);
                 logger.LogInformation("A new studExam profile and his user profile added successfully and got in studExamService" + studExam);
+                return res;
             }
-            else
-                logger.LogError("studExamService:Cannot create a studExam, duplicated id or wrong format");
-            return res;
-        }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
+}
+        /// <summary>
+        /// function to update studExam profile
+        /// </summary>
+        /// <param name="studExam"></param>
+        /// <returns>true if updated,exception otherwise</returns>
 
         public bool Update(StudExam studExam)
         {
             logger.LogInformation("StudExamService:updating an existing student grade profile with id: " + studExam.Id);
-
-            bool res = DbContext.Update<StudExam>("stud_exam", studExam.Id, studExam);
-            if (!res)
-                logger.LogError("StudExamService:student with Id: " + studExam.Id + " doesn't exist");
-            else
-                logger.LogInformation("StudExam:student with Id" + studExam.Id + "has been updated successfully");
-            return res;
+            try
+            {
+                DbContext.Update<StudExam>("stud_exam", studExam.Id, studExam);
+                    logger.LogInformation("StudExam:student with Id" + studExam.Id + "has been updated successfully");
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("StudExamService:got error : " + e);
+                throw e;
+            }
         }
     }
 }

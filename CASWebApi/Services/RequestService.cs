@@ -29,14 +29,20 @@ namespace CASWebApi.Services
         public Request GetById(string requestId)
         {
             logger.LogInformation("RequestService:Getting request by id");
-
-            var request = DbContext.GetById<Request>("request", requestId);
-            if (request == null)
-                logger.LogError("RequestService:Cannot get a request with a requestId: " + requestId);
-            else
-                logger.LogInformation("RequestService:Fetched request data by id ");
-            return request;
-            
+            try
+            {
+                var request = DbContext.GetById<Request>("request", requestId);
+                if (request == null)
+                    logger.LogError("RequestService:Cannot get a request with a requestId: " + requestId);
+                else
+                    logger.LogInformation("RequestService:Fetched request data by id ");
+                return request;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
         }
         /// <summary>
         /// get all requests from db
@@ -45,13 +51,17 @@ namespace CASWebApi.Services
         public List<Request> GetAll()
         {
             logger.LogInformation("RequestService:Getting all requests");
-            var requests = DbContext.GetAll<Request>("request");
-            if (requests == null)
-                logger.LogError("RequestService:Cannot get access to requests collection in Db");
-            else
+            try
+            {
+             var requests = DbContext.GetAll<Request>("request");
                 logger.LogInformation("RequestService:fetched All requests collection data");
             return requests;
-
+            }
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
         }
         /// <summary>
         /// Get Request by sender Id
@@ -63,13 +73,17 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public List<Request> GetRequestBySenderId(string senderId)
         {
-            var requestList = DbContext.GetListByFilter<Request>("request", "sender_id", senderId);
-            if (requestList != null)
+            logger.LogInformation("RequestService:Getting requests by sender id");
+            try
             {
+                var requestList = DbContext.GetListByFilter<Request>("request", "sender_id", senderId);
                 return requestList;
             }
-            else
-                return null;
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -80,12 +94,17 @@ namespace CASWebApi.Services
         public bool Create(Request request)
         {
             request.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<Request>("request", request);
-            if (res)
-                logger.LogInformation("RequestService:A new request profile added successfully :" + request);
-            else
-                logger.LogError("RequestService:Cannot create a request, duplicated id or wrong format");
-            return res;
+            try
+            {
+                DbContext.Insert<Request>("request", request);
+                    logger.LogInformation("RequestService:A new request profile added successfully :" + request);
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -97,13 +116,17 @@ namespace CASWebApi.Services
         public bool Update(string id, Request requestIn)
         {
             logger.LogInformation("RequestService:updating an existing request profile with id : " + requestIn.Id);
-
-            bool res = DbContext.Update<Request>("request", id, requestIn);
-            if (!res)
-                logger.LogError("RequestService:request with Id: " + requestIn.Id + " doesn't exist");
-            else
-                logger.LogInformation("RequestService:request with Id" + requestIn.Id + "has been updated successfully");
-            return res;
+            try
+            {
+                DbContext.Update<Request>("request", id, requestIn);
+                    logger.LogInformation("RequestService:request with Id" + requestIn.Id + "has been updated successfully");
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
         }
 
 
@@ -115,21 +138,37 @@ namespace CASWebApi.Services
         /// <returns>true if removed successfully</returns>
         public bool RemoveById(string id)
         {
-            bool res = DbContext.RemoveById<Request>("request", id);
-            if (res)
+            try
             {
-                logger.LogInformation("RequestService:a request profile with id : " + id + "has been deleted successfully");
+                DbContext.RemoveById<Request>("request", id);
+               
+                    logger.LogInformation("RequestService:a request profile with id : " + id + "has been deleted successfully");
+                return true;
             }
+         
+            catch (Exception e)
             {
-                logger.LogError("RequestService:request with Id: " + id + " doesn't exist");
-
+                logger.LogError("requestService:got error : " + e);
+                throw e;
             }
-            return res;
-
-        }
+}
+        /// <summary>
+        /// get count of requests by sent filter
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <param name="value"></param>
+        /// <returns>number of requests</returns>
         public int GetCountByFilter(string fieldName, string value)
         {
-            return DbContext.GetCountOfDocumentsByFilter<Request>("request", fieldName, value);
+            try
+            {
+                return DbContext.GetCountOfDocumentsByFilter<Request>("request", fieldName, value);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("requestService:got error : " + e);
+                throw e;
+            }
 
         }
     }
