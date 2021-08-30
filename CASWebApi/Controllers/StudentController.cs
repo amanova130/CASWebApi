@@ -14,7 +14,7 @@ namespace CASWebApi.Controllers
     public class StudentController : ControllerBase
     {
         IStudentService _studentService;
-        
+
         public StudentController(IStudentService studentService)
         {
             _studentService = studentService;
@@ -25,50 +25,91 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>List of Student</returns>
         [HttpGet("getAllStudents", Name = nameof(GetAllStudents))]
-        public ActionResult<List<Student>> GetAllStudents() =>
-             _studentService.GetAll();
+        public ActionResult<List<Student>> GetAllStudents()
+        {
+            try
+            {
+                return _studentService.GetAll();
+            }
+            catch(Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+        }
 
+        /// <summary>
+        /// get student list by groupNumber
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns>list of students,or error message if not found or was exception</returns>
         [HttpGet("getAllStudentsByGroup", Name = nameof(GetAllStudentsByGroup))]
-
         public ActionResult<List<Student>> GetAllStudentsByGroup(string groupName)
         {
-
-            var students = _studentService.GetAllStudentsByGroup(groupName);
-
-            if (students == null)
+            try
             {
-                return NotFound();
+                if (groupName != null)
+                {
+                    var students = _studentService.GetAllStudentsByGroup(groupName);
+                        return students;
+                }
+                return BadRequest("groupName was null");
+
             }
-
-
-            return students;
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
 
         }
 
+        /// <summary>
+        /// get all students by faculties names
+        /// </summary>
+        /// <param name="facultyNames"></param>
+        /// <returns>list of students,or error message if not found or was exception</returns>
         [HttpGet("GetAllStudentsByFaculties", Name = nameof(GetAllStudentsByFaculties))]
         public ActionResult<List<Student>> GetAllStudentsByFaculties([FromQuery] string[] facultyNames)
         {
             if (facultyNames != null)
             {
-                var students = _studentService.GetAllStudentsByFaculties(facultyNames);
-                return students;
+                try
+                {
+                    var students = _studentService.GetAllStudentsByFaculties(facultyNames);
+                    return students;
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
-            return NotFound("facultyNames param is null ");
+            return BadRequest("facultyNames param is null ");
 
 
 
 
         }
+
+        /// <summary>
+        /// get all students by groupName
+        /// </summary>
+        /// <param name="groupNames"></param>
+        /// <returns>list of students</returns>
         [HttpGet("getAllStudentsByGroups", Name = nameof(GetAllStudentsByGroups))]
         public ActionResult<List<Student>> GetAllStudentsByGroups([FromQuery] string[] groupNames)
         {
             if (groupNames != null)
             {
-                var students = _studentService.GetAllStudentsByGroups(groupNames);
-                if (students != null)
-                    return students;
+                try
+                {
+                    var students = _studentService.GetAllStudentsByGroups(groupNames);
+                        return students;
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
-            return NotFound("groupNames param is null");
+            return BadRequest("groupNames param is null");
 
         }
 
@@ -78,18 +119,41 @@ namespace CASWebApi.Controllers
         /// </summary>
         /// <returns>Number of Students</returns>
         [HttpGet("getNumberOfStudents", Name = nameof(GetNumberOfStudents))]
-        public ActionResult<int> GetNumberOfStudents() =>
-             _studentService.GetNumberOfStudents();
-       
+        public ActionResult<int> GetNumberOfStudents()
+        {
+            try
+            {
+                return _studentService.GetNumberOfStudents();
+            }
+            catch
+            {
+                return BadRequest("No connection to database");
+            }
+        }
+
         /// <summary>
         /// Get number of Students by class
         /// </summary>
         /// <param name="id">Id of group</param>
         /// <returns>Number of student in specific group</returns>
         [HttpGet("getNumberOfStudentsInClass", Name = nameof(GetNumberOfStudentsInClass))]
-        public ActionResult<int> GetNumberOfStudentsInClass(string id) =>
-             _studentService.GetNumberOfStudentsByClass(id);
-       
+        public ActionResult<int> GetNumberOfStudentsInClass(string id)
+        {
+            if (id != null)
+            {
+                try
+                {
+                    return _studentService.GetNumberOfStudentsByClass(id);
+                }
+                catch
+                {
+                    return BadRequest("No connection to database");
+                }
+            }
+            else
+                return BadRequest("given id is null");
+        }
+
         /// <summary>
         /// Get Student profile by Id
         /// </summary>
@@ -98,14 +162,23 @@ namespace CASWebApi.Controllers
         [HttpGet("getStudentById", Name = nameof(GetStudentById))]
         public ActionResult<Student> GetStudentById(string id)
         {
-            var student = _studentService.GetById(id);
-
-            if (student == null)
+            if (id != null)
             {
-                return NotFound();
+                try
+                {
+                    var student = _studentService.GetById(id);
+                    if (student == null)
+                        return NotFound("student with given id doesn't exists in db");
+                    return student;
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
+            else
+             return BadRequest("given id was null");
 
-            return student;
         }
         
 
@@ -121,21 +194,16 @@ namespace CASWebApi.Controllers
             {
                 try
                 {
-                    if (_studentService.Create(student))
-                    {
-                        return CreatedAtRoute("getStudentById", new { id = student.Id }, student);
-                    }
-                    else
-                        return NotFound("duplicated id or wrong id format");
+                    _studentService.Create(student);               
+                       return CreatedAtRoute("getStudentById", new { id = student.Id }, student);       
                 }
                 catch (Exception e)
-                {
-                   
-                        return NotFound(e);
+                {            
+                    return Conflict(e);
                 }
             }
             else
-                return BadRequest(false);
+                return BadRequest("Student model is not correct");
             
         }
 
@@ -148,11 +216,21 @@ namespace CASWebApi.Controllers
         [HttpPost("insertListOfStudents", Name = nameof(InsertListOfStudents))]
         public ActionResult<Student> InsertListOfStudents(List<Student> students)
         {
-           
-            if (!(_studentService.InsertManyStudents(students)))
-                return NotFound("duplicated id or wrong id format");
-
-            return Ok(true);
+            if (students != null)
+            {
+                try
+                {
+                    if (!(_studentService.InsertManyStudents(students)))
+                        return NotFound(false);
+                    return Ok(true);
+                }
+                catch (Exception e)
+                {
+                    return Conflict(e);
+                }
+            }
+            else
+                return BadRequest("given list of students was null");
         }
 
         /// <summary>
@@ -163,19 +241,27 @@ namespace CASWebApi.Controllers
         [HttpPut("updateStudent", Name = nameof(UpdateStudent))]
         public IActionResult UpdateStudent(Student studentIn)
         {
-            
-            bool res=false;
-
-            var student = _studentService.GetById(studentIn.Id);
-
-            if (student == null)
+            if (studentIn.Id != null || studentIn != null)
             {
-                return NotFound();
-            }
-            res = _studentService.Update(studentIn.Id, studentIn);
-   
+                try
+                {
+                    bool res = false;
+                    var student = _studentService.GetById(studentIn.Id);
 
-            return Ok(res);
+                    if (student == null)
+                    {
+                        return NotFound();
+                    }
+                    res = _studentService.Update(studentIn.Id, studentIn);
+                    return Ok(res);
+                }
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
+            }
+            else
+                return BadRequest("Id of given student,or student object itself is null");
         }
 
         /// <summary>
@@ -186,12 +272,24 @@ namespace CASWebApi.Controllers
         [HttpDelete("deleteStudentById", Name = nameof(DeleteStudentById))]
         public IActionResult DeleteStudentById(string id)
         {
-            var student = _studentService.GetById(id);
-            if (student != null && _studentService.RemoveById(student.Id) )
-
-                return Ok(true);
-            
-            return NotFound();
+            if (id != null)
+            {
+                try
+                {
+                    var student = _studentService.GetById(id);
+                    if (student != null && _studentService.RemoveById(student.Id))
+                        return Ok(true);
+                    return NotFound("student object with given id doesn't exists");
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("No Connection to database");
+                }
+            }
+            else
+            {
+                return BadRequest("given id was null");
+            }
         }
     }
 }

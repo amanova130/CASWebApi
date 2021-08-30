@@ -29,17 +29,18 @@ namespace CASWebApi.Controllers
         [HttpGet("getAllFaculties", Name = nameof(GetAllFaculties))]
         public ActionResult<List<Faculty>> GetAllFaculties()
         {
+            
             logger.LogInformation("Getting all Faculties data");
-            var facultyList = _facultyService.GetAll();
-            if(facultyList != null)
+            try
             {
+                var facultyList = _facultyService.GetAll();
                 logger.LogInformation("Fetched all data");
-                return facultyList;
+                return facultyList; 
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to Faculty collection in Db");
-                return StatusCode(500, "Internal server error");
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
             }
         }
             
@@ -52,15 +53,16 @@ namespace CASWebApi.Controllers
         public ActionResult<long> GetNumberOfFaculties()
         {
             logger.LogInformation("Getting number of Faculties");
-            var numberOfFaculties = _facultyService.GetNumberOfFaculties();
-            if (numberOfFaculties > 0)
+            try
             {
-                return Ok(numberOfFaculties);
+                return _facultyService.GetNumberOfFaculties();
+                logger.LogInformation("Fetched all data");
+
             }
-            else
+            catch(Exception e)
             {
-                logger.LogError("Cannot get access to Faculty collection in Db");
-                return StatusCode(500, "Internal server error");
+                logger.LogError("Cannot get access to Db");
+                return BadRequest("No connection to database");
             }
         }
 
@@ -73,22 +75,27 @@ namespace CASWebApi.Controllers
         public ActionResult<Faculty> GetFacById(string id)
         {
             logger.LogInformation("Getting Faculty by Id");
-            if(id != null)
+            if (id == null || id == "")
+            {
+                logger.LogError("Course Id is null or empty string");
+                return BadRequest("incorrect format of id parameter");
+            }
+            try
             {
                 var faculty = _facultyService.GetById(id);
                 if (faculty != null)
-                {
-                    return Ok(faculty);
-                }
-                else
-                {
-                    logger.LogError("Cannot get access to faculty collection in Db");
-                }
+                    return Ok(faculty);             
+                    logger.LogError("faculty with given id doesn't exists in database");
+                return NotFound("faculty with given id doesn't exists in database");
             }
-            else
-                logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
+
+
 
 
         /// <summary>
@@ -100,18 +107,26 @@ namespace CASWebApi.Controllers
         public ActionResult<Faculty> CreateFaculty(Faculty faculty)
         {
             logger.LogInformation("Creating a new faculty");
-            if(faculty != null)
+            if (faculty == null)
             {
-                faculty.Status = true;
-                if (_facultyService.Create(faculty))
-                    return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);
-                else
-                    return StatusCode(409, "Duplicated Id");
+                logger.LogError("Faculty object is null ");
+                return BadRequest("incorrect faculty model sent");
             }
-            else
-                logger.LogError("Faculty object is null " + faculty);
-            return BadRequest(null);
+            faculty.Status = true;
+            try
+            {
+                _facultyService.Create(faculty);
+                    return CreatedAtRoute("getFacById", new { id = faculty.Id }, faculty);           
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
         }
+            
+                
+        
 
         /// <summary>
         /// Update existed faculty profile
@@ -122,28 +137,33 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateFaculty(Faculty facultyIn)
         {
             logger.LogInformation("Updating existed faculty: " + facultyIn.Id);
-            if(facultyIn != null)
+            if (facultyIn == null || facultyIn.Id == null)
+            {
+                logger.LogError("CourseIn objest or his id is null");
+                return BadRequest("incorrect model of faculty sent");
+            }
+            try
             {
                 var faculty = _facultyService.GetById(facultyIn.Id);
 
                 if (faculty != null)
                 {
-                    if(_facultyService.Update(facultyIn.Id, facultyIn))
-                    {
-                        logger.LogInformation("Given Faculty profile Updated successfully");
-                        return Ok(true);
-                    }
-                   else
-                        logger.LogError("Cannot update the Faculty profile: " + facultyIn.Id + " wrong format");
+                    _facultyService.Update(facultyIn);
+                    logger.LogInformation("Given Faculty profile Updated successfully");
+                    return Ok(true);
                 }
                 else
                     logger.LogError("Faculty with Id: " + facultyIn.Id + " doesn't exist");
-
+                return NotFound("faculty with given id doesn't exists");
             }
-            else
-                logger.LogError("CourseIn objest is null");
-            return BadRequest(false);
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
         }
+
+
+
 
         /// <summary>
         /// Delete Faculty by Id
@@ -154,17 +174,28 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteFacById(string id)
         {
             logger.LogInformation("Deleting Faculty by Id " + id);
-            if (id != null)
+            if (id == null)
+            {
+                logger.LogError("Id is not valid format or null");
+                return NotFound(false);
+            }
+            try
             {
                 var faculty = _facultyService.GetById(id);
-                if (faculty != null && _facultyService.RemoveById(faculty.Id))
-                    return Ok(true);
-                else
-                    logger.LogError("Cannot get access to faculty collection in Db");
+                if (faculty == null )
+                {
+                    logger.LogError("faculty with given id doesn't exists");
+                    return NotFound("faculty with given id doesn't exists");
+                }
+                _facultyService.RemoveById(faculty.Id);
+                 return Ok(true);
             }
-            else
-                logger.LogError("Id is not valid format or null");
-            return NotFound(false);
+            catch (Exception e)
+            {
+                return BadRequest("No connection to database");
+            }
+
+
         }
     }
 }

@@ -21,7 +21,7 @@ namespace CASWebApi.Models.DbModels
             }
             catch (Exception e)
             {
-                throw;
+                throw e;
             }
             // database = client.GetDatabase(settings.Value.Database);
         }
@@ -49,6 +49,13 @@ namespace CASWebApi.Models.DbModels
             return res;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionName"></param>
+        /// <param name="listOfDocuments"></param>
+        /// <returns></returns>
         public bool InsertMany<T>(string collectionName, List<T> listOfDocuments)
         {
             bool res = true;
@@ -59,7 +66,7 @@ namespace CASWebApi.Models.DbModels
             }
             catch (Exception e)
             {
-                res = false;
+                throw e;
             }
             return res;
         }
@@ -74,8 +81,15 @@ namespace CASWebApi.Models.DbModels
         {
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", true);
-            var result = collection.Find(filter).ToList();
-            return result;
+            try
+            {
+                var result = collection.Find(filter).ToList();
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -90,10 +104,17 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public List<T> GetListByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
-
-            return collection.Find(filter).ToList();
+            try
+            {
+                return collection.Find(filter).ToList();
+            }
+            catch (Exception e)
+            {
+                throw e; 
+            }
         }
         /// <summary>
         /// Get single document in given collection with specific filter
@@ -105,10 +126,18 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public T GetDocumentByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value) & Builders<T>.Filter.Eq("status", true);
+            try
+            {
+                return collection.Find<T>(filter).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
-            return collection.Find<T>(filter).FirstOrDefault();
         }
 
         
@@ -122,10 +151,18 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public bool RemoveField<T>(string collectionName, string fieldName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
             var update = Builders<T>.Update.Unset(fieldName);
-            collection.UpdateManyAsync(filter, update);
+            try
+            {
+                collection.UpdateManyAsync(filter, update);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
             return true;
         }
         /// <summary>
@@ -138,11 +175,19 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public bool PullElement<T>(string collectionName, string fieldName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, id);
             var update = Builders<T>.Update.Pull(fieldName, id);
-            var res=collection.UpdateManyAsync(filter, update);
-            return res != null;
+            try
+            {
+                collection.UpdateManyAsync(filter, update);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return true;
         }
         /// <summary>
         /// removes a specific object from an array 
@@ -154,10 +199,20 @@ namespace CASWebApi.Models.DbModels
         /// <returns></returns>
         public bool PullObject<T>(string collectionName, string arrayName, string objectId, string fieldId, string fieldName,string objectKey)
         {
+            UpdateResult result;
+            objectId = objectId.Trim();
+            fieldId = fieldId.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
             var update = Builders<T>.Update.PullFilter(arrayName, Builders<T>.Filter.Eq(objectKey, objectId));
-            var result = collection.UpdateOne(filter, update);
+            try
+            {
+                result = collection.UpdateOne(filter, update);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
             return result.IsAcknowledged;
         }
 
@@ -176,11 +231,20 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if added,false otherwise </returns>
         public bool PushElement<T>(string collectionName, string arrayName, T element, string fieldId, string fieldName)
         {
+            fieldId = fieldId.Trim();
+            UpdateResult result;
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, fieldId);
             var update = Builders<T>.Update.Push(arrayName, element);
-            var res=collection.UpdateOne(filter, update);
-            return res.IsAcknowledged;
+            try
+            {
+                result = collection.UpdateOne(filter, update);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return result.IsAcknowledged;
         }
 
         /// <summary>
@@ -192,9 +256,17 @@ namespace CASWebApi.Models.DbModels
         /// <returns>found object</returns>
         public T GetById<T>(string collectionName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
-            return collection.Find<T>(filter).FirstOrDefault();
+            try
+            {
+                return collection.Find<T>(filter).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -208,10 +280,18 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if updated successfully</returns>
         public bool Update<T>(string collectionName, string id, T document)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filterId = Builders<T>.Filter.Eq("_id", id) & Builders<T>.Filter.Eq("status", true);
-            var updated = collection.FindOneAndReplace(filterId, document);
-            return updated != null;
+            try
+            {
+               var updated = collection.FindOneAndReplace(filterId, document);
+                return updated != null;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -224,13 +304,19 @@ namespace CASWebApi.Models.DbModels
         /// <param name="value"></param>
         public bool UpdateRecordAttribute<T>(string collectionName, string id, string attributeName, string value)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
-
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set(attributeName, value);
-
-           var updated= collection.UpdateOne(filter, update);
-            return updated != null;
+            try
+            {
+                var updated = collection.UpdateOne(filter, update);
+                return updated != null;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -243,14 +329,28 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if removed successfully</returns>
         public bool RemoveById<T>(string collectionName, string id)
         {
+            id = id.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("_id", id);
             var update = Builders<T>.Update.Set("status", false);
-            var updated = collection.UpdateOne(filter, update);
-            
-            return updated.IsAcknowledged;
+            try
+            {
+                var updated = collection.UpdateOne(filter, update);
+                return updated.IsAcknowledged;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
-
+        /// <summary>
+        /// functions that gets filter to aggregate operation
+        /// Aggregation operations group values from multiple documents together, 
+        /// and can perform a variety of operations on the grouped data to return a single result
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filterDetails"></param>
+        /// <returns>list of aggregated objects</returns>
         public List<T> AggregateJoinDocuments<T>(LookUpDetails filterDetails)
         {
             var collection2 = database.GetCollection<T>(filterDetails.CollectionName);
@@ -263,10 +363,24 @@ namespace CASWebApi.Models.DbModels
                                                                             { "foreignField", filterDetails.ForeignField },
                                                                             { "as", filterDetails.JoinedField } } } };
             var pipeline = new[] { lookup1, _match };
-            var result = collection2.Aggregate<T>(pipeline).ToList();
-            return result;
+            try
+            {
+                var result = collection2.Aggregate<T>(pipeline).ToList();
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
-
+        /// <summary>
+        /// functions that gets filter and project to aggregate operation
+        /// Aggregation operations group values from multiple documents together, 
+        /// and can perform a variety of operations on the grouped data to return a single result
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="filterDetails"></param>
+        /// <returns>list of aggregated objects</returns>
         public List<T> AggregateWithProject<T>(LookUpDetails filterDetails, BsonDocument project)
         {
             var collection2 = database.GetCollection<T>(filterDetails.CollectionName);
@@ -279,8 +393,15 @@ namespace CASWebApi.Models.DbModels
                                                                             { "foreignField", filterDetails.ForeignField },
                                                                             { "as", filterDetails.JoinedField } } } };
             var pipeline = new[] { lookup1, _match, project };
-            var result = collection2.Aggregate<T>(pipeline).ToList();
-            return result;
+            try
+            {
+                var result = collection2.Aggregate<T>(pipeline).ToList();
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -294,11 +415,18 @@ namespace CASWebApi.Models.DbModels
         /// <returns>true if removed successfully</returns>
         public bool RemoveByFilter<T>(string collectionName, string fieldName, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq(fieldName, value);
             var update = Builders<T>.Update.Set("status", false);
+            try { 
             var updated = collection.UpdateManyAsync(filter, update);
             return updated != null;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
         /// <summary>
@@ -310,9 +438,16 @@ namespace CASWebApi.Models.DbModels
         public int GetCountOfDocuments<T>(string collectionName)
         {
             var collection = database.GetCollection<T>(collectionName);
-            var filter =  Builders<T>.Filter.Eq("status", true);
-            var countOfDocs = (int)collection.Find(filter).CountDocuments();
-            return countOfDocs;
+            var filter = Builders<T>.Filter.Eq("status", true);
+            try 
+            {
+                var countOfDocs = (int)collection.Find(filter).CountDocuments();
+                return countOfDocs;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -325,18 +460,33 @@ namespace CASWebApi.Models.DbModels
         /// <returns>number of documents</returns>
         public int GetCountOfDocumentsByFilter<T>(string collectionName,string field, string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", true) & Builders<T>.Filter.Eq(field, value);
-            var countOfDocs = (int)collection.Find(filter).CountDocuments();
-            return countOfDocs;
+            try
+            {
+                var countOfDocs = (int)collection.Find(filter).CountDocuments();
+                return countOfDocs;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         public List<T> GetDeletedDocumentsByFilter<T>(string collectionName,string field,string value)
         {
+            value = value.Trim();
             var collection = database.GetCollection<T>(collectionName);
             var filter = Builders<T>.Filter.Eq("status", false) & Builders<T>.Filter.Eq(field, value);
-            var deletedList= collection.Find(filter).ToList();    
-            return deletedList;
-
+            try
+            {
+                var deletedList = collection.Find(filter).ToList();
+                return deletedList;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
 

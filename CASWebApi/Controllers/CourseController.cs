@@ -35,18 +35,15 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Course>> GetAllCourse()
         {
             logger.LogInformation("Getting all Course from CourseController");
-            var courseList = _courseService.GetAll();
-            if(courseList != null)
+            try
             {
-                logger.LogInformation("Fetched All course data");
-                return Ok(courseList);
+               return _courseService.GetAll();             
             }
-            else
+            catch (Exception e)
             {
                 logger.LogError("Cannot get access to course collection in Db");
-                return StatusCode(500, "Internal server error");
+                return BadRequest("No connection to database");
             }
-
         }
              
 
@@ -58,15 +55,14 @@ namespace CASWebApi.Controllers
         public ActionResult<int> getNumberOfCourses()
         {
             logger.LogInformation("Getting number of Courses");
-            var numberOfCourse = _courseService.GetNumberOfCourses();
-            if(numberOfCourse > 0)
+            try
             {
-                return Ok(numberOfCourse);
+                return _courseService.GetNumberOfCourses();
             }
-            else
+            catch(Exception e)
             {
                 logger.LogError("Cannot get access to course collection in Db");
-                return StatusCode(500, "Internal server error");
+                return BadRequest("No connection to database");
             }
         }
              
@@ -81,42 +77,55 @@ namespace CASWebApi.Controllers
         {
             if(id != null && id != "")
             {
-                var course = _courseService.GetById(id);
-                if (course != null)
+                try
                 {
-                    return Ok(course);
+                    var course = _courseService.GetById(id);
+                    if (course != null)
+                        return Ok(course);
+                    return NotFound("course with given id doesn't exists");
                 }
-                else
+                catch(Exception e)
                 {
-                    logger.LogError("Cannot get access to course collection in Db");
+                    return BadRequest("No connection to database");
                 }
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest();
+            return BadRequest("given id was null or empty string");
 
-            
+
         }
 
-
+        /// <summary>
+        /// get array of of course names by given facultyName
+        /// </summary>
+        /// <param name="facultyName"></param>
+        /// <returns></returns>
         [HttpGet("getCoursesbyFaculty", Name = nameof(GetCoursesByFaculty))]
-        public ActionResult<List<Course>> GetCoursesByFaculty(string facultyName)
+        public ActionResult<string[]> GetCoursesByFaculty(string facultyName)
         {
             if (facultyName != null && facultyName != "")
             {
-                var course = _courseService.GetCoursesByFaculty(facultyName);
-                if (course != null)
+                try
                 {
-                    return Ok(course);
+                    var course = _courseService.GetCoursesByFaculty(facultyName);
+                    if (course != null)
+                    {
+                        return Ok(course);
+                    }
+                    else
+                    {
+                        logger.LogError("Cannot get access to course collection in Db");
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    logger.LogError("Cannot get access to course collection in Db");
+                    return BadRequest("No connection to database");
                 }
             }
             else
                 logger.LogError("Course Id is null or empty string");
-            return BadRequest(false);
+            return BadRequest("given id was null or empty string");
 
         }
 
@@ -130,19 +139,28 @@ namespace CASWebApi.Controllers
         {
             if (groupName != null && groupName != "")
             {
-                var group = _groupService.GetGroupByName(groupName);
-                if (group == null)
-                    logger.LogError("Cannot get access to course collection in Db");
-                else
+                try
                 {
-                    var courses = group.courses;
-                    var courseList = _courseService.GetCoursesByCourseNames(courses);
-                    return Ok(courseList);
+                    var group = _groupService.GetGroupByName(groupName);
+                    if (group == null)
+                    {
+                        logger.LogError("Group with given name is doesn't exists");
+                        return NotFound("Group with given name is doesn't exists");
+                    }
+                    else
+                    {
+                        var courseList = _courseService.GetCoursesByCourseNames(group.courses);
+                        return Ok(courseList);
+                    }
                 }
-               
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
+
             }
             else
-                logger.LogError("Course Id is null or empty string");
+                logger.LogError("groupName  is null or empty string");
             return BadRequest(false);
 
         }
@@ -155,17 +173,24 @@ namespace CASWebApi.Controllers
         public ActionResult<Course> CreateNewCourse(Course course)
         {
             logger.LogInformation("Creating a new course");
-            if(course != null)
+            try
             {
-                course.Status = true;
-                if (!(_courseService.Create(course)))
-                    return NotFound();
-                return CreatedAtRoute("getCoursebyId", new { id = course.Id }, course);
+                if (course != null)
+                {
+                    course.Status = true;
+                    if (!(_courseService.Create(course)))
+                        return NotFound();
+                    return CreatedAtRoute("getCoursebyId", new { id = course.Id }, course);
+                }
+                else
+                {
+                    logger.LogError("Course object is null " + course);
+                    return BadRequest(course);
+                }
             }
-            else
+            catch(Exception e)
             {
-                logger.LogError("Course object is null " + course);
-                return BadRequest(course);
+                return BadRequest(e);
             }
 
         }
@@ -179,25 +204,32 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateCourse(Course courseIn)
         {
             logger.LogInformation("Updating existed course: " + courseIn.Id);
-            if(courseIn != null)
+            if (courseIn != null)
             {
-                var course = _courseService.GetById(courseIn.Id);
-                if (course != null)
+                try
                 {
-                    if (_courseService.Update(courseIn.Id, courseIn))
+                    var course = _courseService.GetById(courseIn.Id);
+                    if (course != null)
                     {
-                        logger.LogInformation("Given Course profile Updated successfully");
-                        return Ok(true);
+                        if (_courseService.Update(courseIn.Id, courseIn))
+                        {
+                            logger.LogInformation("Given Course profile Updated successfully");
+                            return Ok(true);
+                        }
+                        else
+                            logger.LogError("Cannot update the Course profile: " + courseIn.Id + " wrong format");
                     }
                     else
-                        logger.LogError("Cannot update the Course profile: " + courseIn.Id + " wrong format");
+                        logger.LogError("Course with Id: " + courseIn.Id + " doesn't exist");
                 }
-                else
-                    logger.LogError("Course with Id: " + courseIn.Id + " doesn't exist");
+                catch(Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
             else
                 logger.LogError("CourseIn objest is null");
-            return BadRequest(false);
+            return BadRequest("CourseIn objest is null");
 
         }
 
@@ -212,15 +244,22 @@ namespace CASWebApi.Controllers
             logger.LogInformation("Deleting Course by Id " + id);
             if(id != null)
             {
-                var course = _courseService.GetById(id);
-                if (course != null && _courseService.RemoveById(course.Id))
-                    return Ok(true);
-                else
-                    logger.LogError("Cannot get access to admin collection in Db");
+                try
+                {
+                    var course = _courseService.GetById(id);
+                    if (course != null && _courseService.RemoveById(course.Id))
+                        return Ok(true);
+                    else
+                        logger.LogError("Cannot get access to admin collection in Db");
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("No connection to database");
+                }
             }
             else
                 logger.LogError("Id is not valid format or null");
-           return NotFound(false);
+           return BadRequest("Id is not valid format or null");
  
         }
 

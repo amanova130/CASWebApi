@@ -23,7 +23,14 @@ namespace CASWebApi.Services
         /// <returns>found course object</returns>
         public ExtendedLink GetById(string linkId)
         {
-            return DbContext.GetById<ExtendedLink>("extended_links", linkId);
+            try
+            {
+                return DbContext.GetById<ExtendedLink>("extended_links", linkId);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         /// <summary>
         /// get all courses from db
@@ -31,8 +38,14 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public List<ExtendedLink> GetAll()
         {
+            try
+            { 
             return DbContext.GetAll<ExtendedLink>("extended_links");
-
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -42,9 +55,16 @@ namespace CASWebApi.Services
         /// <returns>true if successed</returns>
         public bool Create(ExtendedLink link)
         {
-            link.Id = ObjectId.GenerateNewId().ToString();
-            bool res = DbContext.Insert<ExtendedLink>("extended_links", link);
-            return res;
+            try
+            {
+                link.Id = ObjectId.GenerateNewId().ToString();
+                bool res = DbContext.Insert<ExtendedLink>("extended_links", link);
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -55,7 +75,14 @@ namespace CASWebApi.Services
         /// <returns>true if successed</returns>
         public bool Update(string id, ExtendedLink linkIn)
         {
-            return DbContext.Update<ExtendedLink>("extended_links", id, linkIn);
+            try
+            {
+                return DbContext.Update<ExtendedLink>("extended_links", id, linkIn);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -67,8 +94,14 @@ namespace CASWebApi.Services
         /// <returns>true if removed successfully</returns>
         public bool RemoveById(string id)
         {
-            bool res = DbContext.RemoveById<ExtendedLink>("extended_links", id);
-            return res;
+            try
+            {
+                return DbContext.RemoveById<ExtendedLink>("extended_links", id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

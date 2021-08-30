@@ -20,10 +20,11 @@ namespace CASWebApi.Services
         IExamService _examService;
         IGroupService _groupService;
         IStudentService _studentService;
+        ITeacherService _teacherService;
 
 
         public ReportService(IDbSettings settings, IFacultyService facultyService, IGroupService groupService,IStudentService studentService,
-            IExamService examService, ILogger<ReportService> logger,IStudExamService studExamService)
+            IExamService examService, ITeacherService teacherService, ILogger<ReportService> logger,IStudExamService studExamService)
         {
             _facultyService = facultyService;
             this.logger = logger;
@@ -32,6 +33,7 @@ namespace CASWebApi.Services
             _examService = examService;
             _groupService = groupService;
             _studentService = studentService;
+            _teacherService = teacherService;
 
         }
 
@@ -128,6 +130,41 @@ namespace CASWebApi.Services
             return studentsAverage;
         }
 
+        public List<Average> GetAvgOfAllTeachers(string year)
+        {
+            double totalAvg = 0;
+            int numOfGrades = 0;
+            var teachers = _teacherService.GetAll();
+            List<Average> teachersAverage = new List<Average>();
+            List<Exam> teacherAvg = new List<Exam>(); ;
+            for(int i=0;i<teachers.Count;i++)
+            {
+                teachersAverage.Add(new Average(teachers[i].Id, teachers[i].First_name +' '+ teachers[i].Last_name));
+                
+                for (int j=0;j<teachers[i].TeachesCourses.Length;j++)
+                {
+                    totalAvg = 0;
+                    numOfGrades = 0;
+                    LookUpDetails filterDetails = BuildFilterByTeacher(teachers[i].Id, year, teachers[i].TeachesCourses[j]);
+                    teacherAvg = DbContext.AggregateJoinDocuments<Exam>(filterDetails);
+                    for(int k=0;k<teacherAvg.Count;k++)
+                    {
+                        for (int l = 0; l < teacherAvg[k].JoinedField.Length; l++)
+                        {
+                            totalAvg += teacherAvg[k].JoinedField[l].Grade;
+                            numOfGrades++;
+                        }
+                    }
+                    if(numOfGrades != 0)
+                    totalAvg /= numOfGrades;
+                    teachersAverage[teachersAverage.Count - 1].courseAvg.Add(new CourseAvg(teachers[i].TeachesCourses[j], totalAvg));
+                }
+               
+
+            }
+            return teachersAverage;
+
+        }
 
 
         public LookUpDetails BuildFilter(string groupName, string year,string semester,string course)
@@ -155,6 +192,31 @@ namespace CASWebApi.Services
             filterDetails.JoinedField = "JoinedField";
             return filterDetails;
         }
-       
+
+        public LookUpDetails BuildFilterByTeacher(string teacherId, string year, string course)
+        {
+            LookUpDetails filterDetails = new LookUpDetails();
+            filterDetails.CollectionName = "examination";
+            filterDetails.CollectionNameFrom = "stud_exam";
+            //  filterDetails.MatchField = new string[4] { "groupNum", "course", "semester", "year" };
+            filterDetails.Match = new BsonDocument
+                {
+                    {
+                        "$match",
+                        new BsonDocument
+                          {
+                            {"teacher_id", teacherId},
+                            {"course",course },
+                            { "year",year },
+                            {"status",true }
+                          }
+                    }
+                };
+            filterDetails.LocalField = "_id";
+            filterDetails.ForeignField = "exam_id";
+            filterDetails.JoinedField = "JoinedField";
+            return filterDetails;
+        }
+
     }
 }

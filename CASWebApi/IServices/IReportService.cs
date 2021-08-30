@@ -13,6 +13,9 @@ namespace CASWebApi.IServices
         public LookUpDetails BuildFilter(string groupName, string year, string semester, string course);
         public int setSemesterGrade(int currentGrade,string studentId, Exam exam);
         public int setCourseDuration(int grade1, int grade2, int grade3);
+        public List<Average> GetAvgOfAllTeachers(string year);
+        public LookUpDetails BuildFilterByTeacher(string teacherId, string year, string course);
+
 
 
     }

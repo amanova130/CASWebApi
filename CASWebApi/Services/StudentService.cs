@@ -20,6 +20,14 @@ namespace CASWebApi.Services
         IUserService _userService;
         IMessageService _messageService;
 
+        /// <summary>
+        /// constructor of studentService
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="logger"></param>
+        /// <param name="messageService"></param>
+        /// <param name="userService"></param>
+        /// <param name="groupService"></param>
         public StudentService(IDbSettings settings, ILogger<StudentService> logger,IMessageService messageService,IUserService userService, IGroupService groupService)
         {
             DbContext = settings;
@@ -38,13 +46,20 @@ namespace CASWebApi.Services
         public Student GetById(string studentId)
         {
             logger.LogInformation("StudentService:Getting student by id");
+            try
+            {
+                var student = DbContext.GetById<Student>("student", studentId);
 
-            var student = DbContext.GetById<Student>("student", studentId);
-            if (student == null)
-                logger.LogError("StudentService:Cannot get a student with a studentId: " + studentId);
-            else
-                logger.LogInformation("StudentService:Fetched student data by id ");
-            return student;
+                if (student == null)
+                    logger.LogError("StudentService:Cannot get a student with a studentId: " + studentId);
+                else
+                    logger.LogInformation("StudentService:Fetched student data by id ");
+                return student;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
 
         }
 
@@ -55,44 +70,85 @@ namespace CASWebApi.Services
         public List<Student> GetAll()
         {
             logger.LogInformation("StudentService:Getting all students");
-            var students = DbContext.GetAll<Student>("student");
-            if (students == null)
-                logger.LogError("StudentService:Cannot get access to students collection in Db");
-            else
-                logger.LogInformation("StudentService:fetched All students collection data");
-            return students;
+            try
+            {
+                var students = DbContext.GetAll<Student>("student");
+                if (students == null)
+                    logger.LogError("StudentService:Cannot get access to students collection in Db");
+                else
+                    logger.LogInformation("StudentService:fetched All students collection data");
+                return students;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
+
+        /// <summary>
+        /// fuction to get list of students by few groupNames
+        /// </summary>
+        /// <param name="groupNames"></param>
+        /// <returns>list of students</returns>
         public List<Student> GetAllStudentsByGroups(string[] groupNames)
         {
             List<Student> students = new List<Student>();
-            for (int i = 0; i < groupNames.Length; i++)
-                students.AddRange(GetAllStudentsByGroup(groupNames[i]));
+            try
+            {
+                for (int i = 0; i < groupNames.Length; i++)
+                    students.AddRange(GetAllStudentsByGroup(groupNames[i]));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
             return students;
         }
+
+        /// <summary>
+        /// function to get list of students by given groupName
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns>list of students</returns>
         public List<Student> GetAllStudentsByGroup(string groupName)
         {
             logger.LogInformation("StudentService:Getting all students by group");
-            var students = DbContext.GetListByFilter<Student>("student", "group", groupName);
-            if (students == null)
-                logger.LogError("StudentService:Cannot get access to students collection in Db");
-            else
-                logger.LogInformation("StudentService:fetched All students collection data by groupName");
-            return students;
-
+            try
+            {
+                var students = DbContext.GetListByFilter<Student>("student", "group", groupName);
+                if (students == null)
+                    logger.LogError("StudentService:Cannot get access to students collection in Db");
+                else
+                    logger.LogInformation("StudentService:fetched All students collection data by groupName");
+                return students;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
-
+        /// <summary>
+        /// function to get list of students by given facultyName
+        /// </summary>
+        /// <param name="facultyNames"></param>
+        /// <returns></returns>
         public List<Student> GetAllStudentsByFaculties(string[] facultyNames)
         {
             List<Student> students = new List<Student>();
             List<Group> groups = new List<Group>();
-
-            for (int i = 0; i < facultyNames.Length; i++)
-                groups.AddRange(_groupService.GetGroupsByFaculty(facultyNames[i]));
-            for (int i = 0; i < groups.Count; i++)
-                students.AddRange(GetAllStudentsByGroup(groups[i].GroupNumber));
-            return students;
-
+            try
+            {
+                for (int i = 0; i < facultyNames.Length; i++)
+                    groups.AddRange(_groupService.GetGroupsByFaculty(facultyNames[i]));
+                for (int i = 0; i < groups.Count; i++)
+                    students.AddRange(GetAllStudentsByGroup(groups[i].GroupNumber));
+                return students;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -104,9 +160,16 @@ namespace CASWebApi.Services
         public int GetNumberOfStudents()
         {
             logger.LogInformation("StudentService:Getting count of all student collections");
-            int res = DbContext.GetCountOfDocuments<Student>("student");
-            logger.LogInformation("StudentService:fetched number of students");
-            return res;
+            try
+            {
+                int res = DbContext.GetCountOfDocuments<Student>("student");
+                logger.LogInformation("StudentService:fetched number of students");
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -117,10 +180,23 @@ namespace CASWebApi.Services
         public int GetNumberOfStudentsByClass(string groupNum)
         {
             logger.LogInformation("StudentService:Getting count of students by class");
-            int res = DbContext.GetCountOfDocumentsByFilter<Student>("student", "group", groupNum);
-            logger.LogInformation("StudentService:fetched number of students in class");
-            return res;
+            try
+            {
+                int res = DbContext.GetCountOfDocumentsByFilter<Student>("student", "group", groupNum);
+                logger.LogInformation("StudentService:fetched number of students in class");
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
+        /// <summary>
+        /// function to create new email message to new student 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="studentName"></param>
+        /// <returns></returns>
         private bool sendEmailToNewStudent(User user,string studentName)
         {
             Message message = new Message();
@@ -133,8 +209,16 @@ namespace CASWebApi.Services
             message.ReceiverNames = new string[] { studentName };
             message.DateTime = DateTime.Now;
             message.status = true;
-           bool res= _messageService.Create(message);
-            return res;
+            try
+            {
+                bool res = _messageService.Create(message);
+                return res;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
         }
         /// <summary>
         /// add new student object to db 
@@ -169,16 +253,23 @@ namespace CASWebApi.Services
                 _user.Email = student.Email;
                 _user.Role = "Student";
                 string unhashedPass = _user.Password;
-                res = _userService.Create(_user);
-                if (res)
+                try
                 {
-                    _user.Password = unhashedPass;
-                    sendEmailToNewStudent(_user, student.First_name + " " + student.Last_name);
-                    logger.LogInformation("StudentService:A new user for student profile added successfully :" + student);
+                    res = _userService.Create(_user);
+                    if (res)
+                    {
+                        _user.Password = unhashedPass;
+                        sendEmailToNewStudent(_user, student.First_name + " " + student.Last_name);
+                        logger.LogInformation("StudentService:A new user for student profile added successfully :" + student);
+                    }
+                    else
+                        logger.LogError("StudentService:Cannot create a user for a student, duplicated id or wrong format");
                 }
-                else
-                    logger.LogError("StudentService:Cannot create a user for a student, duplicated id or wrong format");
-             }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
             else
                 logger.LogError("StudentService:Cannot create a student, duplicated id or wrong format");
             return res;
@@ -202,16 +293,32 @@ namespace CASWebApi.Services
                 _user.Email = student.Email;
                 _user.Role = "Student";
                 _user.Status = true;
-                 _userService.Create(_user);
+                try
+                {
+                    _userService.Create(_user);
+                }
+                catch(Exception e)
+                {
+                    if (e is MongoWriteException)
+                        throw new Exception(String.Format("User with Id: {0} already exists", student.Id), e);
+                    throw e;
+                }
 
             });
-
-            bool res = DbContext.InsertMany<Student>("student", students);
-            if (res)
-                logger.LogInformation("StudentService:A new list of students added successfully :");
-            else
-                logger.LogError("StudentService:Cannot add a list of students, check format");
-            return res;
+            try
+            {
+                bool res = DbContext.InsertMany<Student>("student", students);
+                if (res)
+                    logger.LogInformation("StudentService:A new list of students added successfully :");
+                else
+                    logger.LogError("StudentService:Cannot add a list of students, check format");
+                return res;
+            }
+            catch (Exception e)
+            {
+                
+                throw e;
+            }
         }
 
         /// <summary>
@@ -223,21 +330,27 @@ namespace CASWebApi.Services
         public bool Update(string id, Student studentIn)
         {
             logger.LogInformation("StudentService:updating an existing student profile with id : " + studentIn.Id);
-
-            bool res = DbContext.Update<Student>("student", id, studentIn);
-            if (!res)
-                logger.LogError("StudentService:student with Id: " + studentIn.Id + " doesn't exist");
-            else
+            try
             {
-                var user = _userService.GetById(studentIn.Id);
-                if (user.Email != studentIn.Email)
+                bool res = DbContext.Update<Student>("student", id, studentIn);
+                if (!res)
+                    logger.LogError("StudentService:student with Id: " + studentIn.Id + " doesn't exist");
+                else
                 {
-                    user.Email = studentIn.Email;
-                    _userService.Update(user);
+                    var user = _userService.GetById(studentIn.Id);
+                    if (user.Email != studentIn.Email)
+                    {
+                        user.Email = studentIn.Email;
+                        _userService.Update(user);
+                    }
+                    logger.LogInformation("StudentService:student with Id" + studentIn.Id + "has been updated successfully");
                 }
-                logger.LogInformation("StudentService:student with Id" + studentIn.Id + "has been updated successfully");
+                return res;
             }
-            return res;
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
 
@@ -249,18 +362,22 @@ namespace CASWebApi.Services
         public bool RemoveById(string id)
         {
             logger.LogInformation("StudentService:deleting a student profile with id : " + id);
-
-            bool res = DbContext.RemoveById<Student>("student", id) && _userService.RemoveById(id);
-            if (res)
+            try
             {
-                
-                logger.LogInformation("StudentService:a student profile with id : " + id + "has been deleted successfully");
+                bool res = DbContext.RemoveById<Student>("student", id) && _userService.RemoveById(id);
+                if (res)
+                {
+                    logger.LogInformation("StudentService:a student profile with id : " + id + "has been deleted successfully");
+                }
+                {
+                    logger.LogError("StudentService:student with Id: " + id + " doesn't exist");
+                }
+                return res;
             }
+            catch(Exception e)
             {
-                logger.LogError("StudentService:student with Id: " + id + " doesn't exist");
-
+                throw e;
             }
-            return res;
         }
     }
 }

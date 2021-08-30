@@ -3,6 +3,7 @@ using CASWebApi.IServices;
 using CASWebApi.Models;
 using GemBox.Spreadsheet;
 using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -28,7 +29,14 @@ namespace CASWebApi.Services
         /// <returns></returns>
         public List<Student> GetAll(string collectionName)
         {
-            return DbContext.GetAll<Student>(collectionName);
+            try
+            {
+                return DbContext.GetAll<Student>(collectionName);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
 
         /// <summary>

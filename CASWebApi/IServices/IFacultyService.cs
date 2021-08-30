@@ -15,9 +15,11 @@ namespace CASWebApi.IServices
         Faculty GetById(string facultyId);
         List<Faculty> GetAll();
         bool Create(Faculty faculty);
-        bool Update(string id, Faculty facultyIn);
+        bool Update(Faculty facultyIn);
         bool RemoveById(string id);
         int GetNumberOfFaculties();
+        Faculty GetByFacultyName(string facultyName);
+
 
     }
 }

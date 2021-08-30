@@ -20,7 +20,6 @@ namespace CASWebApi.Controllers
         {
             this.logger = logger;
             _holidayService = holidayService;
-
         }
 
         /// <summary>
@@ -31,17 +30,16 @@ namespace CASWebApi.Controllers
         public ActionResult<List<Holiday>> GetAllHolidays()
         {
             logger.LogInformation("Getting all Holidays from HolidayController");
-            var holidayList = _holidayService.GetAll();
-            if (holidayList != null)
+            try
             {
-                logger.LogInformation("Fetched All holiday data");
-                return holidayList;
+                var holidayList = _holidayService.GetAll();
+                    logger.LogInformation("Fetched All holiday data");
+                    return holidayList;                    
             }
-            else
+            catch (Exception e)
             {
-                logger.LogError("Cannot get access to Holiday collection in Db");
-                return StatusCode(500, "Internal server error");
-            } 
+                return BadRequest("No connection to database");
+            }
         }
 
         /// <summary>
@@ -53,7 +51,12 @@ namespace CASWebApi.Controllers
         public ActionResult<Holiday> GetHolidayById(string id)
         {
             logger.LogInformation("Getting holiday by given Id from HolidayController");
-            if(id != null)
+            if (id == null || id == "")
+            {
+                logger.LogError("Holiday Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
+            }
+            try
             {
                 var holiday = _holidayService.GetById(id);
                 if (holiday != null)
@@ -61,12 +64,14 @@ namespace CASWebApi.Controllers
                     logger.LogInformation("Fetched holiday data by id");
                     return Ok(holiday);
                 }
-                else
-                    logger.LogError("Cannot get access to holiday collection in Db");
+                return NotFound("holiday with given id doesn't exists");                    
             }
-            else
-                logger.LogError("Course Id is null or empty string");
-            return BadRequest(null);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
 
         }
 
@@ -79,20 +84,24 @@ namespace CASWebApi.Controllers
         public ActionResult<Holiday> CreateHoliday(Holiday holiday)
         {
             logger.LogInformation("Creating a new holiday profile: " + holiday);
-            if(holiday != null)
+            if (holiday == null)
             {
-                holiday.Status = true;
-                if (_holidayService.Create(holiday))
-                {
-                    logger.LogInformation("A new holiday profile added successfully " + holiday);
-                    return CreatedAtRoute("getHolidayById", new { id = holiday.Id }, holiday);
-                }
-                else
-                    logger.LogError("Cannot create a holiday, duplicated id or wrong format");
+                logger.LogError("Holiday Id is null or empty string");
+                return BadRequest("Incorrect format of Id param");
             }
-            else
-                logger.LogError("Faculty object is null " + holiday);
-            return BadRequest(null);
+                holiday.Status = true;
+            try
+            {
+                _holidayService.Create(holiday);
+                  logger.LogInformation("A new holiday profile added successfully " + holiday);
+                   return CreatedAtRoute("getHolidayById", new { id = holiday.Id }, holiday);               
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
         }
 
         /// <summary>
@@ -104,28 +113,31 @@ namespace CASWebApi.Controllers
         public IActionResult UpdateHoliday(Holiday holidayIn)
         {
             logger.LogInformation("Updating existed Holiday profile: " + holidayIn.Id);
-            if(holidayIn != null)
+            if (holidayIn == null)
             {
-
+                logger.LogError("Holiday object is null or empty string");
+                return BadRequest("Incorrect format of holiday param");
+            }
+            try
+            {
                 var holiday = _holidayService.GetById(holidayIn.Id);
-
                 if (holiday != null)
                 {
-                    if (_holidayService.Update(holidayIn.Id, holidayIn))
-                    {
-                        logger.LogInformation("Given holiday profile Updated successfully");
-                        return Ok(true);
-                    }
-                    else
-                        logger.LogError("Cannot update the holiday profile: " + holidayIn.Id + " wrong format");
+                    _holidayService.Update(holidayIn.Id, holidayIn);
+                    logger.LogInformation("Given holiday profile Updated successfully");
+                    return Ok(true);
                 }
-                else
+               
                     logger.LogError("holiday with Id: " + holidayIn.Id + " doesn't exist");
-
+                    return NotFound("Holiday with given id doesn't exists");         
             }
-            else
-                logger.LogError("CourseIn objest is null");
-            return BadRequest(false);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
+
         }
 
         /// <summary>
@@ -137,17 +149,26 @@ namespace CASWebApi.Controllers
         public IActionResult DeleteHolidayById(string id)
         {
             logger.LogInformation("Deleting existed holiday profile: " + id);
-            if(id != null)
+            if (id == null)
             {
+                logger.LogError("Holiday object is null or empty string");
+                return BadRequest("Incorrect format of holiday param");
+            }
+            try
+            { 
                 var holiday = _holidayService.GetById(id);
                 if (holiday != null && _holidayService.RemoveById(holiday.Id))
                     return Ok(true);
-                else
-                    logger.LogError("Cannot get access to faculty collection in Db");
+                logger.LogError("Cannot get access to holiday collection in Db");
+                return NotFound("holiday object with given id doesn't exists");     
             }
-            else
-                logger.LogError("Id is not valid format or null");
-            return NotFound(false);
+            catch (Exception e)
+            {
+                logger.LogError("Cannot get access to db");
+                return BadRequest("No connection to database");
+            }
+
+
         }
     }
 }
