@@ -64,7 +64,7 @@ namespace CASWebApi.Controllers
 
                     if (admin == null)
                     {
-                        return NotFound();
+                        return NotFound("Cannot get access to Db");
                     }
                     else
                     {
@@ -136,7 +136,7 @@ namespace CASWebApi.Controllers
                     if (!(_adminService.Update(adminIn.Id, adminIn)))
                     {
                         logger.LogError("Cannot update the admin profile, something went wrong in UpdateAdmin");
-                        return NotFound(false);
+                        return NotFound("Cannot update the admin profile, something went wrong in UpdateAdmin");
                     }
                     return Ok(true);
                 }
@@ -144,7 +144,6 @@ namespace CASWebApi.Controllers
                 {
                     return BadRequest("No connection to database");
                 }
-
             }
             logger.LogError("A given admin model is not valid");
             return BadRequest("admin param or Id is null ");
@@ -174,7 +173,6 @@ namespace CASWebApi.Controllers
             }
             logger.LogError("Id is not valid or empty string");
             return NotFound("Id is not valid or empty string");
-
         }
     }
 }

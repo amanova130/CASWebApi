@@ -17,7 +17,7 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
 
 
-        public MessageService(IDbSettings settings, ILogger<HolidayService> logger)
+        public MessageService(IDbSettings settings, ILogger<MessageService> logger)
         {
             this.logger = logger;
             DbContext = settings;

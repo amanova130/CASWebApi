@@ -111,10 +111,8 @@ namespace CASWebApi.Controllers
                     logger.LogError("examination with Id: " + examIn.Id + " doesn't exist");
                     return NotFound("examination doesn't exists");
                 }
-
                 _examService.Update(examIn.Id, examIn);
-                        logger.LogInformation("Given Course profile Updated successfully");
-                        return Ok(true);                  
+                return Ok(true);                  
             }
             catch (Exception e)
             {

@@ -17,7 +17,7 @@ namespace CASWebApi.Controllers
     {
         private readonly ILogger logger;
         IMessageService _messageService;
-        public MessageController(IMessageService messageService)
+        public MessageController(IMessageService messageService, ILogger<MessageController> logger)
         {
             this.logger = logger;
             _messageService = messageService;
@@ -69,12 +69,11 @@ namespace CASWebApi.Controllers
             try
             {
                 var messages = _messageService.GetAllBySenderId(id);
-                logger.LogInformation("Fetched All messages data by sender id");
                 return messages;
             }
             catch (Exception e)
             {
-                return BadRequest("No connection to database");
+                return BadRequest(e);
             }
         }
 

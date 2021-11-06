@@ -15,7 +15,7 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
 
 
-        public TimeTableService(IDbSettings settings, ILogger<FacultyService> logger)
+        public TimeTableService(IDbSettings settings, ILogger<TimeTableService> logger)
         {
             DbContext = settings;
             this.logger = logger;

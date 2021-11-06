@@ -230,7 +230,6 @@ namespace CASWebApi.Controllers
             else
                 logger.LogError("CourseIn objest is null");
             return BadRequest("CourseIn objest is null");
-
         }
 
         /// <summary>

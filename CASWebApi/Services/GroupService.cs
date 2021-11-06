@@ -16,7 +16,7 @@ namespace CASWebApi.Services
         ITimeTableService _timeTableService;
         IDbSettings DbContext;
 
-        public GroupService(IDbSettings settings, ITimeTableService timeTableService, ILogger<CourseService> logger)
+        public GroupService(IDbSettings settings, ITimeTableService timeTableService, ILogger<GroupService> logger)
         {
             this.logger = logger;
             _timeTableService = timeTableService;

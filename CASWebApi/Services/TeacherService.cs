@@ -15,7 +15,7 @@ namespace CASWebApi.Services
         private readonly ILogger logger;
 
 
-        public TeacherService(IDbSettings settings, ILogger<FacultyService> logger)
+        public TeacherService(IDbSettings settings, ILogger<TeacherService> logger)
         {
             DbContext = settings;
             this.logger = logger;
