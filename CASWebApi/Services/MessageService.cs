@@ -119,7 +119,7 @@ namespace CASWebApi.Services
             client.UseDefaultCredentials = false;
             client.EnableSsl = true;
 
-            client.Credentials = new System.Net.NetworkCredential("casmanagment78@gmail.com", "casmanagment1337");
+            client.Credentials = new System.Net.NetworkCredential("casmanagment78@gmail.com", "casmanagment123");
 
             var mailMessage = new System.Net.Mail.MailMessage();
             mailMessage.IsBodyHtml = true;

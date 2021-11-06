@@ -125,7 +125,7 @@ namespace CASWebApi.Controllers
                     else
                     {
                         logger.LogError("Cannot get access to user collection in Db");
-                        return NotFound("User with id: "+user.UserName+" not found");
+                        return NotFound("User not found");
                     }
                 }
                 else
@@ -155,7 +155,7 @@ namespace CASWebApi.Controllers
                     return user;
                 }
                 else
-                    return NotFound("User email not found: " + user.Email);
+                    return NotFound("User email not found ");
             }
            catch(Exception e)
             {

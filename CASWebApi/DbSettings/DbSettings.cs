@@ -14,15 +14,10 @@ namespace CASWebApi.Models.DbModels
 
         public DbSettings(IOptions<Settings> settings)
         {
-            try
-            {
+            
                 var client = new MongoClient(settings.Value.ConnectionString);
                 database = client.GetDatabase(settings.Value.Database);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+           
             // database = client.GetDatabase(settings.Value.Database);
         }
 
