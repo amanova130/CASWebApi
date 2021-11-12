@@ -163,8 +163,7 @@ namespace CASWebApi.Services
             logger.LogInformation("facultyService:deleting a faculty profile with id : " + id);
             try
             {
-                bool res = DbContext.RemoveById<Faculty>("faculty", id);
-                DbContext.RemoveField<Faculty>("group", "fac_id", id);      
+                bool res = DbContext.RemoveById<Faculty>("faculty", id);    
                 return res;
             }
             catch (Exception e)

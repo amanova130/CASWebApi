@@ -254,7 +254,7 @@ namespace CASWebApi.Services
                     resetPass.Receiver[0] = email;
                     resetPass.Description = "Following your request, a password reset for the system was performed\n"
                                               + "Your new password is:\n"
-                                              + user.Password + "\n"
+                                              + user.Password + ". \n"
                                               + "Do not reply to this message.\n"
                                               + "This system message has been sent to you automatically because you have requested a password reset.";
                     resetPass.Subject = " Reset password";
